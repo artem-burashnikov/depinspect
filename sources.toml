@@ -1,4 +1,0 @@
-[ubuntu]
-jammy.main.arch.i386 = "http://archive.ubuntu.com/ubuntu/dists/jammy/main/binary-i386/Packages.xz"
-jammy.main.arch.amd64 = "http://archive.ubuntu.com/ubuntu/dists/jammy/main/binary-amd64/Packages.xz"
-jammy.main.arch.riscv64 = "http://ports.ubuntu.com/ubuntu-ports/dists/jammy/main/binary-riscv64/Packages.xz"
