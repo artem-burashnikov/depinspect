@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "depinspect"
+version = "0.1.0"
+description = "A tool to analyze linux package dependencies across multiple distributions and architectures"
+license = "MIT"
+authors = ["Artem Burashnikov <artem.burashnikov@gmail.com"]
+maintainers = ["Artem Burashnikov <artem.burashnikov@gmail.com"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^6.1.0"
+mypy = "^1.6.1"
+black = "^23.10.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
