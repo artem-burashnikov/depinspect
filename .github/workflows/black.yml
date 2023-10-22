@@ -1,17 +1,21 @@
 name: black format
+
 on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Setup python and black formatter
+    name: black formatter
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v3
       with:
         python-version: 3.x
-    - run: pip install --upgrade pip
-    - run: pip install "black<24"
+      
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install "black<24"
 
     - name: Format with black
       run: |
