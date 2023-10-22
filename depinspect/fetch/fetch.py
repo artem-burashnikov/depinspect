@@ -64,7 +64,7 @@ def main() -> None:
     Returns:
     None
     """
-    metadata_sources: configparser.ConfigParser = read_config("sources.toml")
+    metadata_sources = read_config("sources.toml")
 
     for section in metadata_sources.sections():
         for count, key in enumerate(metadata_sources[section]):
