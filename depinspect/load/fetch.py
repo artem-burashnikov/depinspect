@@ -1,7 +1,6 @@
 # Python 3.12 has built-in tomllib for parsing toml files.
 # Update python version?
 import configparser
-
 from pathlib import Path
 from urllib import request
 

@@ -1,4 +1,5 @@
-from urllib import request, error
+from urllib import error, request
+
 from depinspect.load.fetch import read_config
 
 
