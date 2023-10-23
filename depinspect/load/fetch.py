@@ -42,7 +42,7 @@ def fetch_packages_metadata(metadata_url: str, local_target_path: Path) -> None:
     - urllib.error.HTTPError: If the HTTP response status is not 200 (OK).
 
     Note:
-    The function uses a timeout of 15.0 seconds for the request.
+    The function uses an arbitrary timeout of 15.0 seconds for the request.
 
     Returns:
     None: The function does not return a value.
@@ -50,6 +50,21 @@ def fetch_packages_metadata(metadata_url: str, local_target_path: Path) -> None:
     with request.urlopen(request.Request(metadata_url), timeout=15.0) as response:
         if response.status == 200:
             request.urlretrieve(metadata_url, local_target_path)
+
+
+def create_temp_folder() -> Path:
+    """
+    Create a temporary folder in the project root.
+
+    Returns:
+    Path: Path to the created temporary folder.
+    """
+    temp_folder = Path.joinpath(Path.cwd(), ".temp")
+
+    if not temp_folder.exists():
+        temp_folder.mkdir()
+
+    return temp_folder
 
 
 def main() -> None:
@@ -65,6 +80,9 @@ def main() -> None:
     """
     metadata_sources = read_config("sources.cfg")
 
+    # Create a temporary folder
+    temp_folder = create_temp_folder()
+
     for section in metadata_sources.sections():
         for count, key in enumerate(metadata_sources[section]):
             # Construct file paths and extract metadata URL
@@ -73,7 +91,7 @@ def main() -> None:
             file_extension = ".xz"
             archive = ("").join([file_prefix, file_name, file_extension])
 
-            local_target_path = Path.joinpath(Path.cwd(), archive)
+            local_target_path = Path.joinpath(temp_folder, archive)
             metadata_url = metadata_sources[section][key]
             fetch_packages_metadata(metadata_url, local_target_path)
 
