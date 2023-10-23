@@ -71,12 +71,13 @@ def main() -> Path:
     for section in metadata_sources.sections():
         for count, key in enumerate(metadata_sources[section]):
             # Construct file paths and extract metadata URL
-            file_prefix = str(count)
+            file_prefix = count
             file_name = "_Packages"
             file_extension = ".xz"
-            archive = ("").join([file_prefix, file_name, file_extension])
+            local_target_path = (
+                temp_folder / f"{file_prefix}{file_name}{file_extension}"
+            )
 
-            local_target_path = Path.joinpath(temp_folder, archive)
             metadata_url = metadata_sources[section][key]
             fetch_packages_metadata(metadata_url, local_target_path)
 
