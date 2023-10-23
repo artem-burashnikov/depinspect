@@ -1,6 +1,7 @@
 # Python 3.12 has built-in tomllib for parsing toml files.
 # Update python version?
 import configparser
+import tempfile
 from pathlib import Path
 from urllib import request
 
@@ -52,36 +53,20 @@ def fetch_packages_metadata(metadata_url: str, local_target_path: Path) -> None:
             request.urlretrieve(metadata_url, local_target_path)
 
 
-def create_temp_folder() -> Path:
+def main() -> Path:
     """
-    Create a temporary folder in the project root.
+    Download Metadata from Configured Sources
+
+    This function serves as the main entry point of the script. It reads metadata sources
+    from the 'sources.cfg' configuration file, iterates through each section, and downloads
+    metadata from the specified URLs, saving them to local files within a temporary folder.
 
     Returns:
-    Path: Path to the created temporary folder.
-    """
-    temp_folder = Path.joinpath(Path.cwd(), ".temp")
-
-    if not temp_folder.exists():
-        temp_folder.mkdir()
-
-    return temp_folder
-
-
-def main() -> None:
-    """
-    The main entry point of the script.
-
-    This function reads metadata sources from the 'sources.toml' configuration file,
-    iterates through each section, and downloads metadata from the specified URLs,
-    saving them to local files.
-
-    Returns:
-    None
+    Path: The path to the temporary folder containing downloaded metadata.
     """
     metadata_sources = read_config("sources.cfg")
 
-    # Create a temporary folder
-    temp_folder = create_temp_folder()
+    temp_folder = Path(tempfile.mkdtemp(dir=Path.cwd(), prefix=".tmp"))
 
     for section in metadata_sources.sections():
         for count, key in enumerate(metadata_sources[section]):
@@ -94,6 +79,8 @@ def main() -> None:
             local_target_path = Path.joinpath(temp_folder, archive)
             metadata_url = metadata_sources[section][key]
             fetch_packages_metadata(metadata_url, local_target_path)
+
+    return temp_folder
 
 
 if __name__ == "__main__":
