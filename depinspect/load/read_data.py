@@ -6,6 +6,23 @@ from typing import List
 def parse_string_to_list(
     string: str, prefix_to_exclude: str, delimiter: str, result: List[str]
 ) -> List[str]:
+    """
+    Parse a string, exclude a specified prefix, split it using a delimiter,
+    and insert the resulting elements into a list.
+
+    Args:
+        string (str): The input string to be parsed.
+        prefix_to_exclude (str): The prefix to exclude from each element in the string.
+        delimiter (str): The delimiter used to split the string into elements.
+        result (List[str]): The list to which the parsed elements will be inserted.
+
+    Returns:
+        List[str]: The updated list containing the parsed elements.
+
+    Example:
+        If string = "Type: A, B, C", prefix_to_exclude = "Type:", delimiter = ",", and
+        result = [], the function will append ["A", "B", "C"] to result.
+    """
     for entry in map(
         lambda x: x.strip(), string[len(prefix_to_exclude) :].strip().split(delimiter)
     ):
