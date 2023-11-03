@@ -12,6 +12,7 @@ def remove_file(file_path: Path) -> None:
     Raises:
     - FileNotFoundError: If the file does not exist.
     - PermissionError: If there is a permission issue deleting the file.
+    - OSError: If there is another issue with removing the file.
 
     Returns:
     None: The function does not return a value.
@@ -23,6 +24,8 @@ def remove_file(file_path: Path) -> None:
         print(f"Directory '{file_path}' not found.")
     except PermissionError:
         print(f"Permission error: Unable to delete directory '{file_path}'.")
+    except OSError as e:
+        print(f"Error removing directory '{file_path}': {e}")
 
 
 def remove_dir(directory_path: Path) -> None:
@@ -35,7 +38,7 @@ def remove_dir(directory_path: Path) -> None:
     Raises:
     - NotADirectoryError: If the specified path does not point to a directory.
     - PermissionError: If there is a permission issue deleting the directory.
-    - OSError: If there is an issue with removing the directory.
+    - OSError: If there is another issue with removing the directory.
 
     Returns:
     None: The function does not return a value.
@@ -53,7 +56,7 @@ def remove_dir(directory_path: Path) -> None:
 
 def list_files_in_directory(directory_path: Path) -> List[Path]:
     """
-    List all files in a directory.
+    List all files in a directory skipping sub-directories.
 
     Parameters:
     - directory_path (Path): The path to the directory.
@@ -65,7 +68,9 @@ def list_files_in_directory(directory_path: Path) -> List[Path]:
     List[Path]: A list of Path objects representing the files in the directory.
     """
     if directory_path.is_dir() is True:
-        files = [path for path in Path.iterdir(directory_path)]
+        files = [
+            path for path in Path.iterdir(directory_path) if path.is_file() is True
+        ]
         return files
     else:
         raise NotADirectoryError
