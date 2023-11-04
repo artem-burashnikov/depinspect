@@ -12,7 +12,7 @@ def parse_string_to_list(
 
     Args:
         string (str): The input string to be parsed.
-        prefix_to_exclude (str): The prefix to exclude from each element in the string.
+        prefix_to_exclude (str): The prefix to exclude from the input string.
         delimiter (str): The delimiter used to split the string into elements.
         result (List[str]): The list to which the parsed elements will be inserted.
 
@@ -21,7 +21,7 @@ def parse_string_to_list(
 
     Example:
         If string = "Type: A, B, C", prefix_to_exclude = "Type:", delimiter = ",", and
-        result = [], the function will append ["A", "B", "C"] to result.
+        result = [], the function will append ["C", "B", "A"] to result.
     """
     for entry in map(
         lambda x: x.strip(), string[len(prefix_to_exclude) :].strip().split(delimiter)
