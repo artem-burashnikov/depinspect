@@ -69,10 +69,11 @@ def main() -> Path:
     temp_folder = Path(tempfile.mkdtemp(dir=Path.cwd(), prefix=".tmp"))
 
     for section in metadata_sources.sections():
-        for count, key in enumerate(metadata_sources[section]):
-            # Construct file paths and extract metadata URL
-            file_prefix = count
-            file_name = "_Packages"
+        for key in metadata_sources[section]:
+            # Construct file paths and extract metadata URL.
+            # [-1] index returns an architecture (e.g. i386).
+            file_prefix = key.split(".")[-1]
+            file_name = "_packages"
             file_extension = ".xz"
             local_target_path = (
                 temp_folder / f"{file_prefix}{file_name}{file_extension}"
