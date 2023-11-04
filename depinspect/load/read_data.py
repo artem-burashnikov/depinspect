@@ -46,8 +46,8 @@ def process_metadata(file_path: Path) -> None:
     try:
         with open(file_path, "r") as file:
             package: str = ""
-            architecture: List[str] = []
             version: str = ""
+            architecture: List[str] = []
             depends: List[str] = []
             recommends: List[str] = []
 
@@ -56,20 +56,20 @@ def process_metadata(file_path: Path) -> None:
                     # Extract the 'Package' information
                     package = line[len("Package:") :].strip()
 
+                elif line.startswith("Version:"):
+                    # Extract the 'Version' information
+                    version = line[len("Version:") :].strip()
+
                 elif line.startswith("Architecture:"):
                     # Extract the 'Architecture' information.
                     # Several acrhitecture strings provided by a '$ dpkg-architecture -L' command
-                    # could be listed.
+                    # COULD be listed. Usually any, all or specific.
                     parse_string_to_list(
                         string=line,
                         prefix_to_exclude="Architecture:",
                         delimiter=" ",
                         result=architecture,
                     )
-
-                elif line.startswith("Version:"):
-                    # Extract the 'Version' information
-                    version = line[len("Version:") :].strip()
 
                 elif line.startswith("Depends:"):
                     # Extract the 'Depends' information as a list
@@ -90,7 +90,7 @@ def process_metadata(file_path: Path) -> None:
                     )
 
                 elif line.startswith("\n"):
-                    # Process metadata when a blank line is encountered
+                    # Process previously red metadata when a blank line is encountered
                     if len(package) != 0:
                         print(
                             f"Package: {package}\nArchitecture: {architecture}\nVersion: {version}\nDepends: {depends}\nRecommends: {recommends}"
@@ -98,8 +98,8 @@ def process_metadata(file_path: Path) -> None:
                         print("==================================================")
 
                     package = ""
-                    architecture.clear()
                     version = ""
+                    architecture.clear()
                     depends.clear()
                     recommends.clear()
 
