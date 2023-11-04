@@ -20,12 +20,12 @@ def remove_file(file_path: Path) -> None:
     try:
         Path.unlink(file_path)
         print(f"File '{file_path}' deleted successfully.")
-    except NotADirectoryError:
-        print(f"Directory '{file_path}' not found.")
-    except PermissionError:
-        print(f"Permission error: Unable to delete directory '{file_path}'.")
+    except NotADirectoryError as e:
+        print(f"Directory '{file_path}' not found\n{e}")
+    except PermissionError as e:
+        print(f"Permission error: Unable to delete directory '{file_path}'\n{e}")
     except OSError as e:
-        print(f"Error removing directory '{file_path}': {e}")
+        print(f"Error removing directory '{file_path}'\n{e}")
 
 
 def remove_dir(directory_path: Path) -> None:
@@ -72,5 +72,27 @@ def list_files_in_directory(directory_path: Path) -> List[Path]:
             path for path in Path.iterdir(directory_path) if path.is_file() is True
         ]
         return files
+    else:
+        raise NotADirectoryError
+
+
+def list_subdirs_in_directory(directory_path: Path) -> List[Path]:
+    """
+    List all sub-directories in a directory skipping files.
+
+    Parameters:
+    - directory_path (Path): The path to the directory.
+
+    Raises:
+    - FileNotFoundError: If the specified parent directory does not exist.
+
+    Returns:
+    List[Path]: A list of Path objects representing the sub-directories in the directory.
+    """
+    if directory_path.is_dir() is True:
+        sub_dirs = [
+            path for path in Path.iterdir(directory_path) if path.is_dir() is True
+        ]
+        return sub_dirs
     else:
         raise NotADirectoryError

@@ -1,6 +1,7 @@
 import lzma
 import sys
 from pathlib import Path
+from shutil import rmtree
 
 from depinspect.load import fetch, file_management
 
@@ -36,20 +37,30 @@ def main() -> Path:
     """
     archives_dir = fetch.main()
     archives = file_management.list_files_in_directory(archives_dir)
-
-    for count, archive_path in enumerate(archives):
-        try:
+    try:
+        for archive_path in archives:
             # Construct output file path
-            file_prefix = count
-            file_name = "_Packages"
+            # archive_path.parts[-1] returns for example amd64_pacakges.xz
+            file_name = archive_path.parts[-1].split(".")[0]
             file_extension = ".txt"
-            output_path = archives_dir / f"{file_prefix}{file_name}{file_extension}"
+            output_path = archives_dir / f"{file_name}{file_extension}"
 
             extract_xz_archive(archive_path, output_path)
+            file_management.remove_file(archive_path)
+    except Exception as e:
+        print(f"Failed to extract {archive_path}\n{e}")
+        print("Removing downloaded files and temprorary ditectory")
+        try:
+            rmtree(archives_dir)
+            print(
+                f"Temporary directory {archives_dir} and containing files were removed successfully"
+            )
         except Exception as e:
-            print(f"Failed to extract {archive_path}", {e})
-            sys.exit(1)
-        file_management.remove_file(archive_path)
+            print(
+                f"There was an error trying to clean up temproraty directory {archives_dir}\nSome files may be left and will have to be removed manually."
+            )
+
+        sys.exit(1)
 
     return archives_dir
 
