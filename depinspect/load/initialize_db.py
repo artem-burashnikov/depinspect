@@ -29,7 +29,7 @@ def execute_query_with_context(
         sys.exit(1)
 
 
-def create_new_db() -> None:
+def initialize_new_db() -> None:
     """
     Creates a new SQLite database named 'dependencies.db' and initializes the 'Packages' table.
 
@@ -37,7 +37,7 @@ def create_new_db() -> None:
         SystemExit: Exits the program if an exception occurs during database creation.
     """
     try:
-        # Open a specified database or create one if it doesn't exist.
+        # Open a connection to a specified database or create new database if it doesn't exist.
         connection = sqlite3.connect("dependencies.db")
 
         connection.execute(
@@ -48,7 +48,7 @@ def create_new_db() -> None:
             "CREATE TABLE IF NOT EXISTS Dependencies (package_id INTEGER, dependency_name TEXT, FOREIGN KEY (package_id) REFERENCES Packages(id))"
         )
 
-        # Connections has to be manually closed.
+        # Connection has to be manually closed.
         connection.close()
     except sqlite3.Error as sql_err:
         print(f"There was an eror trying to create a database:\n{sql_err}")
@@ -153,7 +153,7 @@ def process_ubuntu_metadata(file_path: Path) -> None:
 
 
 def main() -> None:
-    create_new_db()
+    pass
 
 
 if __name__ == "__main__":
