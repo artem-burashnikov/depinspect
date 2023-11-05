@@ -3,7 +3,10 @@ from shutil import rmtree
 from sqlite3 import Connection, connect
 from typing import List
 
-from depinspect.load import extract, files, sqlite_db
+from depinspect.load.extract import process_archives
+from depinspect.load.fetch import fetch_and_save_metadata_to_tmp
+from depinspect.load.files import list_files_in_directory, remove_file
+from depinspect.load.sqlite_db import new_db
 
 ARCH_ALL_ANY = ["i386", "amd64", "riscv64"]
 
@@ -102,24 +105,25 @@ def process_metadata(file_path: Path, db_connection: Connection) -> None:
 
 
 def main() -> None:
-    tmp_dir = extract.main()
+    tmp_dir = fetch_and_save_metadata_to_tmp()
+    process_archives(tmp_dir)
 
     if Path("dependencies.db").is_file():
-        files.remove_file(Path("dependencies.db"))
+        remove_file(Path("dependencies.db"))
 
-    sqlite_db.new()
+    new_db()
 
     db = connect("dependencies.db")
 
     try:
-        for file_path in files.list_files_in_directory(tmp_dir):
+        for file_path in list_files_in_directory(tmp_dir):
             process_metadata(file_path, db)
     except Exception as e:
         db.close()
         print(f"{e}")
         if Path("dependencies.db").is_file():
             print("Removing database")
-            files.remove_file(Path("dependencies.db"))
+            remove_file(Path("dependencies.db"))
     finally:
         print("Closing database connection")
         db.close()

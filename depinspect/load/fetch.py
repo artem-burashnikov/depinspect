@@ -47,7 +47,7 @@ def pull_target_from_URL(target_url: str, local_target_path: Path) -> None:
             request.urlretrieve(target_url, local_target_path)
 
 
-def fetch_and_save_metadata() -> Path:
+def fetch_and_save_metadata_to_tmp() -> Path:
     """
     Download metadata from configured sources and save them to temporary files.
 

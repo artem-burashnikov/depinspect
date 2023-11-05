@@ -1,9 +1,8 @@
 import lzma
-import sys
 from pathlib import Path
 from shutil import rmtree
 
-from depinspect.load import fetch, files
+from depinspect.load.files import list_files_in_directory, remove_file
 
 
 def extract_xz_archive(archive_path: Path, output_path: Path) -> None:
@@ -28,25 +27,36 @@ def extract_xz_archive(archive_path: Path, output_path: Path) -> None:
                 output_file.write(extracted_data)
 
 
-def main() -> Path:
+def process_archives(archives_dir: Path) -> Path:
     """
     Process archives by extracting contents and removing original archive files.
+
+    This function takes a directory containing archives, extracts the contents of each
+    archive, removes the original archive files, and returns the path to the directory
+    containing the processed archives.
+
+    Parameters:
+    - archives_dir (Path): The path to the directory containing archives.
+
+    Raises:
+    - Exception: If there is an issue with extracting or cleaning up the archives.
 
     Returns:
     Path: The path to the directory containing processed archives.
     """
-    archives_dir = fetch.main()
-    archives = files.list_files_in_directory(archives_dir)
+    archives_files = list_files_in_directory(archives_dir)
     try:
-        for archive_path in archives:
+        for archive_path in archives_files:
             # Construct output file path
             # archive_path.parts[-1] returns for example amd64_pacakges.xz
             file_name = archive_path.parts[-1].split(".")[0]
             file_extension = ".txt"
             output_path = archives_dir / f"{file_name}{file_extension}"
-
             extract_xz_archive(archive_path, output_path)
-            files.remove_file(archive_path)
+
+            if archive_path.is_file():
+                remove_file(archive_path)
+
     except Exception as e:
         print(f"Failed to extract {archive_path}\n{e}")
         print("Removing downloaded files and temprorary ditectory")
@@ -60,10 +70,4 @@ def main() -> Path:
                 f"There was an error trying to clean up temproraty directory {archives_dir}\nSome files may be left and will have to be removed manually."
             )
 
-        sys.exit(1)
-
     return archives_dir
-
-
-if __name__ == "__main__":
-    main()

@@ -5,7 +5,7 @@ from pathlib import Path
 from depinspect.load import files
 
 
-def new() -> None:
+def new_db() -> None:
     """
     Creates a new SQLite database named 'dependencies.db' and initializes pre-defined tables.
 
@@ -32,16 +32,9 @@ def new() -> None:
         connection.close()
 
 
-def main() -> None:
-    pass
-
-
 """
 SELECT Dependencies.package_id, Dependencies.dependency_name
 FROM Dependencies
 JOIN Packages ON Dependencies.package_id = Packages.id
 WHERE Packages.distribution = ? AND Packages.package_name = ? AND Packages.architecture = ?;
 """
-
-if __name__ == "__main__":
-    main()
