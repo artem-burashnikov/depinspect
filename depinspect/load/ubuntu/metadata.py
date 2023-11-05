@@ -1,6 +1,6 @@
 from pathlib import Path
 from shutil import rmtree
-from sqlite3 import Connection, connect
+from sqlite3 import connect
 from typing import List
 
 from depinspect.load.extract import process_archives
@@ -39,7 +39,9 @@ def parse_string_to_list(
     return result
 
 
-def process_metadata(file_path: Path, db_connection: Connection) -> None:
+def process_metadata_into_db(file_path: Path, db_path: Path) -> None:
+    db_connection = connect(db_path)
+
     with db_connection:
         with open(file_path, "r") as file:
             print(f"Processing packages metadata from {file_path}.\nPlease wait")
@@ -111,22 +113,17 @@ def main() -> None:
     if Path("dependencies.db").is_file():
         remove_file(Path("dependencies.db"))
 
-    new_db()
-
-    db = connect("dependencies.db")
+    db = new_db(db_name="dependencies.db", output_path=Path.cwd())
 
     try:
         for file_path in list_files_in_directory(tmp_dir):
-            process_metadata(file_path, db)
+            process_metadata_into_db(file_path, db)
     except Exception as e:
-        db.close()
-        print(f"{e}")
-        if Path("dependencies.db").is_file():
+        print(f"There was an exception trying to process ubuntu metadata: {e}")
+        if db.is_file():
             print("Removing database")
-            remove_file(Path("dependencies.db"))
+            remove_file(db)
     finally:
-        print("Closing database connection")
-        db.close()
         print("Cleaning up temporary files and directory")
         rmtree(tmp_dir)
 
