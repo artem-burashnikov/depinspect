@@ -67,10 +67,8 @@ def list_files_in_directory(directory_path: Path) -> List[Path]:
     Returns:
     List[Path]: A list of Path objects representing the files in the directory.
     """
-    if directory_path.is_dir() is True:
-        files = [
-            path for path in Path.iterdir(directory_path) if path.is_file() is True
-        ]
+    if directory_path.is_dir():
+        files = [path for path in Path.iterdir(directory_path) if path.is_file()]
         return files
     else:
         raise NotADirectoryError
@@ -89,10 +87,8 @@ def list_subdirs_in_directory(directory_path: Path) -> List[Path]:
     Returns:
     List[Path]: A list of Path objects representing the sub-directories in the directory.
     """
-    if directory_path.is_dir() is True:
-        sub_dirs = [
-            path for path in Path.iterdir(directory_path) if path.is_dir() is True
-        ]
+    if directory_path.is_dir():
+        sub_dirs = [path for path in Path.iterdir(directory_path) if path.is_dir()]
         return sub_dirs
     else:
         raise NotADirectoryError
