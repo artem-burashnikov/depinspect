@@ -20,6 +20,9 @@ ruff = "^0.1.1"
 # Assume Python 3.10
 target-version = "py310"
 
+[tool.poetry.scripts]
+depinspect = "depinspect.load.ubuntu.metadata:main"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
