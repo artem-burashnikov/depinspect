@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 from shutil import rmtree
 
-from depinspect.load import fetch, file_management
+from depinspect.load import fetch, files
 
 
 def extract_xz_archive(archive_path: Path, output_path: Path) -> None:
@@ -36,7 +36,7 @@ def main() -> Path:
     Path: The path to the directory containing processed archives.
     """
     archives_dir = fetch.main()
-    archives = file_management.list_files_in_directory(archives_dir)
+    archives = files.list_files_in_directory(archives_dir)
     try:
         for archive_path in archives:
             # Construct output file path
@@ -46,7 +46,7 @@ def main() -> Path:
             output_path = archives_dir / f"{file_name}{file_extension}"
 
             extract_xz_archive(archive_path, output_path)
-            file_management.remove_file(archive_path)
+            files.remove_file(archive_path)
     except Exception as e:
         print(f"Failed to extract {archive_path}\n{e}")
         print("Removing downloaded files and temprorary ditectory")
