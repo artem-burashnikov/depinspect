@@ -5,16 +5,17 @@ from pathlib import Path
 from depinspect.load import files
 
 
-def new_db() -> None:
+def new_db(db_name: str, output_path: Path) -> Path:
     """
     Creates a new SQLite database named 'dependencies.db' and initializes pre-defined tables.
 
     Raises:
         SystemExit: Exits the program if an exception occurs during database creation.
     """
+    db_path = Path.joinpath(output_path, Path(f"{db_name}"))
     try:
         # Open a connection to a specified database or create new database if it doesn't exist.
-        connection = sqlite3.connect("dependencies.db")
+        connection = sqlite3.connect(db_path)
 
         connection.execute(
             "CREATE TABLE IF NOT EXISTS Packages (id INTEGER PRIMARY KEY AUTOINCREMENT, package_name TEXT, version TEXT, distribution TEXT, architecture TEXT)"
@@ -23,6 +24,7 @@ def new_db() -> None:
         connection.execute(
             "CREATE TABLE IF NOT EXISTS Dependencies (package_id INTEGER, dependency_name TEXT, FOREIGN KEY (package_id) REFERENCES Packages(id))"
         )
+        return db_path
     except sqlite3.Error as sql_err:
         print(f"There was an eror trying to create a database:\n{sql_err}")
         if Path("dependencies.db").exists():
