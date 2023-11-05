@@ -8,9 +8,6 @@ def read_config(config_file_path: str) -> configparser.ConfigParser:
     """
     Read and parse a configuration file.
 
-    This function takes the path to a configuration file, reads its contents, and
-    parses it using the `configparser` module.
-
     Parameters:
     - config_file_path (str): The path to the configuration file.
 
@@ -24,16 +21,15 @@ def read_config(config_file_path: str) -> configparser.ConfigParser:
     return config
 
 
-def fetch_packages_metadata(metadata_url: str, local_target_path: Path) -> None:
+def pull_target_from_URL(target_url: str, local_target_path: Path) -> None:
     """
-    Fetch and save metadata from a given URL.
+    Fetch and save target from a given URL.
 
-    This function downloads metadata from a specified URL and saves it to a local file.
-    The download uses the urllib library, and it automatically handles chunked (streaming)
-    transfer encoding.
+    This function downloads target data from a specified URL and saves it to a local file.
+    The download uses the urllib library.
 
     Parameters:
-    - metadata_url (str): The URL from which to fetch metadata.
+    - target_url (str): The URL from which to fetch target data.
     - local_target_path (Path): The local file path to save the downloaded metadata.
 
     Raises:
@@ -46,18 +42,18 @@ def fetch_packages_metadata(metadata_url: str, local_target_path: Path) -> None:
     Returns:
     None: The function does not return a value.
     """
-    with request.urlopen(request.Request(metadata_url), timeout=15.0) as response:
+    with request.urlopen(request.Request(target_url), timeout=15.0) as response:
         if response.status == 200:
-            request.urlretrieve(metadata_url, local_target_path)
+            request.urlretrieve(target_url, local_target_path)
 
 
-def main() -> Path:
+def fetch_and_save_metadata() -> Path:
     """
-    Download Metadata from Configured Sources
+    Download metadata from configured sources and save them to temporary files.
 
-    This function serves as the main entry point of the script. It reads metadata sources
-    from the 'sources.cfg' configuration file, iterates through each section, and downloads
-    metadata from the specified URLs, saving them to local files within a temporary folder.
+    This function reads metadata sources from the 'sources.cfg' configuration file,
+    iterates through each section, and downloads metadata from the specified URLs.
+    The downloaded metadata is saved to local files within a temporary folder.
 
     Returns:
     Path: The path to the temporary folder containing downloaded metadata.
@@ -68,8 +64,6 @@ def main() -> Path:
 
     for section in metadata_sources.sections():
         for key in metadata_sources[section]:
-            # Construct file paths and extract metadata URL.
-            # [-1] index returns an architecture (e.g. i386).
             file_prefix = key.split(".")[-1]
             file_name = "_packages"
             file_extension = ".xz"
@@ -78,10 +72,6 @@ def main() -> Path:
             )
 
             metadata_url = metadata_sources[section][key]
-            fetch_packages_metadata(metadata_url, local_target_path)
+            pull_target_from_URL(metadata_url, local_target_path)
 
     return temp_folder
-
-
-if __name__ == "__main__":
-    main()
