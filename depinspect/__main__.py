@@ -76,7 +76,7 @@ def main(
 
     if update:
         init()
-        logging.info("Re-initialization is completed.")
+        logging.info("Re-initialization is complete.")
         ctx.exit(0)
 
     if not Path.joinpath(project_root, "dependencies.db").is_file():

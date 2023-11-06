@@ -53,10 +53,13 @@ Usage: depinspect [OPTIONS]
 Options:
   --package1 <TEXT TEXT>...  Provide the first package name alog with an
                              architecture separated by whitespace. Example:
-                             --package1 package1_name arch_1  [required]
+                             --package1 package1-name arch1
   --package2 <TEXT TEXT>...  Provide the second package name alog with an
                              architecture separated by whitespace. Example:
-                             --package2 package2_name arch_2  [required]
+                             --package2 package2-name arch2
+  --update                   Forcefully re-initialize database. This removes
+                             old database, fetches all defined metadata and
+                             stores it in a new database.
   --help                     Show this message and exit.
 ```
 
