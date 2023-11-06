@@ -25,23 +25,79 @@ logging.basicConfig(
     "--package1",
     nargs=2,
     type=(str, str),
-    required=True,
+    # required=True,
     help="Provide the first package name alog with an architecture separated by whitespace. Example: --package1 package1-name arch1",
 )
 @click.option(
     "--package2",
     nargs=2,
     type=(str, str),
-    required=True,
+    # required=True,
     help="Provide the second package name alog with an architecture separated by whitespace. Example: --package2 package2-name arch2",
 )
-def main(package1: Tuple[str, str], package2: Tuple[str, str]) -> None:
+@click.option(
+    "--update",
+    is_flag=True,
+    is_eager=True,
+    help="Forcefully re-initialize database. This removes old database, fetches all defined metadata and stores it in a new database.",
+)
+@click.pass_context
+def main(
+    ctx: click.Context,
+    package1: Tuple[str, str],
+    package2: Tuple[str, str],
+    update: bool,
+) -> None:
+    def init() -> None:
+        tmp_dir = Path(tempfile.mkdtemp(dir=project_root, prefix=".tmp"))
+
+        fetch_and_save_metadata(tmp_dir)
+
+        process_archives(tmp_dir)
+
+        db_path = sqlite_db.db_new("dependencies.db", project_root)
+
+        try:
+            run_ubuntu_metadata_processing(tmp_dir, db_path)
+        except Exception:
+            logging.exception(
+                "There was an exception trying to process ubuntu metadata."
+            )
+            if db_path.is_file():
+                logging.info("Removing database as it may be corrupted.")
+                sqlite_db.db_remove(db_path)
+        finally:
+            logging.info("Cleaning up.")
+            rmtree(tmp_dir)
+            logging.info("Done.")
+
+    # 'some_dir/depinspect/depinspect/main.py' returns 'some_dir/depinspect/'
+    project_root = Path.absolute(Path(__file__)).parents[1]
+
+    if update:
+        init()
+        logging.info("Re-initialization is completed.")
+        ctx.exit(0)
+
+    if not Path.joinpath(project_root, "dependencies.db").is_file():
+        init()
+    else:
+        logging.info("Using existing database")
+
+    if not package1 or not package2:
+        print(
+            "\n--package1 and --package2 are required arguments\n\n"
+            + main.get_help(ctx)
+        )
+        ctx.exit(1)
+
     package1_name, architecture1 = package1[0].lower(), package1[1].lower()
     if not is_valid_package_name(package1_name):
         raise click.BadOptionUsage(
             package1_name,
             f"Name of the package1 should match correct syntax. Your input: {package1_name}",
         )
+
     if not is_valid_architecture_name(architecture1):
         raise click.BadOptionUsage(
             architecture1,
@@ -60,31 +116,8 @@ def main(package1: Tuple[str, str], package2: Tuple[str, str]) -> None:
             f"Archicetrure2 should be one of the strings provided by a '$ dpkg-architecture -L' command. Your input: {architecture2}",
         )
 
-    logging.info(f"package1: {package1_name}, arch1: {architecture1}")
-    logging.info(f"package2: {package2_name}, arch2: {architecture2}")
-
-    # 'some_dir/depinspect/depinspect/main.py' returns 'some_dir/depinspect/'
-    project_root = Path.absolute(Path(__file__)).parents[1]
-
-    tmp_dir = Path(tempfile.mkdtemp(dir=project_root, prefix=".tmp"))
-
-    fetch_and_save_metadata(tmp_dir)
-
-    process_archives(tmp_dir)
-
-    db_path = sqlite_db.db_new("dependencies.db", project_root)
-
-    try:
-        run_ubuntu_metadata_processing(tmp_dir, db_path)
-    except Exception:
-        logging.exception("There was an exception trying to process ubuntu metadata.")
-        if db_path.is_file():
-            logging.info("Removing database as it may be corrupted.")
-            sqlite_db.db_remove(db_path)
-    finally:
-        logging.info("Cleaning up.")
-        rmtree(tmp_dir)
-        logging.info("Done.")
+    logging.info("Logic here!")
+    ctx.exit(0)
 
 
 if __name__ == "__main__":
