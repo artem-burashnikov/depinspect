@@ -1,13 +1,12 @@
 import logging
+import sys
 from pathlib import Path
 from shutil import rmtree
 from sqlite3 import connect
 from typing import List
 
-from depinspect.load.extract import process_archives
-from depinspect.load.fetch import fetch_and_save_metadata_to_tmp
-from depinspect.load.files import list_files_in_directory, remove_file
-from depinspect.load.sqlite_db import new_db
+from depinspect.load import sqlite_db
+from depinspect.load.files import list_files_in_directory
 
 
 def parse_string_to_list(
@@ -39,11 +38,19 @@ def parse_string_to_list(
 
 
 def process_metadata_into_db(file_path: Path, db_path: Path) -> None:
+    if file_path.suffix != ".txt":
+        logging.exception(f"{file_path.name} is not a valid metadata file.")
+        sys.exit(1)
+
+    if db_path.suffix != ".db":
+        logging.exception(f"{db_path.name} is not a valid sqlite3 database.")
+        sys.exit(1)
+
     db_connection = connect(db_path)
 
     with db_connection:
         with open(file_path, "r") as file:
-            logging.info(f"Processing packages metadata from {file_path}.\nPlease wait")
+            logging.info(f"Processing packages metadata from {file_path.name}.")
             package_name: str = ""
             version: str = ""
             architecture: List[str] = []
@@ -100,32 +107,26 @@ def process_metadata_into_db(file_path: Path, db_path: Path) -> None:
                     architecture.clear()
                     depends.clear()
 
-        logging.info(f"File {file_path} has been processed succesfully.")
+        logging.info(f"File {file_path.name} has been processed succesfully.")
 
     db_connection.close()
 
 
-def main() -> None:
-    tmp_dir = fetch_and_save_metadata_to_tmp()
-    process_archives(tmp_dir)
-
-    if Path("dependencies.db").is_file():
-        remove_file(Path("dependencies.db"))
-
-    db = new_db(db_name="dependencies.db", output_path=Path.cwd())
-
+def run_ubuntu_metadata_processing(tmp_dir: Path, db_path: Path) -> None:
     try:
-        for file_path in list_files_in_directory(tmp_dir):
-            process_metadata_into_db(file_path, db)
+        txt_files = [
+            txt_file
+            for txt_file in list_files_in_directory(tmp_dir)
+            if txt_file.suffix == ".txt"
+        ]
+        for file_path in txt_files:
+            process_metadata_into_db(file_path, db_path)
     except Exception:
         logging.exception("There was an exception trying to process ubuntu metadata.")
-        if db.is_file():
-            logging.info("Removing database")
-            remove_file(db)
+        if db_path.is_file():
+            logging.info("Removing database as it may be corrupted.")
+            sqlite_db.db_remove(db_path)
     finally:
-        logging.info("Cleaning up temporary files and directory")
+        logging.info("Cleaning up.")
         rmtree(tmp_dir)
-
-
-if __name__ == "__main__":
-    main()
+        logging.info("Done.")

@@ -1,37 +1,46 @@
+import logging
 import sqlite3
-import sys
 from pathlib import Path
 
 from depinspect.load import files
 
 
-def new_db(db_name: str, output_path: Path) -> Path:
-    """
-    Creates a new SQLite database named 'dependencies.db' and initializes pre-defined tables.
+def db_remove(db_path: Path) -> bool:
+    file_extension = db_path.suffix
+    if file_extension == ".db":
+        logging.info("Removing database.")
+        files.remove_file(db_path)
+        logging.info("Successfully removed database.")
+        return True
+    logging.warning(f"File specified at {db_path} is not an sqlite3 database.")
+    return False
 
-    Raises:
-        SystemExit: Exits the program if an exception occurs during database creation.
-    """
+
+def db_new(db_name: str, output_path: Path) -> Path:
     db_path = Path.joinpath(output_path, Path(f"{db_name}"))
-    try:
-        # Open a connection to a specified database or create new database if it doesn't exist.
-        connection = sqlite3.connect(db_path)
 
-        connection.execute(
-            "CREATE TABLE IF NOT EXISTS Packages (id INTEGER PRIMARY KEY AUTOINCREMENT, package_name TEXT, version TEXT, distribution TEXT, architecture TEXT)"
-        )
+    if db_path.is_file():
+        logging.warning(f"sqlite3 database alread exists at: {db_path}.")
+        try:
+            db_remove(db_path)
+        except Exception:
+            logging.exception(
+                "There was an exception trying to remove existing database."
+            )
 
-        connection.execute(
-            "CREATE TABLE IF NOT EXISTS Dependencies (package_id INTEGER, dependency_name TEXT, FOREIGN KEY (package_id) REFERENCES Packages(id))"
-        )
-        return db_path
-    except sqlite3.Error as sql_err:
-        print(f"There was an eror trying to create a database:\n{sql_err}")
-        if Path("dependencies.db").exists():
-            files.remove_file(Path("dependencies.db"))
-        sys.exit(1)
-    finally:
-        connection.close()
+    logging.info("Creating and initializing new database.")
+    connection = sqlite3.connect(db_path)
+
+    connection.execute(
+        "CREATE TABLE IF NOT EXISTS Packages (id INTEGER PRIMARY KEY AUTOINCREMENT, package_name TEXT, version TEXT, distribution TEXT, architecture TEXT)"
+    )
+
+    connection.execute(
+        "CREATE TABLE IF NOT EXISTS Dependencies (package_id INTEGER, dependency_name TEXT, FOREIGN KEY (package_id) REFERENCES Packages(id))"
+    )
+    connection.close()
+    logging.info("Successfully initialized new database.")
+    return db_path
 
 
 """

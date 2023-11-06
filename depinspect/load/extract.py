@@ -3,7 +3,7 @@ import lzma
 from pathlib import Path
 from shutil import rmtree
 
-from depinspect.load.files import list_files_in_directory, remove_file
+from depinspect.load.files import list_files_in_directory
 
 
 def extract_xz_archive(archive_path: Path, output_path: Path) -> None:
@@ -49,14 +49,10 @@ def process_archives(archives_dir: Path) -> Path:
     try:
         for archive_path in archives_files:
             # Construct output file path
-            # archive_path.parts[-1] returns for example amd64_pacakges.xz
-            file_name = archive_path.parts[-1].split(".")[0]
+            file_name = archive_path.stem
             file_extension = ".txt"
             output_path = archives_dir / f"{file_name}{file_extension}"
             extract_xz_archive(archive_path, output_path)
-
-            if archive_path.is_file():
-                remove_file(archive_path)
 
     except Exception:
         logging.exception(f"Failed to extract {archive_path}")

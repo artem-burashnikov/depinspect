@@ -20,13 +20,13 @@ def remove_file(file_path: Path) -> None:
     """
     try:
         Path.unlink(file_path)
-        logging.info(f"File '{file_path}' deleted successfully.")
-    except NotADirectoryError:
-        logging.exception(f"Directory '{file_path}' not found.")
+        logging.info(f"File '{file_path.name}' removed successfully.")
+    except FileNotFoundError:
+        logging.exception(f"File '{file_path.name}' was not found.")
     except PermissionError:
-        logging.exception(f"Permission error: Unable to delete directory '{file_path}")
+        logging.exception(f"Permission error: Unable to remove file '{file_path.name}")
     except OSError:
-        logging.exception(f"Error removing directory '{file_path}")
+        logging.exception(f"Error removing file '{file_path.name}")
 
 
 def remove_dir(directory_path: Path) -> None:
@@ -46,15 +46,13 @@ def remove_dir(directory_path: Path) -> None:
     """
     try:
         Path.rmdir(directory_path)
-        logging.info(f"Directory '{directory_path}' deleted successfully.")
+        logging.info(f"Directory '{directory_path.name}' removed successfully.")
     except NotADirectoryError:
-        logging.exception(f"File '{directory_path}' not found.")
+        logging.exception(f"'{directory_path.name}' is not a directory.")
     except PermissionError:
-        logging.exception(
-            f"Permission error: Unable to delete file '{directory_path}'."
-        )
+        logging.exception(f"Unable to remove directory '{directory_path.name}'.")
     except OSError:
-        logging.exception(f"Error removing directory '{directory_path}'.")
+        logging.exception(f"Error removing directory '{directory_path.name}'.")
 
 
 def list_files_in_directory(directory_path: Path) -> List[Path]:
