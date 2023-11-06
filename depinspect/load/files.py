@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import List
 
@@ -19,13 +20,13 @@ def remove_file(file_path: Path) -> None:
     """
     try:
         Path.unlink(file_path)
-        print(f"File '{file_path}' deleted successfully.")
-    except NotADirectoryError as e:
-        print(f"Directory '{file_path}' not found\n{e}")
-    except PermissionError as e:
-        print(f"Permission error: Unable to delete directory '{file_path}'\n{e}")
-    except OSError as e:
-        print(f"Error removing directory '{file_path}'\n{e}")
+        logging.info(f"File '{file_path}' deleted successfully.")
+    except NotADirectoryError:
+        logging.exception(f"Directory '{file_path}' not found.")
+    except PermissionError:
+        logging.exception(f"Permission error: Unable to delete directory '{file_path}")
+    except OSError:
+        logging.exception(f"Error removing directory '{file_path}")
 
 
 def remove_dir(directory_path: Path) -> None:
@@ -45,13 +46,15 @@ def remove_dir(directory_path: Path) -> None:
     """
     try:
         Path.rmdir(directory_path)
-        print(f"Directory '{directory_path}' deleted successfully.")
+        logging.info(f"Directory '{directory_path}' deleted successfully.")
     except NotADirectoryError:
-        print(f"File '{directory_path}' not found.")
+        logging.exception(f"File '{directory_path}' not found.")
     except PermissionError:
-        print(f"Permission error: Unable to delete file '{directory_path}'.")
-    except OSError as e:
-        print(f"Error removing directory '{directory_path}': {e}")
+        logging.exception(
+            f"Permission error: Unable to delete file '{directory_path}'."
+        )
+    except OSError:
+        logging.exception(f"Error removing directory '{directory_path}'.")
 
 
 def list_files_in_directory(directory_path: Path) -> List[Path]:
@@ -71,6 +74,7 @@ def list_files_in_directory(directory_path: Path) -> List[Path]:
         files = [path for path in Path.iterdir(directory_path) if path.is_file()]
         return files
     else:
+        logging.error("list_files_in_directory: The specified path is not a directory")
         raise NotADirectoryError
 
 
@@ -91,4 +95,7 @@ def list_subdirs_in_directory(directory_path: Path) -> List[Path]:
         sub_dirs = [path for path in Path.iterdir(directory_path) if path.is_dir()]
         return sub_dirs
     else:
+        logging.error(
+            "list_subdirs_in_directory: The specified path is not a directory"
+        )
         raise NotADirectoryError

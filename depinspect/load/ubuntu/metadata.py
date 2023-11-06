@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from shutil import rmtree
 from sqlite3 import connect
@@ -7,8 +8,6 @@ from depinspect.load.extract import process_archives
 from depinspect.load.fetch import fetch_and_save_metadata_to_tmp
 from depinspect.load.files import list_files_in_directory, remove_file
 from depinspect.load.sqlite_db import new_db
-
-ARCH_ALL_ANY = ["i386", "amd64", "riscv64"]
 
 
 def parse_string_to_list(
@@ -44,7 +43,7 @@ def process_metadata_into_db(file_path: Path, db_path: Path) -> None:
 
     with db_connection:
         with open(file_path, "r") as file:
-            print(f"Processing packages metadata from {file_path}.\nPlease wait")
+            logging.info(f"Processing packages metadata from {file_path}.\nPlease wait")
             package_name: str = ""
             version: str = ""
             architecture: List[str] = []
@@ -101,7 +100,7 @@ def process_metadata_into_db(file_path: Path, db_path: Path) -> None:
                     architecture.clear()
                     depends.clear()
 
-        print(f"File {file_path} has been processed succesfully.")
+        logging.info(f"File {file_path} has been processed succesfully.")
 
     db_connection.close()
 
@@ -118,13 +117,13 @@ def main() -> None:
     try:
         for file_path in list_files_in_directory(tmp_dir):
             process_metadata_into_db(file_path, db)
-    except Exception as e:
-        print(f"There was an exception trying to process ubuntu metadata: {e}")
+    except Exception:
+        logging.exception("There was an exception trying to process ubuntu metadata.")
         if db.is_file():
-            print("Removing database")
+            logging.info("Removing database")
             remove_file(db)
     finally:
-        print("Cleaning up temporary files and directory")
+        logging.info("Cleaning up temporary files and directory")
         rmtree(tmp_dir)
 
 

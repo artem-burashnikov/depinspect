@@ -1,3 +1,4 @@
+import logging
 import lzma
 from pathlib import Path
 from shutil import rmtree
@@ -57,16 +58,16 @@ def process_archives(archives_dir: Path) -> Path:
             if archive_path.is_file():
                 remove_file(archive_path)
 
-    except Exception as e:
-        print(f"Failed to extract {archive_path}\n{e}")
-        print("Removing downloaded files and temprorary ditectory")
+    except Exception:
+        logging.exception(f"Failed to extract {archive_path}")
+        logging.info("Removing downloaded files and temprorary ditectory")
         try:
             rmtree(archives_dir)
-            print(
+            logging.info(
                 f"Temporary directory {archives_dir} and containing files were removed successfully"
             )
-        except Exception as e:
-            print(
+        except Exception:
+            logging.exception(
                 f"There was an error trying to clean up temproraty directory {archives_dir}\nSome files may be left and will have to be removed manually."
             )
 
