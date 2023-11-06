@@ -1,5 +1,7 @@
 import logging
+import tempfile
 from pathlib import Path
+from shutil import rmtree
 from typing import Tuple
 
 import click
@@ -7,7 +9,7 @@ import click
 from depinspect.helper import is_valid_architecture_name, is_valid_package_name
 from depinspect.load import sqlite_db
 from depinspect.load.extract import process_archives
-from depinspect.load.fetch import fetch_and_save_metadata_to_tmp
+from depinspect.load.fetch import fetch_and_save_metadata
 from depinspect.load.ubuntu.metadata import run_ubuntu_metadata_processing
 
 # Set up logging configuration
@@ -24,14 +26,14 @@ logging.basicConfig(
     nargs=2,
     type=(str, str),
     required=True,
-    help="Provide the first package name alog with an architecture separated by whitespace. Example: --package1 package1_name arch_1",
+    help="Provide the first package name alog with an architecture separated by whitespace. Example: --package1 package1-name arch1",
 )
 @click.option(
     "--package2",
     nargs=2,
     type=(str, str),
     required=True,
-    help="Provide the second package name alog with an architecture separated by whitespace. Example: --package2 package2_name arch_2",
+    help="Provide the second package name alog with an architecture separated by whitespace. Example: --package2 package2-name arch2",
 )
 def main(package1: Tuple[str, str], package2: Tuple[str, str]) -> None:
     package1_name, architecture1 = package1[0].lower(), package1[1].lower()
@@ -61,15 +63,28 @@ def main(package1: Tuple[str, str], package2: Tuple[str, str]) -> None:
     logging.info(f"package1: {package1_name}, arch1: {architecture1}")
     logging.info(f"package2: {package2_name}, arch2: {architecture2}")
 
-    tmp_dir = fetch_and_save_metadata_to_tmp()
+    # 'some_dir/depinspect/depinspect/main.py' returns 'some_dir/depinspect/'
+    project_root = Path.absolute(Path(__file__)).parents[1]
 
-    extracted_files_directory = process_archives(tmp_dir)
+    tmp_dir = Path(tempfile.mkdtemp(dir=project_root, prefix=".tmp"))
 
-    project_root = Path.cwd()
+    fetch_and_save_metadata(tmp_dir)
+
+    process_archives(tmp_dir)
 
     db_path = sqlite_db.db_new("dependencies.db", project_root)
 
-    run_ubuntu_metadata_processing(extracted_files_directory, db_path)
+    try:
+        run_ubuntu_metadata_processing(tmp_dir, db_path)
+    except Exception:
+        logging.exception("There was an exception trying to process ubuntu metadata.")
+        if db_path.is_file():
+            logging.info("Removing database as it may be corrupted.")
+            sqlite_db.db_remove(db_path)
+    finally:
+        logging.info("Cleaning up.")
+        rmtree(tmp_dir)
+        logging.info("Done.")
 
 
 if __name__ == "__main__":

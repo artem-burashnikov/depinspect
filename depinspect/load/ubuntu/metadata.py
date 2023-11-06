@@ -1,12 +1,10 @@
 import logging
 import sys
 from pathlib import Path
-from shutil import rmtree
 from sqlite3 import connect
 from typing import List
 
 from depinspect.files import list_files_in_directory
-from depinspect.load import sqlite_db
 
 
 def parse_string_to_list(
@@ -113,20 +111,10 @@ def process_metadata_into_db(file_path: Path, db_path: Path) -> None:
 
 
 def run_ubuntu_metadata_processing(tmp_dir: Path, db_path: Path) -> None:
-    try:
-        txt_files = [
-            txt_file
-            for txt_file in list_files_in_directory(tmp_dir)
-            if txt_file.suffix == ".txt"
-        ]
-        for file_path in txt_files:
-            process_metadata_into_db(file_path, db_path)
-    except Exception:
-        logging.exception("There was an exception trying to process ubuntu metadata.")
-        if db_path.is_file():
-            logging.info("Removing database as it may be corrupted.")
-            sqlite_db.db_remove(db_path)
-    finally:
-        logging.info("Cleaning up.")
-        rmtree(tmp_dir)
-        logging.info("Done.")
+    txt_files = [
+        txt_file
+        for txt_file in list_files_in_directory(tmp_dir)
+        if txt_file.suffix == ".txt" and txt_file.stem.startswith("ubuntu")
+    ]
+    for file_path in txt_files:
+        process_metadata_into_db(file_path, db_path)

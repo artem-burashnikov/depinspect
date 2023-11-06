@@ -1,5 +1,4 @@
 import configparser
-import tempfile
 from pathlib import Path
 from urllib import request
 
@@ -47,7 +46,7 @@ def pull_target_from_URL(target_url: str, local_target_path: Path) -> None:
             request.urlretrieve(target_url, local_target_path)
 
 
-def fetch_and_save_metadata_to_tmp() -> Path:
+def fetch_and_save_metadata(local_directory: Path) -> None:
     """
     Download metadata from configured sources and save them to temporary files.
 
@@ -60,18 +59,15 @@ def fetch_and_save_metadata_to_tmp() -> Path:
     """
     metadata_sources = read_config("sources.cfg")
 
-    temp_folder = Path(tempfile.mkdtemp(dir=Path.cwd(), prefix=".tmp"))
-
     for section in metadata_sources.sections():
         for key in metadata_sources[section]:
             file_prefix = key.split(".")[-1]
-            file_name = "_packages"
-            file_extension = ".xz"
+            file_name = "packages"
+            file_extension = "xz"
             local_target_path = (
-                temp_folder / f"{file_prefix}{file_name}{file_extension}"
+                local_directory
+                / f"{section}_{file_prefix}_{file_name}.{file_extension}"
             )
 
             metadata_url = metadata_sources[section][key]
             pull_target_from_URL(metadata_url, local_target_path)
-
-    return temp_folder

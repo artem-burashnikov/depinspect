@@ -28,7 +28,7 @@ def extract_xz_archive(archive_path: Path, output_path: Path) -> None:
                 output_file.write(extracted_data)
 
 
-def process_archives(archives_dir: Path) -> Path:
+def process_archives(archives_dir: Path) -> None:
     """
     Process archives by extracting contents and removing original archive files.
 
@@ -66,5 +66,3 @@ def process_archives(archives_dir: Path) -> Path:
             logging.exception(
                 f"There was an error trying to clean up temproraty directory {archives_dir}\nSome files may be left and will have to be removed manually."
             )
-
-    return archives_dir

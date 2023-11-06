@@ -10,7 +10,6 @@ def db_remove(db_path: Path) -> bool:
     if file_extension == ".db":
         logging.info("Removing database.")
         files.remove_file(db_path)
-        logging.info("Successfully removed database.")
         return True
     logging.warning(f"File specified at {db_path} is not an sqlite3 database.")
     return False
