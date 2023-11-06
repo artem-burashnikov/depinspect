@@ -3,7 +3,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +41,9 @@ jobs:
           python -m poetry run mypy --strict $(git ls-files '*.py')
 
       - name: Ruff linter
-        uses: chartboost/ruff-action@v1
+        run: |
+          python -m poetry run ruff check $(git ls-files '*.py')
+          python -m poetry run ruff check --select=I $(git ls-files '*.py')
 
       - name: Run tests
         run: |
