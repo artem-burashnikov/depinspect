@@ -5,8 +5,8 @@ from shutil import rmtree
 from sqlite3 import connect
 from typing import List
 
+from depinspect.files import list_files_in_directory
 from depinspect.load import sqlite_db
-from depinspect.load.files import list_files_in_directory
 
 
 def parse_string_to_list(

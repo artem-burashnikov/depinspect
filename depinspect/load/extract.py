@@ -3,7 +3,7 @@ import lzma
 from pathlib import Path
 from shutil import rmtree
 
-from depinspect.load.files import list_files_in_directory
+from depinspect.files import list_files_in_directory
 
 
 def extract_xz_archive(archive_path: Path, output_path: Path) -> None:

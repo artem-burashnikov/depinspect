@@ -2,7 +2,7 @@ import logging
 import sqlite3
 from pathlib import Path
 
-from depinspect.load import files
+from depinspect import files
 
 
 def db_remove(db_path: Path) -> bool:
