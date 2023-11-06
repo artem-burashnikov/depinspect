@@ -13,7 +13,7 @@ from depinspect.helper import is_valid_package_name
         ("a:superlib", False),
         ("!", False),
         ("a", False),
-        ("MY-LIB+123.ubuntu", True)
+        ("MY-LIB+123.ubuntu", True),
     ],
 )
 def test_is_valid_package_name(package_name: str, expected_result: bool) -> None:
