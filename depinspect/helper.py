@@ -27,6 +27,10 @@ def get_project_root() -> Path:
     ).parent.parent  # if helper.py is moved this breaks. Don't move!
 
 
+def get_sources_path(project_root: Path) -> Path:
+    return project_root / Path("sources.cfg")
+
+
 def create_temp_dir(dir_prefix: str, output_path: Path) -> Path:
     """
     Creates a temporary directory with the given prefix in the specified output path.

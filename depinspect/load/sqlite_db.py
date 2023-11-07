@@ -19,7 +19,7 @@ def db_new(db_name: str, output_path: Path) -> Path:
     db_path = output_path / Path(db_name)
 
     if db_path.is_file() and db_path.suffix == ".db":
-        logging.warning(f"sqlite3 database alread exists at: {db_path}.")
+        logging.warning(f"sqlite3 database already exists at: {db_path}.")
         try:
             db_remove(db_path)
         except Exception:

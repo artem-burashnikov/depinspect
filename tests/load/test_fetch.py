@@ -1,11 +1,14 @@
 from urllib import error, request
 
+from depinspect.helper import get_project_root, get_sources_path
 from depinspect.load.fetch import read_config
 
 
 # Check that all urls defined in sources.cfg are reachable
 def test_URL_sources() -> None:
-    metadata_sources = read_config("sources.cfg")
+    project_root = get_project_root()
+    sources = get_sources_path(project_root)
+    metadata_sources = read_config(sources)
 
     for section in metadata_sources.sections():
         for key in metadata_sources[section]:

@@ -8,6 +8,7 @@ import click
 from depinspect.helper import (
     create_temp_dir,
     get_project_root,
+    get_sources_path,
     is_valid_architecture_name,
     is_valid_package_name,
 )
@@ -54,9 +55,9 @@ def main(
     package2: Tuple[str, str],
     update: bool,
 ) -> None:
-    def init(project_root: Path) -> None:
+    def init(config_file: Path, project_root: Path) -> None:
         tmp_dir = create_temp_dir(dir_prefix=".tmp", output_path=project_root)
-        fetch_and_save_metadata(tmp_dir)
+        fetch_and_save_metadata(config_file, tmp_dir)
         process_archives(tmp_dir)
 
         db_path = sqlite_db.db_new(db_name="dependencies.db", output_path=project_root)
@@ -67,7 +68,7 @@ def main(
             logging.exception(
                 "There was an exception trying to process ubuntu metadata."
             )
-            if db_path.is_file():
+            if db_path.is_file() and db_path.suffix == ".db":
                 logging.info("Removing database as it may be corrupted.")
                 sqlite_db.db_remove(db_path)
         finally:
@@ -76,17 +77,20 @@ def main(
             logging.info("Done.")
 
     project_root = get_project_root()
+    metadata_sources_file = get_sources_path(project_root)
 
+    # Update flag has been passed.
     if update:
-        init(project_root)
+        init(metadata_sources_file, project_root)
         logging.info("Re-initialization is complete.")
         ctx.exit(0)
 
     if not Path.joinpath(project_root, "dependencies.db").is_file():
-        init(project_root)
+        init(metadata_sources_file, project_root)
     else:
         logging.info("Using existing database")
 
+    # At this point database exists in the project root either from before or (re)-initialized.
     db_path = project_root / Path("dependencies.db")
 
     if not package1 or not package2:
@@ -121,7 +125,7 @@ def main(
             f"Archicetrure2 should be one of the strings provided by a '$ dpkg-architecture -L' command. Your input: {architecture2}",
         )
 
-    logging.info(f"project_root: {project_root}\ndb_path: {db_path}")
+    logging.info(f"{db_path}")
     ctx.exit(0)
 
 
