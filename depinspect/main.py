@@ -42,7 +42,9 @@ logging.basicConfig(
     help="Provide the second package name alog with an architecture separated by whitespace. Example: --package2 package2-name arch2",
 )
 @click.option(
+    "-u",
     "--update",
+    default=False,
     is_flag=True,
     is_eager=True,
     help="Forcefully re-initialize database. This removes old database, fetches all defined metadata and stores it in a new database.",
@@ -90,19 +92,8 @@ def main(
         logging.info("Update complete.")
         ctx.exit(0)
 
-    if not Path.joinpath(ROOT_DIR, DB_NAME).is_file():
-        init(config_path=SOURCES_FILE_PATH, db_name=DB_NAME, output_path=ROOT_DIR)
-    else:
-        logging.info("Using existing database")
-
-    # At this point database MUST exist in the project root either from earlier usage or (re)-initialized.
-    db_path = ROOT_DIR / DB_NAME
-
     if not package1 or not package2:
-        print(
-            "\n--package1 and --package2 are required arguments\n\n"
-            + main.get_help(ctx)
-        )
+        print("\n--package1 and --package2 are required arguments\n\n")
         ctx.exit(1)
 
     package1_name, architecture1 = package1[0].lower(), package1[1].lower()
@@ -129,6 +120,15 @@ def main(
             architecture2,
             f"Archicetrure2 should be one of the strings provided by a '$ dpkg-architecture -L' command. Your input: {architecture2}",
         )
+
+    # If the database doesn't exist, we forcefully create one.
+    if not Path.joinpath(ROOT_DIR, DB_NAME).is_file():
+        init(config_path=SOURCES_FILE_PATH, db_name=DB_NAME, output_path=ROOT_DIR)
+    else:
+        logging.info("Using existing database")
+
+    # At this point database MUST exist in the project root either from earlier usage or (re)-initialized.
+    db_path = ROOT_DIR / DB_NAME
 
     logging.info(f"{db_path}")
     ctx.exit(0)
