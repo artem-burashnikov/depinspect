@@ -1,4 +1,6 @@
+import tempfile
 from enum import Enum
+from pathlib import Path
 from re import fullmatch
 
 
@@ -8,6 +10,14 @@ class Archs(Enum):
     RISCV64 = "riscv64"
     ANY = "any"
     ALL = "all"
+
+
+def get_project_root() -> Path:
+    return Path(__file__).parent.parent
+
+
+def create_temp_dir(dir_prefix: str, output_path: Path) -> Path:
+    return Path(tempfile.mkdtemp(dir=output_path, prefix=dir_prefix))
 
 
 def is_valid_package_name(package_name: str) -> bool:

@@ -1,12 +1,16 @@
 import logging
-import tempfile
 from pathlib import Path
 from shutil import rmtree
 from typing import Tuple
 
 import click
 
-from depinspect.helper import is_valid_architecture_name, is_valid_package_name
+from depinspect.helper import (
+    create_temp_dir,
+    get_project_root,
+    is_valid_architecture_name,
+    is_valid_package_name,
+)
 from depinspect.load import sqlite_db
 from depinspect.load.extract import process_archives
 from depinspect.load.fetch import fetch_and_save_metadata
@@ -22,6 +26,7 @@ logging.basicConfig(
 
 @click.command()
 @click.option(
+    "-p1",
     "--package1",
     nargs=2,
     type=(str, str),
@@ -29,6 +34,7 @@ logging.basicConfig(
     help="Provide the first package name alog with an architecture separated by whitespace. Example: --package1 package1-name arch1",
 )
 @click.option(
+    "-p2",
     "--package2",
     nargs=2,
     type=(str, str),
@@ -48,14 +54,12 @@ def main(
     package2: Tuple[str, str],
     update: bool,
 ) -> None:
-    def init() -> None:
-        tmp_dir = Path(tempfile.mkdtemp(dir=project_root, prefix=".tmp"))
-
+    def init(project_root: Path) -> None:
+        tmp_dir = create_temp_dir(dir_prefix=".tmp", output_path=project_root)
         fetch_and_save_metadata(tmp_dir)
-
         process_archives(tmp_dir)
 
-        db_path = sqlite_db.db_new("dependencies.db", project_root)
+        db_path = sqlite_db.db_new(db_name="dependencies.db", output_path=project_root)
 
         try:
             run_ubuntu_metadata_processing(tmp_dir, db_path)
@@ -71,18 +75,19 @@ def main(
             rmtree(tmp_dir)
             logging.info("Done.")
 
-    # 'some_dir/depinspect/depinspect/main.py' returns 'some_dir/depinspect/'
-    project_root = Path.absolute(Path(__file__)).parents[1]
+    project_root = get_project_root()
 
     if update:
-        init()
+        init(project_root)
         logging.info("Re-initialization is complete.")
         ctx.exit(0)
 
     if not Path.joinpath(project_root, "dependencies.db").is_file():
-        init()
+        init(project_root)
     else:
         logging.info("Using existing database")
+
+    db_path = project_root / Path("dependencies.db")
 
     if not package1 or not package2:
         print(
@@ -116,7 +121,7 @@ def main(
             f"Archicetrure2 should be one of the strings provided by a '$ dpkg-architecture -L' command. Your input: {architecture2}",
         )
 
-    logging.info("Logic here!")
+    logging.info(f"project_root: {project_root}\ndb_path: {db_path}")
     ctx.exit(0)
 
 

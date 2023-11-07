@@ -16,9 +16,9 @@ def db_remove(db_path: Path) -> bool:
 
 
 def db_new(db_name: str, output_path: Path) -> Path:
-    db_path = Path.joinpath(output_path, Path(f"{db_name}"))
+    db_path = output_path / Path(db_name)
 
-    if db_path.is_file():
+    if db_path.is_file() and db_path.suffix == ".db":
         logging.warning(f"sqlite3 database alread exists at: {db_path}.")
         try:
             db_remove(db_path)

@@ -22,7 +22,7 @@ ruff = "^0.1.1"
 target-version = "py310"
 
 [tool.poetry.scripts]
-depinspect = "depinspect.__main__:main"
+depinspect = "depinspect.main:main"
 
 [build-system]
 requires = ["poetry-core"]
