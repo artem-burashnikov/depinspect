@@ -5,10 +5,9 @@ from typing import Tuple
 
 import click
 
+from depinspect.definitions import DB_NAME, ROOT_DIR, SOURCES_FILE_PATH
 from depinspect.helper import (
     create_temp_dir,
-    get_project_root,
-    get_sources_path,
     is_valid_architecture_name,
     is_valid_package_name,
 )
@@ -55,43 +54,49 @@ def main(
     package2: Tuple[str, str],
     update: bool,
 ) -> None:
-    def init(config_file: Path, project_root: Path) -> None:
-        tmp_dir = create_temp_dir(dir_prefix=".tmp", output_path=project_root)
-        fetch_and_save_metadata(config_file, tmp_dir)
-        process_archives(tmp_dir)
-
-        db_path = sqlite_db.db_new(db_name="dependencies.db", output_path=project_root)
+    def init(config_path: Path, db_name: str, output_path: Path) -> None:
+        tmp_dir = create_temp_dir(dir_prefix=".tmp", output_path=output_path)
+        db_path = sqlite_db.db_new(db_name=db_name, output_path=output_path)
 
         try:
+            logging.info("Fetching archives from pre-defined URL sources.")
+            fetch_and_save_metadata(config_path, tmp_dir)
+            logging.info("Fetching: Success.")
+
+            logging.info("Extracting archives.")
+            process_archives(tmp_dir)
+            logging.info("Extracting: Sucess.")
+
+            logging.info("Processing ubuntu metadata into database.")
             run_ubuntu_metadata_processing(tmp_dir, db_path)
+            logging.info("Ubuntu processing: Success.")
+
         except Exception:
             logging.exception(
-                "There was an exception trying to process ubuntu metadata."
+                "There was an exception trying to pull data into database."
             )
+            logging.error("Removing database, if exists, as it might be corrupted.")
             if db_path.is_file() and db_path.suffix == ".db":
-                logging.info("Removing database as it may be corrupted.")
                 sqlite_db.db_remove(db_path)
+
         finally:
             logging.info("Cleaning up.")
             rmtree(tmp_dir)
             logging.info("Done.")
 
-    project_root = get_project_root()
-    metadata_sources_file = get_sources_path(project_root)
-
     # Update flag has been passed.
     if update:
-        init(metadata_sources_file, project_root)
-        logging.info("Re-initialization is complete.")
+        init(config_path=SOURCES_FILE_PATH, db_name=DB_NAME, output_path=ROOT_DIR)
+        logging.info("Update complete.")
         ctx.exit(0)
 
-    if not Path.joinpath(project_root, "dependencies.db").is_file():
-        init(metadata_sources_file, project_root)
+    if not Path.joinpath(ROOT_DIR, DB_NAME).is_file():
+        init(config_path=SOURCES_FILE_PATH, db_name=DB_NAME, output_path=ROOT_DIR)
     else:
         logging.info("Using existing database")
 
-    # At this point database exists in the project root either from before or (re)-initialized.
-    db_path = project_root / Path("dependencies.db")
+    # At this point database MUST exist in the project root either from earlier usage or (re)-initialized.
+    db_path = ROOT_DIR / DB_NAME
 
     if not package1 or not package2:
         print(

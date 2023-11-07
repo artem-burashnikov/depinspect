@@ -1,7 +1,7 @@
 import logging
-import sys
 from pathlib import Path
 from sqlite3 import connect
+from sys import exit
 from typing import List
 
 from depinspect.files import list_files_in_directory
@@ -38,11 +38,11 @@ def parse_string_to_list(
 def process_metadata_into_db(file_path: Path, db_path: Path) -> None:
     if file_path.suffix != ".txt":
         logging.exception(f"{file_path.name} is not a valid metadata file.")
-        sys.exit(1)
+        exit(1)
 
     if db_path.suffix != ".db":
         logging.exception(f"{db_path.name} is not a valid sqlite3 database.")
-        sys.exit(1)
+        exit(1)
 
     db_connection = connect(db_path)
 
@@ -56,17 +56,12 @@ def process_metadata_into_db(file_path: Path, db_path: Path) -> None:
 
             for line in file:
                 if line.startswith("Package:"):
-                    # Extract the 'Package' information
                     package_name = line[len("Package:") :].strip()
 
                 elif line.startswith("Version:"):
-                    # Extract the 'Version' information
                     version = line[len("Version:") :].strip()
 
                 elif line.startswith("Architecture:"):
-                    # Extract the 'Architecture' information.
-                    # Several acrhitecture strings provided by a '$ dpkg-architecture -L' command
-                    # COULD be listed. Usually any, all or specific.
                     parse_string_to_list(
                         string=line,
                         prefix_to_exclude="Architecture:",
@@ -75,7 +70,6 @@ def process_metadata_into_db(file_path: Path, db_path: Path) -> None:
                     )
 
                 elif line.startswith("Depends:"):
-                    # Extract the 'Depends' information as a list
                     parse_string_to_list(
                         string=line,
                         prefix_to_exclude="Depends:",
@@ -84,7 +78,6 @@ def process_metadata_into_db(file_path: Path, db_path: Path) -> None:
                     )
 
                 elif line.startswith("\n"):
-                    # Process previously red metadata when a blank line is encountered
                     if package_name and version and architecture:
                         result = db_connection.execute(
                             "INSERT INTO Packages (package_name, version, distribution, architecture) VALUES (?, ?, ?, ?)",
@@ -111,6 +104,17 @@ def process_metadata_into_db(file_path: Path, db_path: Path) -> None:
 
 
 def run_ubuntu_metadata_processing(tmp_dir: Path, db_path: Path) -> None:
+    """
+    Processes Ubuntu metadata files in a temporary directory and populates the specified SQLite3 database.
+
+    Args:
+    - tmp_dir (Path): The temporary directory containing Ubuntu metadata files.
+    - db_path (Path): The path to the SQLite3 database to be populated.
+
+    Notes:
+    - Filters txt files in the temporary directory which names start with "ubuntu".
+    - Processes each metadata file and populates the SQLite3 database.
+    """
     txt_files = [
         txt_file
         for txt_file in list_files_in_directory(tmp_dir)

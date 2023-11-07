@@ -1,15 +1,6 @@
 import tempfile
-from enum import Enum
 from pathlib import Path
 from re import fullmatch
-
-
-class Archs(Enum):
-    I386 = "i386"
-    ADM64 = "amd64"
-    RISCV64 = "riscv64"
-    ANY = "any"
-    ALL = "all"
 
 
 def get_project_root() -> Path:
@@ -22,13 +13,9 @@ def get_project_root() -> Path:
     Returns:
     Path: A Path object representing the project root directory.
     """
-    return Path(
-        __file__
-    ).parent.parent  # if helper.py is moved this breaks. Don't move!
-
-
-def get_sources_path(project_root: Path) -> Path:
-    return project_root / Path("sources.cfg")
+    return (
+        Path(__file__).absolute().resolve().parent.parent
+    )  # if helper.py is moved this breaks. Don't move!
 
 
 def create_temp_dir(dir_prefix: str, output_path: Path) -> Path:
@@ -64,6 +51,9 @@ def is_valid_package_name(package_name: str) -> bool:
 
 
 def is_valid_architecture_name(architecture_name: str) -> bool:
+    # Importing here avoids circular dependency.
+    from depinspect.definitions import ARCHITECTURES
+
     """
     Checks if a given string is a valid architecture name by comparing it to a predefined list of architectures.
 
@@ -77,4 +67,4 @@ def is_valid_architecture_name(architecture_name: str) -> bool:
     - The function compares the input architecture_name with the values of a predefined enum.
     - The enum or class 'Archs' should contain valid architecture names.
     """
-    return any(architecture_name == arch.value for arch in Archs)
+    return architecture_name in ARCHITECTURES
