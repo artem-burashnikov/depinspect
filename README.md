@@ -15,7 +15,16 @@ TODO
 
 ### Prerequisites
 
-It is recommended but not required to use [Poetry >=1.6.1](https://python-poetry.org/) to run the tool.
+- [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+- [Python 3.10+](https://wiki.python.org/moin/BeginnersGuide/Download)
+- [pipx](https://pypa.github.io/pipx/#install-pipx)
+- [Poetry >=1.7.0](https://python-poetry.org/).
+
+    Can be installed with [pipx](https://python-poetry.org/docs/#installing-with-pipx) by running:
+
+    ```sh
+    pipx install poetry
+    ```
 
 ### Installation
 
@@ -33,15 +42,15 @@ Open the terminal and follow these steps:
     cd depinspect
     ```
 
-3. If you are using Poetry, then install all required dependencies with:
+3. Install all required dependencies with:
 
-    ```bash
+    ```sh
     poetry install
     ```
 
 4. After the installation is complete, you can use the tool by running this command inside the project root directory:
 
-    ```bash
+    ```sh
     poetry run depinspect [OPTIONS]
     ```
 
@@ -51,16 +60,19 @@ Open the terminal and follow these steps:
 Usage: depinspect [OPTIONS]
 
 Options:
-  --package1 <TEXT TEXT>...  Provide the first package name alog with an
-                             architecture separated by whitespace. Example:
-                             --package1 package1-name arch1
-  --package2 <TEXT TEXT>...  Provide the second package name alog with an
-                             architecture separated by whitespace. Example:
-                             --package2 package2-name arch2
-  --update                   Forcefully re-initialize database. This removes
-                             old database, fetches all defined metadata and
-                             stores it in a new database.
-  --help                     Show this message and exit.
+  -p1, --package1 <TEXT TEXT>...  Provide the first package name alog with an
+                                  architecture separated by whitespace. Example:
+                                  --package1 package1-name arch1
+
+  -p2, --package2 <TEXT TEXT>...  Provide the second package name alog with an
+                                  architecture separated by whitespace. Example:
+                                  --package2 package2-name arch2
+
+  -u, --update                    Forcefully re-initialize database. This removes
+                                  old database, fetches all defined metadata and
+                                  stores it in a new database.
+                                  
+  --help                          Show this message and exit.
 ```
 
 ## License
