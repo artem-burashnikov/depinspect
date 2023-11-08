@@ -6,7 +6,7 @@ from typing import Tuple
 import click
 
 from depinspect import sqlite_db
-from depinspect.definitions import DB_NAME, ROOT_DIR, SOURCES_FILE_PATH
+from depinspect.definitions import DB_NAME, DISTRIBUTIONS, ROOT_DIR, SOURCES_FILE_PATH
 from depinspect.helper import (
     create_temp_dir,
     is_valid_architecture_name,
@@ -97,10 +97,6 @@ def main(
     def validate_cl_arguments(
         cl_argument1: Tuple[str, str, str], cl_argument2: Tuple[str, str, str]
     ) -> Tuple[Tuple[str, str, str], Tuple[str, str, str]]:
-        if not package1 or not package2:
-            print("\n--package1 and --package2 are required arguments\n\n")
-            ctx.exit(1)
-
         ditribution1, architecture1, package_name1 = (
             cl_argument1[0].lower(),
             cl_argument1[1].lower(),
@@ -134,7 +130,7 @@ def main(
         if not is_valid_distribution(distribution2):
             raise click.BadOptionUsage(
                 distribution2,
-                f"List of currently supported distributions: ubuntu. Your input was: {distribution2}",
+                f"List of currently supported distributions: {DISTRIBUTIONS}. Your input was: {distribution2}",
             )
 
         if not is_valid_architecture_name(architecture2):
@@ -183,22 +179,30 @@ def main(
         sqlite_db.db_list_query(db_path)
         ctx.exit(0)
 
-    # Process user input
-    validated_input1, validated_input2 = get_cl_arguments()
+    if package1 and package2:
+        validated_input1, validated_input2 = get_cl_arguments()
 
-    sqlite_db.db_main_query(
-        db_path=db_path,
-        distribution=validated_input1[0],
-        package_architecture=validated_input1[1],
-        package_name=validated_input1[2],
-    )
+        ensure_db_exists(db_path)
 
-    sqlite_db.db_main_query(
-        db_path=db_path,
-        distribution=validated_input2[0],
-        package_architecture=validated_input2[1],
-        package_name=validated_input2[2],
-    )
+        sqlite_db.db_main_query(
+            db_path=db_path,
+            distribution=validated_input1[0],
+            package_architecture=validated_input1[1],
+            package_name=validated_input1[2],
+        )
+
+        sqlite_db.db_main_query(
+            db_path=db_path,
+            distribution=validated_input2[0],
+            package_architecture=validated_input2[1],
+            package_name=validated_input2[2],
+        )
+    else:
+        logging.error(
+            "Incorrect number of arguments. Make sure to specifiy --package1 and --package2."
+        )
+        click.echo(ctx.get_help())
+        ctx.exit(1)
 
     ctx.exit(0)
 
