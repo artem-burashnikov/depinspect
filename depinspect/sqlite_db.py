@@ -32,7 +32,7 @@ def db_new(db_name: str, output_path: Path) -> Path:
     connection = sqlite3.connect(db_path)
 
     connection.execute(
-        "CREATE TABLE IF NOT EXISTS Packages (id INTEGER PRIMARY KEY AUTOINCREMENT, package_name TEXT, version TEXT, distribution TEXT, architecture TEXT)"
+        "CREATE TABLE IF NOT EXISTS Packages (id INTEGER PRIMARY KEY AUTOINCREMENT, distribution TEXT, architecture TEXT, package_name TEXT, version TEXT, UNIQUE(distribution, architecture, package_name, version))"
     )
 
     connection.execute(
@@ -43,7 +43,7 @@ def db_new(db_name: str, output_path: Path) -> Path:
     return db_path
 
 
-def db_select_query(
+def db_main_query(
     db_path: Path, distribution: str, package_architecture: str, package_name: str
 ) -> None:
     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
@@ -53,6 +53,28 @@ def db_select_query(
             (distribution, package_name, package_architecture),
         ):
             print(result)
+    db.close()
+
+
+def db_list_query(db_path: Path) -> None:
+    db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+
+    with db:
+        print("Distributions:")
+        print("========================================")
+        for distribution in db.execute("SELECT DISTINCT distribution FROM Packages"):
+            print(distribution[0])
+        print("\n", end="")
+        print("Architectures:")
+        print("========================================")
+        for architecture in db.execute("SELECT DISTINCT architecture FROM Packages"):
+            print(architecture[0])
+        print("\n", end="")
+        print("Packages:")
+        print("========================================")
+        for package_name in db.execute("SELECT DISTINCT package_name FROM Packages"):
+            print(package_name[0])
+
     db.close()
 
 

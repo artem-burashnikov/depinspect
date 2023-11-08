@@ -15,7 +15,7 @@ from depinspect.helper import (
 )
 from depinspect.load.extract import process_archives
 from depinspect.load.fetch import fetch_and_save_metadata
-from depinspect.load.ubuntu.metadata import run_ubuntu_metadata_processing
+from depinspect.process.ubuntu import run_ubuntu_metadata_processing
 
 # Set up logging configuration
 logging.basicConfig(
@@ -25,22 +25,28 @@ logging.basicConfig(
 )
 
 
-@click.command()
+@click.command(context_settings={"ignore_unknown_options": True})
 @click.option(
     "-p1",
     "--package1",
     nargs=3,
     type=(str, str, str),
-    # required=True,
-    help="Provide the first distribution, architecture and package name separated by whitespaces. Order of arguments mannters. Example: --package1 i386 ubuntu apt",
+    help="Provide the first distribution, architecture and package name separated by whitespaces. Order of arguments matters. Example: --package1 i386 ubuntu apt",
 )
 @click.option(
     "-p2",
     "--package2",
     nargs=3,
     type=(str, str, str),
-    # required=True,
     help="Provide the second distribution, architecture and package name separated by whitespaces. Order of arguments matters. Example: --package2 ubuntu amd64 grub-common",
+)
+@click.option(
+    "-l",
+    "--list",
+    default=False,
+    is_flag=True,
+    is_eager=True,
+    help="List all available distributions, architectures and package names.",
 )
 @click.option(
     "-u",
@@ -56,6 +62,7 @@ def main(
     package1: Tuple[str, str, str],
     package2: Tuple[str, str, str],
     update: bool,
+    list: bool,
 ) -> None:
     def initialize_data(config_path: Path, db_name: str, output_path: Path) -> None:
         tmp_dir = create_temp_dir(dir_prefix=".tmp", output_path=output_path)
@@ -150,6 +157,18 @@ def main(
     def get_cl_arguments() -> Tuple[Tuple[str, str, str], Tuple[str, str, str]]:
         return validate_cl_arguments(package1, package2)
 
+    def ensure_db_exists(db_path: Path) -> None:
+        if db_path.is_file() and db_path.suffix == ".db":
+            return
+        else:
+            initialize_data(
+                config_path=SOURCES_FILE_PATH, db_name=DB_NAME, output_path=ROOT_DIR
+            )
+
+    if update and list:
+        logging.error("--update and --list can't be passed simultaneously.")
+        ctx.exit(1)
+
     if update:
         initialize_data(
             config_path=SOURCES_FILE_PATH, db_name=DB_NAME, output_path=ROOT_DIR
@@ -157,27 +176,24 @@ def main(
         logging.info("Update complete.")
         ctx.exit(0)
 
+    db_path = ROOT_DIR / DB_NAME
+
+    if list:
+        ensure_db_exists(db_path)
+        sqlite_db.db_list_query(db_path)
+        ctx.exit(0)
+
     # Process user input
     validated_input1, validated_input2 = get_cl_arguments()
 
-    # If the database doesn't exist, forcefully create one and fill it with metadata.
-    if not Path.joinpath(ROOT_DIR, DB_NAME).is_file():
-        initialize_data(
-            config_path=SOURCES_FILE_PATH, db_name=DB_NAME, output_path=ROOT_DIR
-        )
-
-    # At this point database file MUST exist in the project root either from earlier usage or (re)-initialized
-    # and user input should be validated.
-    db_path = ROOT_DIR / DB_NAME
-
-    sqlite_db.db_select_query(
+    sqlite_db.db_main_query(
         db_path=db_path,
         distribution=validated_input1[0],
         package_architecture=validated_input1[1],
         package_name=validated_input1[2],
     )
 
-    sqlite_db.db_select_query(
+    sqlite_db.db_main_query(
         db_path=db_path,
         distribution=validated_input2[0],
         package_architecture=validated_input2[1],
