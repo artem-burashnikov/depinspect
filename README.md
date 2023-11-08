@@ -5,7 +5,7 @@
 
 ## Overview
 
-Depinspect is an analyzer system which is an utility designed to prodive insights into linux package dependencies across multiple architectures and distributions.
+Depinspect is an utility designed to prodive insights into linux package dependencies across multiple architectures and distributions.
 
 ## Features
 
@@ -35,13 +35,13 @@ Open the terminal and follow these steps:
     cd depinspect
     ```
 
-3. Install Poetry in an isolated environment with:
+3. Install `Poetry` in an isolated environment with:
 
     ```sh
     pipx install poetry
     ```
 
-    pipx can also run Poetry from a temporary environment without installing it explicitly. See pipx [documentation](https://pypa.github.io/pipx/docs/) for details.
+    `pipx` can also run Poetry from a temporary environment without installing it explicitly. See pipx [documentation](https://pypa.github.io/pipx/docs/) for details.
 
 4. Install all required dependencies with:
 
@@ -57,7 +57,7 @@ Open the terminal and follow these steps:
     depinspect [OPTIONS]
     ```
 
-### Usage
+## Usage
 
 ```ignorelang
 Usage: depinspect [OPTIONS]
@@ -81,9 +81,33 @@ Options:
   -u, --update                    Forcefully re-initialize database. This
                                   removes old database, fetches all defined
                                   metadata and stores it in a new database.
-                                  
+
   --help                          Show this message and exit.
 ```
+
+## Examples
+
+Below are common use cases.
+
+### List stored metadata
+
+It is helpful to see the list of available distributions, architectures and package names stored in the database. If the database already exists, then the following command outputs and stores this information in a file called available_data.txt:
+
+```sh
+depinspect --list > available_data.txt
+```
+
+If the database doesn't exist, `--list` will also implicitly call the initialization process.
+
+### Initialize or re-initialize the database
+
+The tool ensures that the database exists before you can query it for specific information, so it will implicitly create one for you. You can also manually re-initialize the database by calling:
+
+```sh
+depinspect --update
+```
+
+This will remove the old database file and start the initialization process, which consists of fetching metadata from pre-defined URL sources, parsing text files and storing parsed data in a new database.
 
 ## License
 
