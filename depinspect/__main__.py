@@ -5,13 +5,13 @@ from typing import Tuple
 
 import click
 
+from depinspect import sqlite_db
 from depinspect.definitions import DB_NAME, ROOT_DIR, SOURCES_FILE_PATH
 from depinspect.helper import (
     create_temp_dir,
     is_valid_architecture_name,
     is_valid_package_name,
 )
-from depinspect.load import sqlite_db
 from depinspect.load.extract import process_archives
 from depinspect.load.fetch import fetch_and_save_metadata
 from depinspect.load.ubuntu.metadata import run_ubuntu_metadata_processing
@@ -86,40 +86,51 @@ def main(
             rmtree(tmp_dir)
             logging.info("Done.")
 
+    def validate_cl_arguments(
+        cl_argument1: Tuple[str, str], cl_argument2: Tuple[str, str]
+    ) -> Tuple[Tuple[str, str], Tuple[str, str]]:
+        if not package1 or not package2:
+            print("\n--package1 and --package2 are required arguments\n\n")
+            ctx.exit(1)
+
+        package1_name, architecture1 = cl_argument1[0].lower(), cl_argument1[1].lower()
+        if not is_valid_package_name(package1_name):
+            raise click.BadOptionUsage(
+                package1_name,
+                f"Name of the package1 should match correct syntax. Your input: {package1_name}",
+            )
+
+        if not is_valid_architecture_name(architecture1):
+            raise click.BadOptionUsage(
+                architecture1,
+                f"Archicetrure1 should be one of the strings provided by a '$ dpkg-architecture -L' command. Your input: {architecture1}",
+            )
+
+        package2_name, architecture2 = cl_argument2[0].lower(), cl_argument2[1].lower()
+        if not is_valid_package_name(package2_name):
+            raise click.BadOptionUsage(
+                package2_name,
+                f"Name of the package2 should match correct syntax. Your input: {package2_name}",
+            )
+        if not is_valid_architecture_name(architecture2):
+            raise click.BadOptionUsage(
+                architecture2,
+                f"Archicetrure2 should be one of the strings provided by a '$ dpkg-architecture -L' command. Your input: {architecture2}",
+            )
+
+        return ((package1_name, architecture1), (package2_name, architecture2))
+
+    def get_cl_arguments() -> Tuple[Tuple[str, str], Tuple[str, str]]:
+        return validate_cl_arguments(package1, package2)
+
     # Update flag has been passed.
     if update:
         init(config_path=SOURCES_FILE_PATH, db_name=DB_NAME, output_path=ROOT_DIR)
         logging.info("Update complete.")
         ctx.exit(0)
 
-    if not package1 or not package2:
-        print("\n--package1 and --package2 are required arguments\n\n")
-        ctx.exit(1)
-
-    package1_name, architecture1 = package1[0].lower(), package1[1].lower()
-    if not is_valid_package_name(package1_name):
-        raise click.BadOptionUsage(
-            package1_name,
-            f"Name of the package1 should match correct syntax. Your input: {package1_name}",
-        )
-
-    if not is_valid_architecture_name(architecture1):
-        raise click.BadOptionUsage(
-            architecture1,
-            f"Archicetrure1 should be one of the strings provided by a '$ dpkg-architecture -L' command. Your input: {architecture1}",
-        )
-
-    package2_name, architecture2 = package2[0].lower(), package2[1].lower()
-    if not is_valid_package_name(package2_name):
-        raise click.BadOptionUsage(
-            package2_name,
-            f"Name of the package2 should match correct syntax. Your input: {package2_name}",
-        )
-    if not is_valid_architecture_name(architecture2):
-        raise click.BadOptionUsage(
-            architecture2,
-            f"Archicetrure2 should be one of the strings provided by a '$ dpkg-architecture -L' command. Your input: {architecture2}",
-        )
+    # Processing user input
+    lib1_and_arch1, lib2_and_arch2 = get_cl_arguments()
 
     # If the database doesn't exist, we forcefully create one.
     if not Path.joinpath(ROOT_DIR, DB_NAME).is_file():
