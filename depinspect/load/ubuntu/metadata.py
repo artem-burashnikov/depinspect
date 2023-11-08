@@ -10,23 +10,6 @@ from depinspect.files import list_files_in_directory
 def parse_string_to_list(
     string: str, prefix_to_exclude: str, delimiter: str, result: List[str]
 ) -> List[str]:
-    """
-    Parse a string, exclude a specified prefix, split it using a delimiter,
-    and append the resulting elements to a list.
-
-    Args:
-        string (str): The input string to be parsed.
-        prefix_to_exclude (str): The prefix to exclude from the input string.
-        delimiter (str): The delimiter used to split the string into elements.
-        result (List[str]): The list to which the parsed elements will be appended to.
-
-    Returns:
-        List[str]: The updated list containing the parsed elements.
-
-    Example:
-        If string = "Type: A, B, C", prefix_to_exclude = "Type:", delimiter = ",", and
-        result = [], the function will append ["A", "B", "C"] to result.
-    """
     for entry in map(
         lambda x: x.strip(), string[len(prefix_to_exclude) :].strip().split(delimiter)
     ):
@@ -104,17 +87,6 @@ def process_metadata_into_db(file_path: Path, db_path: Path) -> None:
 
 
 def run_ubuntu_metadata_processing(tmp_dir: Path, db_path: Path) -> None:
-    """
-    Processes Ubuntu metadata files in a temporary directory and populates the specified SQLite3 database.
-
-    Args:
-    - tmp_dir (Path): The temporary directory containing Ubuntu metadata files.
-    - db_path (Path): The path to the SQLite3 database to be populated.
-
-    Notes:
-    - Filters txt files in the temporary directory which names start with "ubuntu".
-    - Processes each metadata file and populates the SQLite3 database.
-    """
     txt_files = [
         txt_file
         for txt_file in list_files_in_directory(tmp_dir)

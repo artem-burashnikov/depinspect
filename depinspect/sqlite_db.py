@@ -7,18 +7,6 @@ from depinspect import files
 
 
 def db_remove(db_path: Path) -> None:
-    """
-    Removes an SQLite3 database file specified by the given path.
-
-    Args:
-    - db_path (Path): The path to the SQLite3 database file.
-
-    Returns:
-    bool: True if the database file was successfully removed, False otherwise.
-
-    Notes:
-    - The function checks if the file extension is ".db" before attempting to remove it.
-    """
     file_extension = db_path.suffix
     if file_extension == ".db":
         logging.info("Removing database.")
@@ -29,20 +17,6 @@ def db_remove(db_path: Path) -> None:
 
 
 def db_new(db_name: str, output_path: Path) -> Path:
-    """
-    Creates a new SQLite3 database with the specified name and path, initializing pre-defined tables.
-
-    Args:
-    - db_name (str): The name of the new SQLite3 database.
-    - output_path (Path): The directory where the new database will be created.
-
-    Returns:
-    Path: A Path object representing the path to the newly created database.
-
-    Notes:
-    - If a database with the same name exists, it is removed before creating a new one.
-    - Two tables, 'Packages' and 'Dependencies', are created with necessary columns.
-    """
     db_path = output_path / Path(db_name)
 
     if db_path.is_file() and db_path.suffix == ".db":
@@ -67,6 +41,19 @@ def db_new(db_name: str, output_path: Path) -> Path:
     connection.close()
     logging.info("Successfully initialized new database.")
     return db_path
+
+
+def db_select_query(
+    db_path: Path, distribution: str, package_architecture: str, package_name: str
+) -> None:
+    db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    with db:
+        for result in db.execute(
+            "SELECT distribution, architecture, package_name, version FROM Packages WHERE Packages.distribution = ? AND Packages.package_name = ? AND Packages.architecture = ?",
+            (distribution, package_name, package_architecture),
+        ):
+            print(result)
+    db.close()
 
 
 """
