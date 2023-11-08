@@ -51,10 +51,10 @@ Open the terminal and follow these steps:
     poetry install
     ```
 
-5. After the installation is complete, you can use the tool by running this command inside the project root directory:
+5. After the installation is complete, you can use the tool by running this command from within a virtual environment:
 
     ```sh
-    poetry run depinspect [OPTIONS]
+    depinspect [OPTIONS]
     ```
 
 ### Usage
@@ -63,17 +63,24 @@ Open the terminal and follow these steps:
 Usage: depinspect [OPTIONS]
 
 Options:
-  -p1, --package1 <TEXT TEXT>...  Provide the first package name alog with an
-                                  architecture separated by whitespace. Example:
-                                  --package1 package1-name arch1
+  -p1, --package1 <TEXT TEXT TEXT>...
+                                  Provide the first distribution, architecture
+                                  and package name separated by whitespaces.
+                                  Order of arguments matters. Example:
+                                  --package1 i386 ubuntu apt
 
-  -p2, --package2 <TEXT TEXT>...  Provide the second package name alog with an
-                                  architecture separated by whitespace. Example:
-                                  --package2 package2-name arch2
+  -p2, --package2 <TEXT TEXT TEXT>...
+                                  Provide the second distribution,
+                                  architecture and package name separated by
+                                  whitespaces. Order of arguments matters.
+                                  Example: --package2 ubuntu amd64 grub-common
 
-  -u, --update                    Forcefully re-initialize database. This removes
-                                  old database, fetches all defined metadata and
-                                  stores it in a new database.
+  -l, --list                      List all available distributions,
+                                  architectures and package names.
+
+  -u, --update                    Forcefully re-initialize database. This
+                                  removes old database, fetches all defined
+                                  metadata and stores it in a new database.
                                   
   --help                          Show this message and exit.
 ```
