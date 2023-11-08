@@ -3,6 +3,8 @@ import sqlite3
 from pathlib import Path
 from sys import exit
 
+from click import echo
+
 from depinspect import files
 
 
@@ -52,7 +54,7 @@ def db_main_query(
             "SELECT distribution, architecture, package_name, version FROM Packages WHERE Packages.distribution = ? AND Packages.package_name = ? AND Packages.architecture = ?",
             (distribution, package_name, package_architecture),
         ):
-            print(result)
+            echo(result)
     db.close()
 
 
@@ -60,20 +62,20 @@ def db_list_query(db_path: Path) -> None:
     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
 
     with db:
-        print("Distributions:")
-        print("========================================")
+        echo("Distributions:")
+        echo("========================================")
         for distribution in db.execute("SELECT DISTINCT distribution FROM Packages"):
-            print(distribution[0])
-        print("\n", end="")
-        print("Architectures:")
-        print("========================================")
+            echo(distribution[0])
+        echo("\n", nl=False)
+        echo("Architectures:")
+        echo("========================================")
         for architecture in db.execute("SELECT DISTINCT architecture FROM Packages"):
-            print(architecture[0])
-        print("\n", end="")
-        print("Packages:")
-        print("========================================")
+            echo(architecture[0])
+        echo("\n", nl=False)
+        echo("Packages:")
+        echo("========================================")
         for package_name in db.execute("SELECT DISTINCT package_name FROM Packages"):
-            print(package_name[0])
+            echo(package_name[0])
 
     db.close()
 
