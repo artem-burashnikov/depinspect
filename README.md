@@ -16,15 +16,8 @@ TODO
 ### Prerequisites
 
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-- [Python 3.10+](https://wiki.python.org/moin/BeginnersGuide/Download)
-- [pipx](https://pypa.github.io/pipx/#install-pipx)
-- [Poetry >=1.7.0](https://python-poetry.org/).
-
-    Can be installed with [pipx](https://python-poetry.org/docs/#installing-with-pipx) by running:
-
-    ```sh
-    pipx install poetry
-    ```
+- [Python 3.10+ with pip 19.0+](https://wiki.python.org/moin/BeginnersGuide/Download)
+- [pipx](https://pypa.github.io/pipx/#install-pipx) - to install and run Python applications in isolated environments
 
 ### Installation
 
@@ -42,13 +35,23 @@ Open the terminal and follow these steps:
     cd depinspect
     ```
 
-3. Install all required dependencies with:
+3. Install Poetry in an isolated environment with:
+
+    ```sh
+    pipx install poetry
+    ```
+
+    pipx can also run Poetry from a temporary environment without installing it explicitly. See pipx [documentation](https://pypa.github.io/pipx/docs/) for details.
+
+4. Install all required dependencies with:
+
+    **Note**: Running the command will automatically create a virtual environment and install all dependencies in an isolated manner. For details see Poetry [documentation](https://python-poetry.org/docs/cli/#install).
 
     ```sh
     poetry install
     ```
 
-4. After the installation is complete, you can use the tool by running this command inside the project root directory:
+5. After the installation is complete, you can use the tool by running this command inside the project root directory:
 
     ```sh
     poetry run depinspect [OPTIONS]
