@@ -15,6 +15,7 @@ from depinspect.helper import (
 )
 from depinspect.load.extract import process_archives
 from depinspect.load.fetch import fetch_and_save_metadata
+from depinspect.output.printer import print_result
 from depinspect.process.ubuntu import run_ubuntu_metadata_processing
 
 # Set up logging configuration
@@ -94,57 +95,49 @@ def main(
     def validate_cl_arguments(
         cl_argument1: Tuple[str, str, str], cl_argument2: Tuple[str, str, str]
     ) -> Tuple[Tuple[str, str, str], Tuple[str, str, str]]:
-        ditribution1, architecture1, package_name1 = (
-            cl_argument1[0].lower(),
-            cl_argument1[1].lower(),
-            cl_argument1[2].lower(),
-        )
+        ditribution1, architecture1, package_name1 = cl_argument1
 
-        if not is_valid_distribution(ditribution1):
+        if not is_valid_distribution(ditribution1.lower()):
             raise click.BadOptionUsage(
                 ditribution1,
                 f"List of currently supported distributions: {DISTRIBUTIONS}. Your input was: {ditribution1}",
             )
 
-        if not is_valid_architecture_name(architecture1):
+        if not is_valid_architecture_name(architecture1.lower()):
             raise click.BadOptionUsage(
                 architecture1,
                 f"Archicetrure1 should be one of the strings provided by a '$ dpkg-architecture -L' command. Your input: {architecture1}",
             )
 
-        if not is_valid_package_name(package_name1):
+        if not is_valid_package_name(package_name1.lower()):
             raise click.BadOptionUsage(
                 package_name1,
                 f"Name of the package1 should match correct syntax. Your input: {package_name1}",
             )
 
-        distribution2, architecture2, package_name2 = (
-            cl_argument2[0].lower(),
-            cl_argument2[1].lower(),
-            cl_argument2[2].lower(),
-        )
+        distribution2, architecture2, package_name2 = cl_argument2
 
-        if not is_valid_distribution(distribution2):
+        if not is_valid_distribution(distribution2.lower()):
             raise click.BadOptionUsage(
                 distribution2,
                 f"List of currently supported distributions: {DISTRIBUTIONS}. Your input was: {distribution2}",
             )
 
-        if not is_valid_architecture_name(architecture2):
+        if not is_valid_architecture_name(architecture2.lower()):
             raise click.BadOptionUsage(
                 architecture2,
                 f"Archicetrure2 should be one of the strings provided by a '$ dpkg-architecture -L' command. Your input: {architecture2}",
             )
 
-        if not is_valid_package_name(package_name2):
+        if not is_valid_package_name(package_name2.lower()):
             raise click.BadOptionUsage(
                 package_name2,
                 f"Name of the package2 should match correct syntax. Your input: {package_name2}",
             )
 
         return (
-            (ditribution1, architecture1, package_name1),
-            (distribution2, architecture2, package_name2),
+            (ditribution1.lower(), architecture1.lower(), package_name1.lower()),
+            (distribution2.lower(), architecture2.lower(), package_name2.lower()),
         )
 
     def get_cl_arguments() -> Tuple[Tuple[str, str, str], Tuple[str, str, str]]:
@@ -173,7 +166,7 @@ def main(
 
     if list:
         ensure_db_exists(db_path)
-        sqlite_db.db_list_query(db_path)
+        sqlite_db.db_list_all(db_path)
         ctx.exit(0)
 
     if package1 and package2:
@@ -181,19 +174,22 @@ def main(
 
         ensure_db_exists(db_path)
 
-        sqlite_db.db_main_query(
+        result1 = sqlite_db.db_list_dependencies(
             db_path=db_path,
             distribution=validated_input1[0],
             package_architecture=validated_input1[1],
             package_name=validated_input1[2],
         )
 
-        sqlite_db.db_main_query(
+        result2 = sqlite_db.db_list_dependencies(
             db_path=db_path,
             distribution=validated_input2[0],
             package_architecture=validated_input2[1],
             package_name=validated_input2[2],
         )
+
+        print_result(validated_input1, result1, validated_input2, result2)
+
     else:
         logging.error(
             "Incorrect number of arguments. Make sure to specifiy --package1 and --package2."
