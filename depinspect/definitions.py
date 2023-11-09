@@ -1,6 +1,5 @@
 from depinspect.helper import get_project_root
 
-# Asuuming config and database files are in the project root
 ROOT_DIR = get_project_root()
 
 SOURCES_FILE_NAME = "sources.cfg"

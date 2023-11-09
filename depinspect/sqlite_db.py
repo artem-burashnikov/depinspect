@@ -10,6 +10,21 @@ from depinspect import files
 
 
 def db_remove(db_path: Path) -> None:
+    """
+    Remove an SQLite3 database file.
+
+    Parameters:
+    - db_path (Path): The path to the SQLite3 database file.
+
+    Returns:
+    - None
+
+    Raises:
+    - SystemExit: If the file specified is not an SQLite3 database (with a '.db' extension).
+
+    Note:
+    This function logs information and errors using the 'logging' module.
+    """
     file_extension = db_path.suffix
     if file_extension == ".db":
         logging.info("Removing database.")
@@ -20,6 +35,19 @@ def db_remove(db_path: Path) -> None:
 
 
 def db_new(db_name: str, output_path: Path) -> Path:
+    """
+    Create and initialize a new SQLite3 database.
+
+    Parameters:
+    - db_name (str): The name of the new database.
+    - output_path (Path): The directory where the new database will be created.
+
+    Returns:
+    - Path: The path to the newly created database.
+
+    Raises:
+    - Exception: If there is an issue removing an existing database.
+    """
     db_path = output_path / Path(db_name)
 
     if db_path.is_file() and db_path.suffix == ".db":
@@ -49,6 +77,22 @@ def db_new(db_name: str, output_path: Path) -> Path:
 def db_list_dependencies(
     db_path: Path, distribution: str, package_architecture: str, package_name: str
 ) -> List[Tuple[str]]:
+    """
+    List dependencies for a specific package in an SQLite3 database.
+
+    Parameters:
+    - db_path (Path): The path to the SQLite3 database.
+    - distribution (str): The distribution of the package.
+    - package_architecture (str): The architecture of the package.
+    - package_name (str): The name of the package.
+
+    Returns:
+    - List[Tuple[str]]: A list of tuples containing dependency names.
+
+    Note:
+    This function opens a read-only connection to the database, retrieves dependencies
+    for the specified package, and returns the result as a list of tuples.
+    """
     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     result = db.execute(
         "SELECT dependency_name \
@@ -62,6 +106,19 @@ def db_list_dependencies(
 
 
 def db_list_all(db_path: Path) -> None:
+    """
+    List all unique distributions, architectures, and package names in an SQLite3 database.
+
+    Parameters:
+    - db_path (Path): The path to the SQLite3 database.
+
+    Returns:
+    - None
+
+    Note:
+    This function opens a read-only connection to the database, retrieves distinct distributions,
+    architectures, and package names, and prints the results.
+    """
     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
 
     with db:

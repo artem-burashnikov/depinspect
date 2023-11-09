@@ -65,7 +65,32 @@ def main(
     update: bool,
     list: bool,
 ) -> None:
+    """
+    Main function for the depinspect command-line tool.
+
+    Parameters:
+    - ctx (click.Context): Click context object.
+    - package1 (Tuple[str, str, str]): Tuple of distribution, architecture, and package name for the first package.
+    - package2 (Tuple[str, str, str]): Tuple of distribution, architecture, and package name for the second package.
+    - update (bool): Flag indicating whether to forcefully re-initialize the database.
+    - list (bool): Flag indicating whether to list all available distributions, architectures, and package names.
+
+    Returns:
+    - None
+    """
+
     def initialize_data(config_path: Path, db_name: str, output_path: Path) -> None:
+        """
+        Initialize data by fetching archives, extracting them, and processing metadata into the database.
+
+        Parameters:
+        - config_path (Path): Path to the sources configuration file.
+        - db_name (str): Name of the SQLite database.
+        - output_path (Path): Output path for temporary and database files.
+
+        Returns:
+        - None
+        """
         tmp_dir = create_temp_dir(dir_prefix=".tmp", output_path=output_path)
         db_path = sqlite_db.db_new(db_name=db_name, output_path=output_path)
 
@@ -95,6 +120,16 @@ def main(
     def validate_cl_arguments(
         cl_argument1: Tuple[str, str, str], cl_argument2: Tuple[str, str, str]
     ) -> Tuple[Tuple[str, str, str], Tuple[str, str, str]]:
+        """
+        Validate command-line arguments for packages.
+
+        Parameters:
+        - cl_argument1 (Tuple[str, str, str]): Tuple of distribution, architecture, and package name for the first package.
+        - cl_argument2 (Tuple[str, str, str]): Tuple of distribution, architecture, and package name for the second package.
+
+        Returns:
+        - Tuple[Tuple[str, str, str], Tuple[str, str, str]]: Validated tuples for both packages.
+        """
         ditribution1, architecture1, package_name1 = cl_argument1
 
         if not is_valid_distribution(ditribution1.lower()):
@@ -141,9 +176,24 @@ def main(
         )
 
     def get_cl_arguments() -> Tuple[Tuple[str, str, str], Tuple[str, str, str]]:
+        """
+        Get validated command-line arguments for packages.
+
+        Returns:
+        - Tuple[Tuple[str, str, str], Tuple[str, str, str]]: Validated tuples for both packages.
+        """
         return validate_cl_arguments(package1, package2)
 
     def ensure_db_exists(db_path: Path) -> None:
+        """
+        Ensure that the database file exists. If not, initialize data.
+
+        Parameters:
+        - db_path (Path): Path to the database file.
+
+        Returns:
+        - None
+        """
         if db_path.is_file() and db_path.suffix == ".db":
             return
         else:
