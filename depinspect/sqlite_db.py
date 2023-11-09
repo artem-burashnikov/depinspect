@@ -2,6 +2,7 @@ import logging
 import sqlite3
 from pathlib import Path
 from sys import exit
+from typing import List, Tuple
 
 from click import echo
 
@@ -34,7 +35,7 @@ def db_new(db_name: str, output_path: Path) -> Path:
     connection = sqlite3.connect(db_path)
 
     connection.execute(
-        "CREATE TABLE IF NOT EXISTS Packages (id INTEGER PRIMARY KEY, distribution TEXT, architecture TEXT, package_name TEXT, version TEXT, UNIQUE(distribution, architecture, package_name, version))"
+        "CREATE TABLE IF NOT EXISTS Packages (id INTEGER PRIMARY KEY AUTOINCREMENT, distribution TEXT, architecture TEXT, package_name TEXT, version TEXT, UNIQUE(distribution, architecture, package_name, version))"
     )
 
     connection.execute(
@@ -45,20 +46,22 @@ def db_new(db_name: str, output_path: Path) -> Path:
     return db_path
 
 
-def db_main_query(
+def db_list_dependencies(
     db_path: Path, distribution: str, package_architecture: str, package_name: str
-) -> None:
+) -> List[Tuple[str]]:
     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
-    with db:
-        for result in db.execute(
-            "SELECT distribution, architecture, package_name, version FROM Packages WHERE Packages.distribution = ? AND Packages.package_name = ? AND Packages.architecture = ?",
-            (distribution, package_name, package_architecture),
-        ):
-            echo(result)
+    result = db.execute(
+        "SELECT dependency_name \
+        FROM Dependencies \
+        JOIN Packages ON Dependencies.package_id = Packages.id \
+        WHERE Packages.distribution = ? AND Packages.package_name = ? AND Packages.architecture = ?",
+        (distribution, package_name, package_architecture),
+    ).fetchall()
     db.close()
+    return result
 
 
-def db_list_query(db_path: Path) -> None:
+def db_list_all(db_path: Path) -> None:
     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
 
     with db:
@@ -78,11 +81,3 @@ def db_list_query(db_path: Path) -> None:
             echo(package_name[0])
 
     db.close()
-
-
-"""
-SELECT Dependencies.package_id, Dependencies.dependency_name
-FROM Dependencies
-JOIN Packages ON Dependencies.package_id = Packages.id
-WHERE Packages.distribution = ? AND Packages.package_name = ? AND Packages.architecture = ?;
-"""
