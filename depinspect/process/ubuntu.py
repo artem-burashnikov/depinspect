@@ -1,6 +1,6 @@
 import logging
+import sqlite3
 from pathlib import Path
-from sqlite3 import connect
 from sys import exit
 from typing import List, Tuple
 
@@ -63,7 +63,7 @@ def process_metadata_into_db(file_path: Path, db_path: Path) -> None:
         )
         exit(1)
 
-    db_connection = connect(db_path)
+    db_connection = sqlite3.connect(db_path)
 
     with db_connection:
         with open(file_path, "r") as packages_txt_file:
@@ -89,24 +89,27 @@ def process_metadata_into_db(file_path: Path, db_path: Path) -> None:
                     )
                 else:
                     if package_name and version and architecture:
-                        result = db_connection.execute(
-                            "INSERT INTO Packages (distribution, architecture, package_name, version) VALUES (?, ?, ?, ?) ON CONFLICT DO NOTHING",
-                            (
-                                "ubuntu",
-                                "".join(architecture),
-                                package_name,
-                                version,
-                            ),
-                        )
-                        db_connection.execute(
-                            "INSERT INTO Dependencies (package_id, dependency_name) VALUES (?, ?)",
-                            (result.lastrowid, ",".join(depends)),
-                        )
-
-                    package_name = ""
-                    version = ""
-                    architecture.clear()
-                    depends.clear()
+                        try:
+                            result = db_connection.execute(
+                                "INSERT OR ABORT INTO Packages (distribution, architecture, package_name, version) VALUES (?, ?, ?, ?)",
+                                (
+                                    "ubuntu",
+                                    "".join(architecture),
+                                    package_name,
+                                    version,
+                                ),
+                            )
+                            db_connection.execute(
+                                "INSERT INTO Dependencies (package_id, dependency_name) VALUES (?, ?)",
+                                (result.lastrowid, ",".join(depends)),
+                            )
+                        except sqlite3.Error:
+                            pass
+                        finally:
+                            package_name = ""
+                            version = ""
+                            architecture.clear()
+                            depends.clear()
 
         logging.info(f"File {file_path.name} has been processed succesfully.")
 
