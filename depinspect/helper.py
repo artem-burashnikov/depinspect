@@ -3,10 +3,9 @@ from pathlib import Path
 from re import fullmatch
 
 
+# Important! If helper.py is moved, everything breaks. Don't move the file!
 def get_project_root() -> Path:
-    return (
-        Path(__file__).absolute().resolve().parent.parent
-    )  # if helper.py is moved this breaks. Don't move!
+    return Path(__file__).absolute().parent.parent.resolve()
 
 
 def create_temp_dir(dir_prefix: str, output_path: Path) -> Path:
