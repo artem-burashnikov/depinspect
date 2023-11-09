@@ -71,15 +71,12 @@ def main(
         try:
             logging.info("Fetching archives from pre-defined URL sources.")
             fetch_and_save_metadata(config_path, tmp_dir)
-            logging.info("Fetching: Success.")
 
             logging.info("Extracting archives.")
             process_archives(tmp_dir)
-            logging.info("Extracting: Sucess.")
 
             logging.info("Processing ubuntu metadata into database.")
             run_ubuntu_metadata_processing(tmp_dir, db_path)
-            logging.info("Ubuntu processing: Success.")
 
         except Exception:
             logging.exception(
@@ -106,7 +103,7 @@ def main(
         if not is_valid_distribution(ditribution1):
             raise click.BadOptionUsage(
                 ditribution1,
-                f"List of currently supported distributions: ubuntu. Your input was: {ditribution1}",
+                f"List of currently supported distributions: {DISTRIBUTIONS}. Your input was: {ditribution1}",
             )
 
         if not is_valid_architecture_name(architecture1):
