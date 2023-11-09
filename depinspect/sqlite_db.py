@@ -34,7 +34,7 @@ def db_new(db_name: str, output_path: Path) -> Path:
     connection = sqlite3.connect(db_path)
 
     connection.execute(
-        "CREATE TABLE IF NOT EXISTS Packages (id INTEGER PRIMARY KEY AUTOINCREMENT, distribution TEXT, architecture TEXT, package_name TEXT, version TEXT, UNIQUE(distribution, architecture, package_name, version))"
+        "CREATE TABLE IF NOT EXISTS Packages (id INTEGER PRIMARY KEY, distribution TEXT, architecture TEXT, package_name TEXT, version TEXT, UNIQUE(distribution, architecture, package_name, version))"
     )
 
     connection.execute(
