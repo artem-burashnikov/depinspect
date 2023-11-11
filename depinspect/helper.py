@@ -66,7 +66,7 @@ def is_valid_distribution(distribution_name: str) -> bool:
     list of valid distributions.
     """
     # Importing here avoids circular dependency.
-    from depinspect.definitions import DISTRIBUTIONS
+    from depinspect.constants import DISTRIBUTIONS
 
     return distribution_name in DISTRIBUTIONS
 
@@ -86,6 +86,6 @@ def is_valid_architecture_name(architecture_name: str) -> bool:
     list of valid architectures.
     """
     # Importing here avoids circular dependency.
-    from depinspect.definitions import ARCHITECTURES
+    from depinspect.constants import ARCHITECTURES
 
     return architecture_name in ARCHITECTURES

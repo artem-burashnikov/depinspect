@@ -81,33 +81,39 @@ def print_both(
     )
 
     max_length = max(
-        max_header_length, match_max_length, diff_max_length1, diff_max_length2
+        max_header_length,
+        match_max_length,
+        diff_max_length1,
+        diff_max_length2,
+        len("THESE DEPENDENCIES ARE PRESENT IN BOTH"),
     )
 
     divider = "=" * max_length
 
-    echo("THESE DEPENDENCIES ARE PRESENT IN BOTH:")
+    echo("\n", nl=False)
+    echo("THESE DEPENDENCIES ARE PRESENT IN BOTH")
     echo(header1)
     echo(header2)
     echo(divider)
     for match in matches:
         echo(match)
-    echo(divider)
+    # echo(divider)
     echo("\n", nl=False)
 
-    echo("THESE ARE ONLY EXCLUSIVE TO:")
+    echo("THESE ARE ONLY EXCLUSIVE TO")
     echo(header1)
     echo(divider)
     for difference in differences1:
         echo(difference)
-    echo(divider)
+    # echo(divider)
     echo("\n", nl=False)
 
-    echo("THESE ONLY EXCLUSIVE TO:")
+    echo("THESE ARE ONLY EXCLUSIVE TO")
     echo(header2)
     echo(divider)
     for difference in differences2:
-        echo(difference)
+        echo(f"|_ {difference}")
+    echo("\n", nl=False)
 
 
 def print_result(

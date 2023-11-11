@@ -6,17 +6,17 @@ from typing import Tuple
 import click
 
 from depinspect import sqlite_db
-from depinspect.definitions import DB_NAME, DISTRIBUTIONS, ROOT_DIR, SOURCES_FILE_PATH
+from depinspect.constants import DB_NAME, DISTRIBUTIONS, ROOT_DIR, SOURCES_FILE_PATH
+from depinspect.extract import process_archives
+from depinspect.fetch import fetch_and_save_metadata
 from depinspect.helper import (
     create_temp_dir,
     is_valid_architecture_name,
     is_valid_distribution,
     is_valid_package_name,
 )
-from depinspect.load.extract import process_archives
-from depinspect.load.fetch import fetch_and_save_metadata
-from depinspect.output.printer import print_result
-from depinspect.process.ubuntu import run_ubuntu_metadata_processing
+from depinspect.printer import print_result
+from depinspect.processor import run_metadata_processing
 
 # Set up logging configuration
 logging.basicConfig(
@@ -28,18 +28,29 @@ logging.basicConfig(
 
 @click.command(context_settings={"ignore_unknown_options": True})
 @click.option(
+    "--cmp",
+    nargs=4,
+    type=(str, str, str, str),
+    help="Provide a distribution, architecture and another distribution and architecture. \
+        Show all pacakges that have divergent dependencies betweet given distribtuion and architectures. ",
+)
+@click.option(
     "-p1",
     "--package1",
     nargs=3,
     type=(str, str, str),
-    help="Provide the first distribution, architecture and package name separated by whitespaces. Order of arguments matters. Example: --package1 i386 ubuntu apt",
+    help="Provide the first distribution, \
+        architecture and package name separated by whitespaces. \
+        Order of arguments matters. Example: --package1 i386 ubuntu apt",
 )
 @click.option(
     "-p2",
     "--package2",
     nargs=3,
     type=(str, str, str),
-    help="Provide the second distribution, architecture and package name separated by whitespaces. Order of arguments matters. Example: --package2 ubuntu amd64 grub-common",
+    help="Provide the second distribution, \
+        architecture and package name separated by whitespaces. \
+        Order of arguments matters. Example: --package2 ubuntu amd64 grub-common",
 )
 @click.option(
     "-l",
@@ -55,11 +66,14 @@ logging.basicConfig(
     default=False,
     is_flag=True,
     is_eager=True,
-    help="Forcefully re-initialize database. This removes old database, fetches all defined metadata and stores it in a new database.",
+    help="Forcefully re-initialize database. \
+        This removes old database, fetches all defined metadata \
+        and stores it in a new database.",
 )
 @click.pass_context
 def main(
     ctx: click.Context,
+    cmp: Tuple[str, str, str, str],
     package1: Tuple[str, str, str],
     package2: Tuple[str, str, str],
     update: bool,
@@ -70,10 +84,13 @@ def main(
 
     Parameters:
     - ctx (click.Context): Click context object.
-    - package1 (Tuple[str, str, str]): Tuple of distribution, architecture, and package name for the first package.
-    - package2 (Tuple[str, str, str]): Tuple of distribution, architecture, and package name for the second package.
+    - package1 (Tuple[str, str, str]): Tuple of distribution, architecture, \
+        and package name for the first package.
+    - package2 (Tuple[str, str, str]): Tuple of distribution, architecture, \
+        and package name for the second package.
     - update (bool): Flag indicating whether to forcefully re-initialize the database.
-    - list (bool): Flag indicating whether to list all available distributions, architectures, and package names.
+    - list (bool): Flag indicating whether to list all available \
+        distributions, architectures, and package names.
 
     Returns:
     - None
@@ -81,7 +98,8 @@ def main(
 
     def initialize_data(config_path: Path, db_name: str, output_path: Path) -> None:
         """
-        Initialize data by fetching archives, extracting them, and processing metadata into the database.
+        Initialize data by fetching archives, extracting them, and \
+            processing metadata into the database.
 
         Parameters:
         - config_path (Path): Path to the sources configuration file.
@@ -101,8 +119,9 @@ def main(
             logging.info("Extracting archives.")
             process_archives(tmp_dir)
 
-            logging.info("Processing ubuntu metadata into database.")
-            run_ubuntu_metadata_processing(tmp_dir, db_path)
+            logging.info("Processing metadata into database.")
+            for distribution in DISTRIBUTIONS:
+                run_metadata_processing(tmp_dir, db_path, distribution)
 
         except Exception:
             logging.exception(
@@ -124,30 +143,36 @@ def main(
         Validate command-line arguments for packages.
 
         Parameters:
-        - cl_argument1 (Tuple[str, str, str]): Tuple of distribution, architecture, and package name for the first package.
-        - cl_argument2 (Tuple[str, str, str]): Tuple of distribution, architecture, and package name for the second package.
+        - cl_argument1 (Tuple[str, str, str]): Tuple of distribution, architecture, \
+            and package name for the first package.
+        - cl_argument2 (Tuple[str, str, str]): Tuple of distribution, architecture, \
+            and package name for the second package.
 
         Returns:
-        - Tuple[Tuple[str, str, str], Tuple[str, str, str]]: Validated tuples for both packages.
+        - Tuple[Tuple[str, str, str], Tuple[str, str, str]]: \
+            Validated tuples for both packages.
         """
         ditribution1, architecture1, package_name1 = cl_argument1
 
         if not is_valid_distribution(ditribution1.lower()):
             raise click.BadOptionUsage(
                 ditribution1,
-                f"List of currently supported distributions: {DISTRIBUTIONS}. Your input was: {ditribution1}",
+                f"List of currently supported distributions: {DISTRIBUTIONS}. \
+                    Your input was: {ditribution1}",
             )
 
         if not is_valid_architecture_name(architecture1.lower()):
             raise click.BadOptionUsage(
                 architecture1,
-                f"Archicetrure1 should be one of the strings provided by a '$ dpkg-architecture -L' command. Your input: {architecture1}",
+                f"Archicetrure1 should be one of the strings provided by a \
+                    '$ dpkg-architecture -L' command. Your input: {architecture1}",
             )
 
         if not is_valid_package_name(package_name1.lower()):
             raise click.BadOptionUsage(
                 package_name1,
-                f"Name of the package1 should match correct syntax. Your input: {package_name1}",
+                f"Name of the package1 should match correct syntax. \
+                    Your input: {package_name1}",
             )
 
         distribution2, architecture2, package_name2 = cl_argument2
@@ -155,19 +180,22 @@ def main(
         if not is_valid_distribution(distribution2.lower()):
             raise click.BadOptionUsage(
                 distribution2,
-                f"List of currently supported distributions: {DISTRIBUTIONS}. Your input was: {distribution2}",
+                f"List of currently supported distributions: {DISTRIBUTIONS}. \
+                    Your input was: {distribution2}",
             )
 
         if not is_valid_architecture_name(architecture2.lower()):
             raise click.BadOptionUsage(
                 architecture2,
-                f"Archicetrure2 should be one of the strings provided by a '$ dpkg-architecture -L' command. Your input: {architecture2}",
+                f"Archicetrure2 should be one of the strings provided by a \
+                    '$ dpkg-architecture -L' command. Your input: {architecture2}",
             )
 
         if not is_valid_package_name(package_name2.lower()):
             raise click.BadOptionUsage(
                 package_name2,
-                f"Name of the package2 should match correct syntax. Your input: {package_name2}",
+                f"Name of the package2 should match correct syntax. \
+                    Your input: {package_name2}",
             )
 
         return (
@@ -180,7 +208,8 @@ def main(
         Get validated command-line arguments for packages.
 
         Returns:
-        - Tuple[Tuple[str, str, str], Tuple[str, str, str]]: Validated tuples for both packages.
+        - Tuple[Tuple[str, str, str], Tuple[str, str, str]]: \
+            Validated tuples for both packages.
         """
         return validate_cl_arguments(package1, package2)
 
@@ -242,7 +271,8 @@ def main(
 
     else:
         logging.error(
-            "Incorrect number of arguments. Make sure to specifiy --package1 and --package2."
+            "Incorrect number of arguments. \
+                Make sure to specifiy --package1 and --package2."
         )
         click.echo(ctx.get_help())
         ctx.exit(1)

@@ -1,7 +1,7 @@
 from urllib import error, request
 
-from depinspect.definitions import SOURCES_FILE_PATH
-from depinspect.load.fetch import read_config
+from depinspect.constants import SOURCES_FILE_PATH
+from depinspect.fetch import read_config
 
 
 # Check that all urls defined in sources.cfg are reachable

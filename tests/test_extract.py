@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from depinspect.load.extract import extract_xz_archive
+from depinspect.extract import extract_xz_archive
 
 """ 
 pytest automatically recognizes tmp_path as a fixture and provides the necessary functionality
