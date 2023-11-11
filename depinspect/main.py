@@ -129,8 +129,8 @@ def list(ctx: click.Context) -> None:
 
 @depinspect.command(
     help=(
-        "Forcefully re-initialize database."
-        "This removes old database, fetches all defined metadata"
+        "Forcefully re-initialize database. "
+        "This removes old database, fetches all defined metadata "
         "and stores it in a new database."
     )
 )
