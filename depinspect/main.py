@@ -51,15 +51,15 @@ def run_initialization(config_path: Path, db_name: str, output_path: Path) -> No
         logging.info("Done.")
 
 
-def validate_packages_info(
+def validate_diff_args(
     ctx: click.Context,
     param: click.Parameter,
-    value: Tuple[Tuple[str, str, str], Tuple[str, str, str]],
-) -> Tuple[Tuple[str, str, str], Tuple[str, str, str]]:
+    value: Tuple[Tuple[str, str, str], ...],
+) -> Tuple[Tuple[str, str, str], ...]:
     if len(value) != 2:
         raise click.BadArgumentUsage(
-            "diff requires two packages to be provided\n"
-            "Incorrect number of diff arguments",
+            "diff command requires two packages to be provided\n"
+            "Incorrect number of command arguments",
             ctx=ctx,
         )
 
@@ -90,6 +90,43 @@ def validate_packages_info(
                     package_name,
                     f"Name of the package should match correct syntax. "
                     f"Your input: {package_name}",
+                )
+
+    return value
+
+
+def validate_find_divergent_args(
+    ctx: click.Context,
+    param: click.Parameter,
+    value: Tuple[Tuple[str, str], ...],
+) -> Tuple[Tuple[str, str], ...]:
+    if len(value) != 2:
+        raise click.BadArgumentUsage(
+            "find-divergent command requires two architectures to be provided\n"
+            "Incorrect number of command arguments",
+            ctx=ctx,
+        )
+
+    for arch_info in value:
+        if len(arch_info) != 2:
+            raise click.BadArgumentUsage(
+                "Distribution and architecture are required\n", ctx=ctx
+            )
+        else:
+            distribution, architecture = arch_info
+
+            if not is_valid_distribution(distribution.lower()):
+                raise click.BadOptionUsage(
+                    distribution,
+                    f"List of currently supported distributions: {DISTRIBUTIONS}. "
+                    f"Your input was: {distribution}",
+                )
+
+            if not is_valid_architecture_name(architecture.lower()):
+                raise click.BadOptionUsage(
+                    architecture,
+                    f"Archicetrure should be one of the strings provided by a "
+                    f"'$ dpkg-architecture -L' command. Your input: {architecture}",
                 )
 
     return value
@@ -154,7 +191,7 @@ def update(ctx: click.Context) -> None:
     "--package",
     multiple=True,
     type=(str, str, str),
-    callback=validate_packages_info,
+    callback=validate_diff_args,
     help=(
         "Provide distribution, architecture and package name"
         " separated by whitespaces."
@@ -184,4 +221,27 @@ def diff(ctx: click.Context, package: Tuple[Any, ...]) -> None:
 
     printer.print_result(package[0], result1, package[1], result2)
 
+    ctx.exit(0)
+
+
+@depinspect.command(
+    help=(
+        "Find all packages from specified architectures "
+        "that have divergent dependencies."
+    ),
+)
+@click.option(
+    "--arch",
+    multiple=True,
+    type=(str, str),
+    callback=validate_find_divergent_args,
+    help=(
+        "Provide architecture and package name"
+        " separated by whitespaces."
+        " Order of arguments matters.\n\n"
+        "Example: --arch ubuntu i386"
+    ),
+)
+@click.pass_context
+def find_divergent(ctx: click.Context, arch: Tuple[Any, ...]) -> None:
     ctx.exit(0)
