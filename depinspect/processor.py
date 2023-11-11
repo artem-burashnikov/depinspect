@@ -28,17 +28,23 @@ def process_metadata_into_db(file_path: Path, db_path: Path, distribution: str) 
 
         for package in packages:
             maybe_result = db_connection.execute(
-                "SELECT distribution, architecture, package_name FROM Packages WHERE distribution = ? AND architecture = ? AND package_name = ?",
+                "SELECT distribution, architecture, package_name "
+                "FROM Packages "
+                "WHERE distribution = ? "
+                "AND architecture = ? "
+                "AND package_name = ?",
                 (package.distribution, package.architecture, package.package),
             ).fetchall()
 
             if not maybe_result:
                 result = db_connection.execute(
-                    "INSERT OR ABORT INTO Packages (distribution, architecture, package_name) VALUES (?, ?, ?)",
+                    "INSERT OR ABORT INTO Packages "
+                    "(distribution, architecture, package_name) VALUES (?, ?, ?)",
                     (package.distribution, package.architecture, package.package),
                 )
                 db_connection.execute(
-                    "INSERT INTO Dependencies (package_id, dependency_name) VALUES (?, ?)",
+                    "INSERT INTO Dependencies "
+                    "(package_id, dependency_name) VALUES (?, ?)",
                     (result.lastrowid, ",".join(package.depends)),
                 )
             else:

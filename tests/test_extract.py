@@ -5,10 +5,6 @@ import pytest
 
 from depinspect.extract import extract_xz_archive
 
-""" 
-pytest automatically recognizes tmp_path as a fixture and provides the necessary functionality
-"""
-
 
 def test_extract_xz_archive(tmp_path: Path) -> None:
     # Create a test .xz archive file with XZ-compressed content

@@ -1,23 +1,11 @@
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from click import echo
 
 
-def print_one(package: Tuple[str, str, str], result: List[Tuple[str]]) -> None:
-    """
-    Print information for a single package, including its dependencies.
-
-    Parameters:
-    - package (Tuple[str, str, str]): A tuple containing distribution, architecture, and package name.
-    - result (List[Tuple[str]]): A list containing tuples with dependency information.
-
-    Returns:
-    - None
-
-    Note:
-    This function takes a package tuple and its dependencies and prints the information in a formatted manner.
-    It calculates the maximum character length for formatting and prints the header, divider, and dependencies.
-    """
+def print_result_for_one(
+    package: Tuple[str, str, str], result: List[Tuple[str]]
+) -> None:
     distribution, architecture, package_name = package
     dependencies = sorted(result[0][0].split(","))
     header = f"{distribution} - {architecture} - {package_name}"
@@ -28,34 +16,20 @@ def print_one(package: Tuple[str, str, str], result: List[Tuple[str]]) -> None:
 
     divider = "=" * max_char_length
 
+    echo("\n", nl=False)
     echo(header)
     echo(divider)
     for dependency in dependencies:
         echo(f"{dependency}")
+    echo("\n", nl=False)
 
 
-def print_both(
+def print_result_for_both(
     package1: Tuple[str, str, str],
     result1: List[Tuple[str]],
     package2: Tuple[str, str, str],
     result2: List[Tuple[str]],
 ) -> None:
-    """
-    Print information for two packages, including their dependencies and exclusions.
-
-    Parameters:
-    - package1 (Tuple[str, str, str]): A tuple containing distribution, architecture, and package name for the first package.
-    - result1 (List[Tuple[str]]): A list containing tuples with dependency information for the first package.
-    - package2 (Tuple[str, str, str]): A tuple containing distribution, architecture, and package name for the second package.
-    - result2 (List[Tuple[str]]): A list containing tuples with dependency information for the second package.
-
-    Returns:
-    - None
-
-    Note:
-    This function takes information for two packages and their dependencies, and prints a comparison of their dependencies.
-    It shows dependencies present in both, as well as exclusions for each package.
-    """
     distribution1, architecture1, package_name1 = package1
     dependencies1 = sorted(result1[0][0].split(","))
     header1 = f"{distribution1} - {architecture1} - {package_name1}"
@@ -85,34 +59,32 @@ def print_both(
         match_max_length,
         diff_max_length1,
         diff_max_length2,
-        len("THESE DEPENDENCIES ARE PRESENT IN BOTH"),
+        len("These dependencies are present in both"),
     )
 
     divider = "=" * max_length
 
     echo("\n", nl=False)
-    echo("THESE DEPENDENCIES ARE PRESENT IN BOTH")
+    echo("These dependencies are present in both:")
     echo(header1)
     echo(header2)
     echo(divider)
     for match in matches:
         echo(match)
-    # echo(divider)
     echo("\n", nl=False)
 
-    echo("THESE ARE ONLY EXCLUSIVE TO")
+    echo("These dependencies are exclusive to:")
     echo(header1)
     echo(divider)
     for difference in differences1:
         echo(difference)
-    # echo(divider)
     echo("\n", nl=False)
 
-    echo("THESE ARE ONLY EXCLUSIVE TO")
+    echo("These dependencies are exclusive to:")
     echo(header2)
     echo(divider)
     for difference in differences2:
-        echo(f"|_ {difference}")
+        echo(f"{difference}")
     echo("\n", nl=False)
 
 
@@ -122,32 +94,26 @@ def print_result(
     input2: Tuple[str, str, str],
     result_from_input2: List[Tuple[str]],
 ) -> None:
-    """
-    Print the result of comparing dependencies for two input packages.
-
-    Parameters:
-    - input1 (Tuple[str, str, str]): A tuple containing distribution, architecture, and package name for the first input package.
-    - result_from_input1 (List[Tuple[str]]): A list containing tuples with dependency information for the first input package.
-    - input2 (Tuple[str, str, str]): A tuple containing distribution, architecture, and package name for the second input package.
-    - result_from_input2 (List[Tuple[str]]): A list containing tuples with dependency information for the second input package.
-
-    Returns:
-    - None
-
-    Note:
-    This function prints the result of comparing dependencies for two input packages.
-    It checks if there are records found for each input and calls the appropriate printing function.
-    """
     if not result_from_input1 and not result_from_input2:
         echo(
-            f"No records were found. Printing input...\n{input1[0]} - {input1[1]} - {input1[2]}\n{input2[0]} - {input2[1]} - {input2[2]}"
+            f"No records were found. Printing input...\n"
+            f"{input1[0]} - {input1[1]} - {input1[2]}\n"
+            f"{input2[0]} - {input2[1]} - {input2[2]}"
         )
 
     if not result_from_input1 and result_from_input2:
-        print_one(input2, result_from_input2)
+        print_result_for_one(input2, result_from_input2)
 
     if result_from_input1 and not result_from_input2:
-        print_one(input1, result_from_input1)
+        print_result_for_one(input1, result_from_input1)
 
     if result_from_input1 and result_from_input2:
-        print_both(input1, result_from_input1, input2, result_from_input2)
+        print_result_for_both(input1, result_from_input1, input2, result_from_input2)
+
+
+def print_all(data: Dict[str, List[str]]) -> None:
+    for section in data.keys():
+        echo(f"{section.upper()}:")
+        for value in sorted(data[section]):
+            print(value)
+        echo("\n", nl=False)
