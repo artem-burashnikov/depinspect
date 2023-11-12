@@ -107,9 +107,21 @@ def print_diff(
         )
 
     if not query_result1 and query_result2:
-        print_for_one(dist_arch_and_package_name2, query_result1)
+        echo(
+            f"\n"
+            f"Did not find any records for "
+            f"{dist_arch_and_package_name1[0]} -"
+            f"{dist_arch_and_package_name1[1]}"
+        )
+        print_for_one(dist_arch_and_package_name2, query_result2)
 
     if query_result1 and not query_result2:
+        echo(
+            f"\n"
+            f"Did not find any records for "
+            f"{dist_arch_and_package_name2[0]} -"
+            f"{dist_arch_and_package_name2[1]}"
+        )
         print_for_one(dist_arch_and_package_name1, query_result1)
 
     if query_result1 and query_result2:
