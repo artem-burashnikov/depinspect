@@ -159,7 +159,7 @@ def list(ctx: click.Context) -> None:
     ensure_db_exists(db_path)
 
     result = database.find_all_distinct(db_path)
-    printer.print_all(result)
+    printer.print_list(result)
 
     ctx.exit(0)
 
@@ -219,7 +219,7 @@ def diff(ctx: click.Context, package: Tuple[Any, ...]) -> None:
         package_name=package[1][2],
     )
 
-    printer.print_result(package[0], result1, package[1], result2)
+    printer.print_diff(package[0], result1, package[1], result2)
 
     ctx.exit(0)
 
@@ -244,4 +244,22 @@ def diff(ctx: click.Context, package: Tuple[Any, ...]) -> None:
 )
 @click.pass_context
 def find_divergent(ctx: click.Context, arch: Tuple[Any, ...]) -> None:
+    db_path = ROOT_DIR / DB_NAME
+
+    ensure_db_exists(db_path)
+
+    result1 = database.find_packages(
+        db_path=db_path,
+        distribution=arch[0][0],
+        architecture=arch[0][1],
+    )
+
+    result2 = database.find_packages(
+        db_path=db_path,
+        distribution=arch[1][0],
+        architecture=arch[1][1],
+    )
+
+    printer.print_divergent(arch[0], result1, arch[1], result2)
+
     ctx.exit(0)

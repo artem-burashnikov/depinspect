@@ -86,3 +86,28 @@ def find_all_distinct(db_path: Path) -> Dict[str, List[str]]:
     db.close()
 
     return result
+
+
+def find_packages(
+    db_path: Path, distribution: str, architecture: str
+) -> Dict[str, List[str]]:
+    db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+
+    result: Dict[str, List[str]] = {}
+
+    with db:
+        for package_id, package_name in db.execute(
+            "SELECT id, package_name FROM Packages "
+            "WHERE distribution = ? AND architecture = ?",
+            (distribution, architecture),
+        ):
+            dependencies = db.execute(
+                "SELECT dependency_name FROM Dependencies WHERE package_id = ?",
+                (package_id,),
+            ).fetchall()
+
+            result[package_name] = dependencies[0][0]
+
+    db.close()
+
+    return result
