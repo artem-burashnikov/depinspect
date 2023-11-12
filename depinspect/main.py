@@ -15,7 +15,7 @@ from depinspect.helper import (
     is_valid_distribution,
     is_valid_package_name,
 )
-from depinspect.processor import run_metadata_processing
+from depinspect.process import run_metadata_processing
 
 logging.basicConfig(
     level=logging.INFO,
