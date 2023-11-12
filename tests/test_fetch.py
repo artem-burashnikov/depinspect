@@ -1,11 +1,13 @@
 from urllib import error, request
 
+from click import echo
+
 from depinspect.constants import SOURCES_FILE_PATH
 from depinspect.fetch import read_config
 
 
 # Check that all urls defined in sources.cfg are reachable
-def test_URL_sources() -> None:
+def test_url_sources() -> None:
     metadata_sources = read_config(SOURCES_FILE_PATH)
 
     for section in metadata_sources.sections():
@@ -19,8 +21,8 @@ def test_URL_sources() -> None:
                         200 <= response.status < 300
                     ), f"Unexpected status code for URL {url}: {response.status}"
             except error.URLError as e:
-                print(f"Error accessing URL {url}: {e}")
+                echo(f"Error accessing URL {url}: {e}")
                 assert False, f"Error accessing URL {url}: {e}"
             except Exception as e:
-                print(f"Unexpected error for URL {url}: {e}")
+                echo(f"Unexpected error for URL {url}: {e}")
                 assert False, f"Unexpected error for URL {url}: {e}"

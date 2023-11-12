@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 from re import split
-from typing import List
 
 
 class Package(ABC):
@@ -10,16 +9,16 @@ class Package(ABC):
         self._architecture: str = ""
         self._package: str = ""
         self._version: str = ""
-        self._depends: List[str] = []
-        self._recommends: List[str] = []
-        self._suggests: List[str] = []
-        self._enhances: List[str] = []
-        self._breaks: List[str] = []
-        self._conflicts: List[str] = []
-        self._pre_depends: List[str] = []
-        self._provides: List[str] = []
+        self._depends: list[str] = []
+        self._recommends: list[str] = []
+        self._suggests: list[str] = []
+        self._enhances: list[str] = []
+        self._breaks: list[str] = []
+        self._conflicts: list[str] = []
+        self._pre_depends: list[str] = []
+        self._provides: list[str] = []
 
-    def _str_to_list(self, string: str) -> List[str]:
+    def _str_to_list(self, string: str) -> list[str]:
         return [string.strip() for string in string.split(",")]
 
     @property
@@ -55,7 +54,7 @@ class Package(ABC):
         self._version = value
 
     @property
-    def depends(self) -> List[str]:
+    def depends(self) -> list[str]:
         return self._depends
 
     @depends.setter
@@ -63,7 +62,7 @@ class Package(ABC):
         self._depends = self._str_to_list(value)
 
     @property
-    def recommends(self) -> List[str]:
+    def recommends(self) -> list[str]:
         return self._recommends
 
     @recommends.setter
@@ -71,7 +70,7 @@ class Package(ABC):
         self._recommends = self._str_to_list(value)
 
     @property
-    def suggests(self) -> List[str]:
+    def suggests(self) -> list[str]:
         return self._suggests
 
     @suggests.setter
@@ -79,7 +78,7 @@ class Package(ABC):
         self._suggests = self._str_to_list(value)
 
     @property
-    def enhances(self) -> List[str]:
+    def enhances(self) -> list[str]:
         return self._enhances
 
     @enhances.setter
@@ -87,7 +86,7 @@ class Package(ABC):
         self._enhances = self._str_to_list(value)
 
     @property
-    def breaks(self) -> List[str]:
+    def breaks(self) -> list[str]:
         return self._breaks
 
     @breaks.setter
@@ -95,7 +94,7 @@ class Package(ABC):
         self._breaks = self._str_to_list(value)
 
     @property
-    def conflicts(self) -> List[str]:
+    def conflicts(self) -> list[str]:
         return self._conflicts
 
     @conflicts.setter
@@ -103,7 +102,7 @@ class Package(ABC):
         self._conflicts = self._str_to_list(value)
 
     @property
-    def pre_depends(self) -> List[str]:
+    def pre_depends(self) -> list[str]:
         return self._pre_depends
 
     @pre_depends.setter
@@ -111,7 +110,7 @@ class Package(ABC):
         self._pre_depends = self._str_to_list(value)
 
     @property
-    def provides(self) -> List[str]:
+    def provides(self) -> list[str]:
         return self._provides
 
     @provides.setter
@@ -120,7 +119,7 @@ class Package(ABC):
 
     @staticmethod
     @abstractmethod
-    def parse_matadata(file_path: Path) -> List["Package"]:
+    def parse_matadata(file_path: Path) -> list["Package"]:
         pass
 
 
@@ -130,10 +129,10 @@ class Ubuntu(Package):
         self.distribution = "ubuntu"
 
     @staticmethod
-    def parse_matadata(file_path: Path) -> List["Package"]:
-        with open(file_path, "r") as file:
+    def parse_matadata(file_path: Path) -> list["Package"]:
+        with open(file_path) as file:
             file_content = file.read()
-            ubuntu_packages: List[Package] = []
+            ubuntu_packages: list[Package] = []
 
             blocks = split(r"\n(?=Package:)", file_content)
             for block in blocks:

@@ -146,10 +146,10 @@ Below are common use cases.
 It is helpful to see the list of available distributions, architectures and package names stored in the database. If the database already exists, then the following command outputs and stores this information in a file called available_data.txt:
 
 ```sh
-depinspect list > available_data.txt
+depinspect list-all > available_data.txt
 ```
 
-If the database doesn't exist, `list` will also implicitly call the initialization process.
+If the database doesn't exist, `list-all` will also implicitly call the initialization process.
 
 ### Initialize or re-initialize the database
 

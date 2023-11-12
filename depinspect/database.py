@@ -2,7 +2,6 @@ import logging
 import sqlite3
 from pathlib import Path
 from sys import exit
-from typing import Dict, List, Tuple
 
 from depinspect import files
 
@@ -51,7 +50,7 @@ def new(db_name: str, output_path: Path) -> Path:
 
 def find_dependencies(
     db_path: Path, distribution: str, package_architecture: str, package_name: str
-) -> List[Tuple[str]]:
+) -> list[tuple[str]]:
     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     result = db.execute(
         "SELECT dependency_name "
@@ -66,10 +65,10 @@ def find_dependencies(
     return result
 
 
-def find_all_distinct(db_path: Path) -> Dict[str, List[str]]:
+def find_all_distinct(db_path: Path) -> dict[str, list[str]]:
     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
 
-    result: Dict[str, List[str]] = {
+    result: dict[str, list[str]] = {
         "distributions": [],
         "architectures": [],
         "package_names": [],
@@ -90,10 +89,10 @@ def find_all_distinct(db_path: Path) -> Dict[str, List[str]]:
 
 def find_packages(
     db_path: Path, distribution: str, architecture: str
-) -> Dict[str, List[str]]:
+) -> dict[str, list[str]]:
     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
 
-    result: Dict[str, List[str]] = {}
+    result: dict[str, list[str]] = {}
 
     with db:
         for package_id, package_name in db.execute(

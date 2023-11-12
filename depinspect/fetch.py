@@ -9,7 +9,7 @@ def read_config(config_path: Path) -> configparser.ConfigParser:
     return config
 
 
-def pull_target_from_URL(target_url: str, local_target_path: Path) -> None:
+def pull_target_from_url(target_url: str, local_target_path: Path) -> None:
     with request.urlopen(request.Request(target_url), timeout=15.0) as response:
         if response.status == 200:
             request.urlretrieve(target_url, local_target_path)
@@ -30,4 +30,4 @@ def fetch_and_save_metadata(config_path: Path, output_directory: Path) -> None:
 
             metadata_url = metadata_sources[section][key]
 
-            pull_target_from_URL(metadata_url, local_target_path)
+            pull_target_from_url(metadata_url, local_target_path)

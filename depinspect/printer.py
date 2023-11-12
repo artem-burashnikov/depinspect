@@ -1,16 +1,14 @@
-from typing import Dict, List, Tuple
-
 from click import echo
 
 
 def print_diff(
-    input1: Tuple[str, str, str],
-    result_from_input1: List[Tuple[str]],
-    input2: Tuple[str, str, str],
-    result_from_input2: List[Tuple[str]],
+    input1: tuple[str, str, str],
+    result_from_input1: list[tuple[str]],
+    input2: tuple[str, str, str],
+    result_from_input2: list[tuple[str]],
 ) -> None:
     def print_result_for_one(
-        package: Tuple[str, str, str], result: List[Tuple[str]]
+        package: tuple[str, str, str], result: list[tuple[str]]
     ) -> None:
         distribution, architecture, package_name = package
         dependencies = sorted(result[0][0].split(","))
@@ -30,10 +28,10 @@ def print_diff(
         echo("\n", nl=False)
 
     def print_result_for_both(
-        package1: Tuple[str, str, str],
-        result1: List[Tuple[str]],
-        package2: Tuple[str, str, str],
-        result2: List[Tuple[str]],
+        package1: tuple[str, str, str],
+        result1: list[tuple[str]],
+        package2: tuple[str, str, str],
+        result2: list[tuple[str]],
     ) -> None:
         distribution1, architecture1, package_name1 = package1
         dependencies1 = sorted(result1[0][0].split(","))
@@ -111,24 +109,24 @@ def print_diff(
         print_result_for_both(input1, result_from_input1, input2, result_from_input2)
 
 
-def print_list(data: Dict[str, List[str]]) -> None:
+def print_list(data: dict[str, list[str]]) -> None:
     for section in data.keys():
         echo(f"{section.upper()}:")
         for value in sorted(data[section]):
-            print(value)
+            echo(value)
         echo("\n", nl=False)
 
 
 def print_divergent(
-    dist_and_arch1: Tuple[str, str],
-    result1: Dict[str, List[str]],
-    dist_and_arch2: Tuple[str, str],
-    result2: Dict[str, List[str]],
+    dist_and_arch1: tuple[str, str],
+    result1: dict[str, list[str]],
+    dist_and_arch2: tuple[str, str],
+    result2: dict[str, list[str]],
 ) -> None:
-    result: List[str] = []
+    result: list[str] = []
 
-    set_of_packages1 = set(key for key in result1.keys())
-    set_of_packages2 = set(key for key in result2.keys())
+    set_of_packages1 = set(result1.keys())
+    set_of_packages2 = set(result2.keys())
 
     definitely_diverge = set.symmetric_difference(set_of_packages1, set_of_packages2)
     maybe_diverge = set_of_packages1.intersection(set_of_packages2)

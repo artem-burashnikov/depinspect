@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from typing import List
 
 
 def remove_file(file_path: Path) -> None:
@@ -29,7 +28,7 @@ def remove_file(file_path: Path) -> None:
         logging.exception(f"Error removing file '{file_path.name}")
 
 
-def list_files_in_directory(directory_path: Path) -> List[Path]:
+def list_files_in_directory(directory_path: Path) -> list[Path]:
     """
     List all files in the specified directory.
 
@@ -47,8 +46,7 @@ def list_files_in_directory(directory_path: Path) -> List[Path]:
     within it, and returns a list of Path objects representing the files.
     """
     if directory_path.is_dir():
-        files = [path for path in Path.iterdir(directory_path) if path.is_file()]
-        return files
-    else:
-        logging.error("list_files_in_directory: The specified path is not a directory")
-        raise NotADirectoryError
+        return [path for path in Path.iterdir(directory_path) if path.is_file()]
+
+    logging.error("list_files_in_directory: The specified path is not a directory")
+    raise NotADirectoryError

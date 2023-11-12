@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 from shutil import rmtree
-from typing import Any, Tuple
+from typing import Any
 
 import click
 
@@ -54,8 +54,8 @@ def run_initialization(config_path: Path, db_name: str, output_path: Path) -> No
 def validate_diff_args(
     ctx: click.Context,
     param: click.Parameter,
-    value: Tuple[Tuple[str, str, str], ...],
-) -> Tuple[Tuple[str, str, str], ...]:
+    value: tuple[tuple[str, str, str], ...],
+) -> tuple[tuple[str, str, str], ...]:
     if len(value) != 2:
         raise click.BadArgumentUsage(
             "diff command requires two packages to be provided\n"
@@ -68,29 +68,29 @@ def validate_diff_args(
             raise click.BadArgumentUsage(
                 "Distribution, architecture and name are required\n", ctx=ctx
             )
-        else:
-            distribution, architecture, package_name = package_info
 
-            if not is_valid_distribution(distribution.lower()):
-                raise click.BadOptionUsage(
-                    distribution,
-                    f"List of currently supported distributions: {DISTRIBUTIONS}. "
-                    f"Your input was: {distribution}",
-                )
+        distribution, architecture, package_name = package_info
 
-            if not is_valid_architecture_name(architecture.lower()):
-                raise click.BadOptionUsage(
-                    architecture,
-                    f"Archicetrure should be one of the strings provided by a "
-                    f"'$ dpkg-architecture -L' command. Your input: {architecture}",
-                )
+        if not is_valid_distribution(distribution.lower()):
+            raise click.BadOptionUsage(
+                distribution,
+                f"List of currently supported distributions: {DISTRIBUTIONS}. "
+                f"Your input was: {distribution}",
+            )
 
-            if not is_valid_package_name(package_name.lower()):
-                raise click.BadOptionUsage(
-                    package_name,
-                    f"Name of the package should match correct syntax. "
-                    f"Your input: {package_name}",
-                )
+        if not is_valid_architecture_name(architecture.lower()):
+            raise click.BadOptionUsage(
+                architecture,
+                f"Archicetrure should be one of the strings provided by a "
+                f"'$ dpkg-architecture -L' command. Your input: {architecture}",
+            )
+
+        if not is_valid_package_name(package_name.lower()):
+            raise click.BadOptionUsage(
+                package_name,
+                f"Name of the package should match correct syntax. "
+                f"Your input: {package_name}",
+            )
 
     return value
 
@@ -98,8 +98,8 @@ def validate_diff_args(
 def validate_find_divergent_args(
     ctx: click.Context,
     param: click.Parameter,
-    value: Tuple[Tuple[str, str], ...],
-) -> Tuple[Tuple[str, str], ...]:
+    value: tuple[tuple[str, str], ...],
+) -> tuple[tuple[str, str], ...]:
     if len(value) != 2:
         raise click.BadArgumentUsage(
             "find-divergent command requires two architectures to be provided\n"
@@ -112,22 +112,22 @@ def validate_find_divergent_args(
             raise click.BadArgumentUsage(
                 "Distribution and architecture are required\n", ctx=ctx
             )
-        else:
-            distribution, architecture = arch_info
 
-            if not is_valid_distribution(distribution.lower()):
-                raise click.BadOptionUsage(
-                    distribution,
-                    f"List of currently supported distributions: {DISTRIBUTIONS}. "
-                    f"Your input was: {distribution}",
-                )
+        distribution, architecture = arch_info
 
-            if not is_valid_architecture_name(architecture.lower()):
-                raise click.BadOptionUsage(
-                    architecture,
-                    f"Archicetrure should be one of the strings provided by a "
-                    f"'$ dpkg-architecture -L' command. Your input: {architecture}",
-                )
+        if not is_valid_distribution(distribution.lower()):
+            raise click.BadOptionUsage(
+                distribution,
+                f"List of currently supported distributions: {DISTRIBUTIONS}. "
+                f"Your input was: {distribution}",
+            )
+
+        if not is_valid_architecture_name(architecture.lower()):
+            raise click.BadOptionUsage(
+                architecture,
+                f"Archicetrure should be one of the strings provided by a "
+                f"'$ dpkg-architecture -L' command. Your input: {architecture}",
+            )
 
     return value
 
@@ -135,10 +135,10 @@ def validate_find_divergent_args(
 def ensure_db_exists(db_path: Path) -> None:
     if db_path.is_file() and db_path.suffix == ".db":
         return
-    else:
-        run_initialization(
-            config_path=SOURCES_FILE_PATH, db_name=DB_NAME, output_path=ROOT_DIR
-        )
+
+    run_initialization(
+        config_path=SOURCES_FILE_PATH, db_name=DB_NAME, output_path=ROOT_DIR
+    )
 
 
 @click.group()
@@ -153,7 +153,7 @@ def depinspect() -> None:
     )
 )
 @click.pass_context
-def list(ctx: click.Context) -> None:
+def list_all(ctx: click.Context) -> None:
     db_path = ROOT_DIR / DB_NAME
 
     ensure_db_exists(db_path)
@@ -200,7 +200,7 @@ def update(ctx: click.Context) -> None:
     ),
 )
 @click.pass_context
-def diff(ctx: click.Context, package: Tuple[Any, ...]) -> None:
+def diff(ctx: click.Context, package: tuple[Any, ...]) -> None:
     db_path = ROOT_DIR / DB_NAME
 
     ensure_db_exists(db_path)
@@ -243,7 +243,7 @@ def diff(ctx: click.Context, package: Tuple[Any, ...]) -> None:
     ),
 )
 @click.pass_context
-def find_divergent(ctx: click.Context, arch: Tuple[Any, ...]) -> None:
+def find_divergent(ctx: click.Context, arch: tuple[Any, ...]) -> None:
     db_path = ROOT_DIR / DB_NAME
 
     ensure_db_exists(db_path)
