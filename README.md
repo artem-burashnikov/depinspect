@@ -80,7 +80,7 @@ This command requires two `--package` options to be specified.
 ```ignorelang
 Usage: depinspect diff [OPTIONS]
 
-  Find a difference and similarities in dependencies of two packagesfrom
+  Find a difference and similarities in dependencies of two packages from
   different distributions and architectures.
 
 Options:

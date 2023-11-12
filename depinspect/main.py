@@ -182,7 +182,7 @@ def update(ctx: click.Context) -> None:
 
 @depinspect.command(
     help=(
-        "Find a difference and similarities in dependencies of two packages"
+        "Find a difference and similarities in dependencies of two packages "
         "from different distributions and architectures."
     ),
 )
