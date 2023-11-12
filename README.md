@@ -54,7 +54,7 @@ Open the terminal and follow these steps:
 5. After the installation is complete, you can use the tool by running this command from within a virtual environment:
 
     ```sh
-    ddepinspect [OPTIONS] COMMAND [ARGS]...
+    depinspect [OPTIONS] COMMAND [ARGS]...
     ```
 
 ## Usage
@@ -70,7 +70,7 @@ Commands:
 
   find-divergent  Find all packages from specified architectures that...
 
-  list            List all available distributions, architectures and...
+  list-all        List all available distributions, architectures and...
 
   update          Forcefully re-initialize database.
 ```
@@ -97,10 +97,10 @@ Options:
   --help                          Show this message and exit.
 ```
 
-- `depinspect list --help`
+- `depinspect list-all --help`
 
 ```ignorelang
-Usage: depinspect list [OPTIONS]
+Usage: depinspect list-all [OPTIONS]
 
   List all available distributions, architectures and packages.This implicitly
   initializez a new database.
@@ -201,7 +201,7 @@ Which first tells you the shared dependencies for specified packages and then li
 
 ### Find all packages with divergent dependencies
 
-If you wish to find all packages from two arhitecrues, whose dependenices have differences, you can do so with the following command:
+If you wish to find all packages from two architectures, whose dependenices have differences, you can do so with the following command:
 
 ```sh
 depinspect find-divergent --arch ubuntu amd64 --arch ubuntu i386 > output.txt
