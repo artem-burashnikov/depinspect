@@ -66,9 +66,13 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-  diff    Find a difference and similarities in dependencies of two...
-  list    List all available distributions, architectures and...
-  update  Forcefully re-initialize database.This removes old database,...
+  diff            Find a difference and similarities in dependencies...
+
+  find-divergent  Find all packages from specified architectures that...
+
+  list            List all available distributions, architectures and...
+
+  update          Forcefully re-initialize database.
 ```
 
 ### Commands
@@ -115,6 +119,22 @@ Usage: depinspect update [OPTIONS]
 
 Options:
   --help  Show this message and exit.
+```
+
+- `depinspect find-divergent --help`
+
+```ignorelang
+Usage: depinspect find-divergent [OPTIONS]
+
+  Find all packages from specified architectures that have divergent
+  dependencies.
+
+Options:
+  --arch <TEXT TEXT>...  Provide architecture and package name separated by
+                         whitespace. Order of arguments matters.
+                         
+                         Example: --arch ubuntu i386
+  --help                 Show this message and exit.
 ```
 
 ## Examples
@@ -178,6 +198,16 @@ libgcc-s1 (>= 3.3.1)
 ```
 
 Which first tells you the shared dependencies for specified packages and then lists exclusive dependencies for each of them.
+
+### Find all packages with divergent dependencies
+
+If you wish to find all packages from two arhitecrues, whose dependenices have differences, you can do so with the following command:
+
+```sh
+depinspect find-divergent --arch ubuntu amd64 --arch ubuntu i386 > output.txt
+```
+
+The command will save the result in `output.txt`.
 
 ## License
 

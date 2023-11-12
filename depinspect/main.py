@@ -237,7 +237,7 @@ def diff(ctx: click.Context, package: Tuple[Any, ...]) -> None:
     callback=validate_find_divergent_args,
     help=(
         "Provide architecture and package name"
-        " separated by whitespaces."
+        " separated by whitespace."
         " Order of arguments matters.\n\n"
         "Example: --arch ubuntu i386"
     ),
