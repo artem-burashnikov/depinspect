@@ -2,13 +2,13 @@ from urllib import error, request
 
 from click import echo
 
-from depinspect.constants import SOURCES_FILE_PATH
+from depinspect.constants import ROOT_DIR, SOURCES_FILE_NAME
 from depinspect.fetch import read_config
 
 
 # Check that all urls defined in sources.cfg are reachable
 def test_url_sources() -> None:
-    metadata_sources = read_config(SOURCES_FILE_PATH)
+    metadata_sources = read_config(ROOT_DIR / SOURCES_FILE_NAME)
 
     for section in metadata_sources.sections():
         for key in metadata_sources[section]:

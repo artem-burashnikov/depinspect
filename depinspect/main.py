@@ -6,7 +6,7 @@ from typing import Any
 import click
 
 from depinspect import database, printer
-from depinspect.constants import DB_NAME, DISTRIBUTIONS, ROOT_DIR, SOURCES_FILE_PATH
+from depinspect.constants import DB_NAME, DISTRIBUTIONS, ROOT_DIR, SOURCES_FILE_NAME
 from depinspect.extract import process_archives
 from depinspect.fetch import fetch_and_save_metadata
 from depinspect.helper import (
@@ -137,7 +137,9 @@ def ensure_db_exists(db_path: Path) -> None:
         return
 
     run_initialization(
-        config_path=SOURCES_FILE_PATH, db_name=DB_NAME, output_path=ROOT_DIR
+        config_path=(ROOT_DIR / SOURCES_FILE_NAME),
+        db_name=DB_NAME,
+        output_path=ROOT_DIR,
     )
 
 
@@ -174,7 +176,9 @@ def list_all(ctx: click.Context) -> None:
 @click.pass_context
 def update(ctx: click.Context) -> None:
     run_initialization(
-        config_path=SOURCES_FILE_PATH, db_name=DB_NAME, output_path=ROOT_DIR
+        config_path=(ROOT_DIR / SOURCES_FILE_NAME),
+        db_name=DB_NAME,
+        output_path=ROOT_DIR,
     )
     logging.info("Update complete.")
     ctx.exit(0)
