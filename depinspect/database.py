@@ -19,32 +19,27 @@ def remove(db_path: Path) -> None:
 def new(db_name: str, output_path: Path) -> Path:
     db_path = output_path / Path(db_name)
 
-    if db_path.is_file() and db_path.suffix == ".db":
-        logging.warning(f"sqlite3 database already exists at: {db_path}.")
-        try:
-            remove(db_path)
-        except Exception:
-            logging.exception(
-                "There was an exception trying to remove existing database."
-            )
-
-    logging.info("Creating and initializing new database.")
+    logging.info("Initializing a database.")
     connection = sqlite3.connect(db_path)
 
-    connection.execute(
-        "CREATE TABLE IF NOT EXISTS Packages "
-        "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
-        "distribution TEXT, architecture TEXT, package_name TEXT, version TEXT, "
-        "UNIQUE(distribution, architecture, package_name, version))"
+    connection.executescript(
+        """
+        BEGIN;
+        DROP TABLE IF EXISTS packages;
+        DROP TABLE IF EXISTS dependencies;
+        CREATE TABLE packages
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+            distribution TEXT, architecture TEXT, package_name TEXT, version TEXT,
+            UNIQUE(distribution, architecture, package_name, version));
+        CREATE TABLE dependencies
+            (package_id INTEGER, dependency_name TEXT, FOREIGN KEY (package_id)
+            REFERENCES Packages(id));
+        COMMIT;
+    """
     )
 
-    connection.execute(
-        "CREATE TABLE IF NOT EXISTS Dependencies "
-        "(package_id INTEGER, dependency_name TEXT, FOREIGN KEY (package_id) "
-        "REFERENCES Packages(id))"
-    )
     connection.close()
-    logging.info("Successfully initialized new database.")
+    logging.info("Successfully initialized a database.")
     return db_path
 
 
