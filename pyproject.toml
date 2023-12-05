@@ -10,6 +10,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 click = "^8.1.7"
+hypothesis = "^6.91.0"
 
 [tool.poetry.group.dev]
 optional = true
