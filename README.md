@@ -1,15 +1,33 @@
 # Depinspect
 
-[![Build status](https://github.com/artem-burashnikov/depinspect/actions/workflows/ci.yml/badge.svg)](https://github.com/artem-burashnikov/depinspect/actions/workflows/ci.yml?branch=dev)
-[![License: MIT Licence](https://img.shields.io/badge/license-MIT-blue)](https://github.com/artem-burashnikov/depinspect/blob/main/LICENSE)
+[![Build status][status-shield]][status-url]
+[![MIT License][license-shield]][license-url]
 
 ## Overview
 
 Depinspect is an utility designed to prodive insights into linux package dependencies across multiple architectures and distributions.
 
-## Features
+## Table of contents
 
-TODO
+<ol>
+
+  <li>
+  <a href="#getting-started">Getting Started</a>
+    <ul>
+      <li><a href="#prerequisites">Prerequisites</a></li>
+      <li><a href="#installation">Installation</a></li>
+      <li><a href="#usage">Usage</a></li>
+    </ul>
+  </li>
+
+  <li>
+  <a href="#examples">Examples</a>
+  </li>
+
+  <li>
+  <a href="#license">License</a>
+  </li>
+</ol>
 
 ## Getting Started
 
@@ -93,7 +111,7 @@ Options:
                                   package name separated by whitespaces. Order
                                   of arguments matters.
                                   
-                                  Example: --package ubuntu i386 apt
+                                  Example: -p ubuntu i386 apt -p ubuntu amd64 apt
   --help                          Show this message and exit.
 ```
 
@@ -133,7 +151,7 @@ Options:
   --arch <TEXT TEXT>...  Provide architecture and package name separated by
                          whitespace. Order of arguments matters.
                          
-                         Example: --arch ubuntu i386
+                         Example: --arch ubuntu i386 --arch ubuntu amd64
   --help                 Show this message and exit.
 ```
 
@@ -211,4 +229,10 @@ The command will save the result in `output.txt`.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE][license-url] for details.
+
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[license-shield]: https://img.shields.io/github/license/artem-burashnikov/depinspect.svg?style=for-the-badge&color=blue
+[license-url]: https://github.com/artem-burashnikov/depinspect/blob/main/LICENSE
+[status-shield]: https://img.shields.io/github/actions/workflow/status/artem-burashnikov/depinspect/.github/workflows/ci.yml?branch=main&event=push&style=for-the-badge
+[status-url]: https://github.com/artem-burashnikov/depinspect/blob/main/.github/workflows/ci.yml
