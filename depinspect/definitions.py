@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from re import split
@@ -145,6 +146,10 @@ class Ubuntu(Package):
                         try:
                             setattr(package_info, key.lower().replace("-", "_"), value)
                         except AttributeError:
+                            logging.warning(
+                                f"Ubuntu package field {key} was not set. "
+                                f"Skipping value: {value}"
+                            )
                             pass
 
                     ubuntu_packages.append(package_info)
