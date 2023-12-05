@@ -49,11 +49,11 @@ def find_dependencies(
     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     result = db.execute(
         "SELECT dependency_name "
-        "FROM Dependencies "
-        "JOIN Packages ON Dependencies.package_id = Packages.id "
-        "WHERE Packages.distribution = ? "
-        "AND Packages.package_name = ? "
-        "AND Packages.architecture = ?",
+        "FROM dependencies "
+        "JOIN packages ON dependencies.package_id = packages.id "
+        "WHERE packages.distribution = ? "
+        "AND packages.package_name = ? "
+        "AND packages.architecture = ?",
         (distribution, package_name, package_architecture),
     ).fetchall()
     db.close()
@@ -70,11 +70,11 @@ def find_all_distinct(db_path: Path) -> dict[str, list[str]]:
     }
 
     with db:
-        for distribution in db.execute("SELECT DISTINCT distribution FROM Packages"):
+        for distribution in db.execute("SELECT DISTINCT distribution FROM packages"):
             result["distributions"].append(distribution[0])
-        for architecture in db.execute("SELECT DISTINCT architecture FROM Packages"):
+        for architecture in db.execute("SELECT DISTINCT architecture FROM packages"):
             result["architectures"].append(architecture[0])
-        for package_name in db.execute("SELECT DISTINCT package_name FROM Packages"):
+        for package_name in db.execute("SELECT DISTINCT package_name FROM packages"):
             result["package_names"].append(package_name[0])
 
     db.close()
@@ -91,12 +91,12 @@ def find_packages(
 
     with db:
         for package_id, package_name in db.execute(
-            "SELECT id, package_name FROM Packages "
+            "SELECT id, package_name FROM packages "
             "WHERE distribution = ? AND architecture = ?",
             (distribution, architecture),
         ):
             dependencies = db.execute(
-                "SELECT dependency_name FROM Dependencies WHERE package_id = ?",
+                "SELECT dependency_name FROM dependencies WHERE package_id = ?",
                 (package_id,),
             ).fetchall()
 
