@@ -9,25 +9,12 @@ Depinspect is an utility designed to prodive insights into linux package depende
 
 ## Table of contents
 
-<ol>
-
-  <li>
-  <a href="#getting-started">Getting Started</a>
-    <ul>
-      <li><a href="#prerequisites">Prerequisites</a></li>
-      <li><a href="#installation">Installation</a></li>
-      <li><a href="#usage">Usage</a></li>
-    </ul>
-  </li>
-
-  <li>
-  <a href="#examples">Examples</a>
-  </li>
-
-  <li>
-  <a href="#license">License</a>
-  </li>
-</ol>
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Usage](#usage)
+- [Examples](#examples)
+- [License](#license)
 
 ## Getting Started
 
