@@ -66,21 +66,21 @@ Open the terminal and follow these steps:
 
 TODO
 
-### `depinspect diff --help`
+### `depinspect diff`
 
 This command requires two `--package` options to be specified.
 
 TODO
 
-### `depinspect list-all --help`
+### `depinspect list-all`
 
 TODO
 
-### `depinspect update --help`
+### `depinspect update`
 
 TODO
 
-### `depinspect find-divergent --help`
+### `depinspect find-divergent`
 
 TODO
 
@@ -98,7 +98,7 @@ depinspect list-all ubuntu > ubuntu_available_data.txt
 
 ### Initialize or re-initialize the database
 
-The tool ensures that databases exist before you can query for specific information, so it will implicitly create them for you, fetching fresh metadata. You can also manually re-initialize the database by calling:
+The tool ensures that databases exist before you can query for information. You can also manually call this process (for example, in order to update the stored metadata) by running:
 
 ```sh
 depinspect update
@@ -144,7 +144,7 @@ Which first tells you the shared dependencies for specified packages and then li
 
 ### Find all packages with divergent dependencies
 
-If you wish to find all packages from two architectures, whose dependenices have differences, you can do so with the following command:
+If you wish to find all packages for two architectures, whose dependenices have differences, you can do so with the following command:
 
 ```sh
 depinspect find-divergent --arch ubuntu amd64 --arch ubuntu i386 > output.txt
