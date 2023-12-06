@@ -1,6 +1,6 @@
 import pytest
 
-from depinspect.helper import is_valid_package_name
+from depinspect.helper import is_valid_package
 
 
 @pytest.mark.parametrize(
@@ -16,6 +16,6 @@ from depinspect.helper import is_valid_package_name
         ("MY-LIB+123.ubuntu", True),
     ],
 )
-def test_is_valid_package_name(package_name: str, expected_result: bool) -> None:
-    result = is_valid_package_name(package_name)
+def test_is_valid_package(package_name: str, expected_result: bool) -> None:
+    result = is_valid_package(package_name)
     assert result == expected_result
