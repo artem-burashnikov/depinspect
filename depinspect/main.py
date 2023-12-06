@@ -129,7 +129,7 @@ def depinspect() -> None:
 @depinspect.command(
     help=(
         "List all available architectures and packages for a given distribution."
-        "This implicitly initializez a new database."
+        "This implicitly initializez databases if they don't exist."
     )
 )
 @click.argument("distribution", callback=validate_list_all_args, nargs=1)
