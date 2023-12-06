@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "depinspect"
-version = "0.1.0"
+version = "0.2.0"
 description = "A tool to analyze linux package dependencies across multiple distributions and architectures"
 license = "MIT"
 authors = ["Artem Burashnikov <artem.burashnikov@gmail.com>"]
@@ -23,7 +23,7 @@ black = "^23.10.0"
 ruff = "^0.1.1"
 
 [tool.ruff]
-# Assume Python 3.10
+# Assume Python >= 3.10
 target-version = "py310"
 
 [tool.black]
