@@ -77,83 +77,25 @@ Open the terminal and follow these steps:
 
 ## Usage
 
-```ignorelang
-Usage: depinspect [OPTIONS] COMMAND [ARGS]...
+TODO
 
-Options:
-  --help  Show this message and exit.
-
-Commands:
-  diff            Find a difference and similarities in dependencies...
-
-  find-divergent  Find all packages from specified architectures that...
-
-  list-all        List all available distributions, architectures and...
-
-  update          Forcefully re-initialize database.
-```
-
-### Commands
-
-- `depinspect diff --help`
+### `depinspect diff --help`
 
 This command requires two `--package` options to be specified.
 
-```ignorelang
-Usage: depinspect diff [OPTIONS]
+TODO
 
-  Find a difference and similarities in dependencies of two packages from
-  different distributions and architectures.
+### `depinspect list-all --help`
 
-Options:
-  -p, --package <TEXT TEXT TEXT>...
-                                  Provide distribution, architecture and
-                                  package name separated by whitespaces. Order
-                                  of arguments matters.
-                                  
-                                  Example: -p ubuntu i386 apt -p ubuntu amd64 apt
-  --help                          Show this message and exit.
-```
+TODO
 
-- `depinspect list-all --help`
+### `depinspect update --help`
 
-```ignorelang
-Usage: depinspect list-all [OPTIONS]
+TODO
 
-  List all available distributions, architectures and packages.This implicitly
-  initializez a new database.
+### `depinspect find-divergent --help`
 
-Options:
-  --help  Show this message and exit.
-```
-
-- `depinspect update --help`
-
-```ignorelang
-Usage: depinspect update [OPTIONS]
-
-  Forcefully re-initialize database. This removes old database, fetches all
-  defined metadata and stores it in a new database.
-
-Options:
-  --help  Show this message and exit.
-```
-
-- `depinspect find-divergent --help`
-
-```ignorelang
-Usage: depinspect find-divergent [OPTIONS]
-
-  Find all packages from specified architectures that have divergent
-  dependencies.
-
-Options:
-  --arch <TEXT TEXT>...  Provide architecture and package name separated by
-                         whitespace. Order of arguments matters.
-                         
-                         Example: --arch ubuntu i386 --arch ubuntu amd64
-  --help                 Show this message and exit.
-```
+TODO
 
 ## Examples
 
@@ -161,23 +103,19 @@ Below are common use cases.
 
 ### List stored metadata
 
-It is helpful to see the list of available distributions, architectures and package names stored in the database. If the database already exists, then the following command outputs and stores this information in a file called available_data.txt:
+It is helpful to see the list of available architectures and package names stored in the database for a particular distribution. The following command outputs and stores the information for ubuntu in a file called available_data.txt:
 
 ```sh
-depinspect list-all > available_data.txt
+depinspect list-all ubuntu > ubuntu_available_data.txt
 ```
-
-If the database doesn't exist, `list-all` will also implicitly call the initialization process.
 
 ### Initialize or re-initialize the database
 
-The tool ensures that the database exists before you can query it for specific information, so it will implicitly create one for you. You can also manually re-initialize the database by calling:
+The tool ensures that databases exist before you can query for specific information, so it will implicitly create them for you, fetching fresh metadata. You can also manually re-initialize the database by calling:
 
 ```sh
 depinspect update
 ```
-
-This will remove the old database file and start the initialization process, which consists of fetching metadata from pre-defined URL sources, parsing text files and storing parsed data in a new database.
 
 ### Find differnces and similarities between two packages
 
