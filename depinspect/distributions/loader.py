@@ -3,7 +3,7 @@ import sqlite3
 from pathlib import Path
 from sys import exit
 
-from depinspect.definitions import distribution_class_mapping
+from depinspect.distributions.mapping import distribution_class_mapping
 from depinspect.files import list_files_in_directory
 
 
@@ -55,7 +55,7 @@ def process_metadata_into_db(file_path: Path, db_path: Path, distribution: str) 
     db_connection.close()
 
 
-def run_metadata_processing(tmp_dir: Path, db_path: Path, distribution: str) -> None:
+def deserialize_metadata(tmp_dir: Path, db_path: Path, distribution: str) -> None:
     txt_files = [
         txt_file
         for txt_file in list_files_in_directory(tmp_dir)

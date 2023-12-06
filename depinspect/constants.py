@@ -1,10 +1,11 @@
-from depinspect.helper import get_project_root
+from depinspect.helper import get_project_root, parse_pyproject
 
 ROOT_DIR = get_project_root()
 
-SOURCES_FILE_NAME = "sources.cfg"
+PYPROJECT_TOML = parse_pyproject(ROOT_DIR / "pyproject.toml")
 
-DB_NAME = "dependencies.db"
+DB_SUFFIX = "_dependencies.db"
 
-DISTRIBUTIONS = ["ubuntu"]
+DISTRIBUTIONS = ["ubuntu", "fedora"]
+
 ARCHITECTURES = ["i386", "amd64", "riscv64", "any", "all"]

@@ -1,6 +1,12 @@
 import tempfile
 from pathlib import Path
 from re import fullmatch
+from typing import Any
+
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib
 
 
 # Important! If helper.py is moved, everything breaks. Don't move the file!
@@ -25,7 +31,7 @@ def create_temp_dir(dir_prefix: str, output_path: Path) -> Path:
     return Path(tempfile.mkdtemp(dir=output_path, prefix=dir_prefix))
 
 
-def is_valid_package_name(package_name: str) -> bool:
+def is_valid_package(package_name: str) -> bool:
     """
     Check if a package name is valid.
 
@@ -49,7 +55,7 @@ def is_valid_distribution(distribution_name: str) -> bool:
     return distribution_name in DISTRIBUTIONS
 
 
-def is_valid_architecture_name(architecture_name: str) -> bool:
+def is_valid_architecture(architecture_name: str) -> bool:
     """
     Check if an architecture name is valid.
 
@@ -60,3 +66,8 @@ def is_valid_architecture_name(architecture_name: str) -> bool:
     from depinspect.constants import ARCHITECTURES
 
     return architecture_name in ARCHITECTURES
+
+
+def parse_pyproject(pyproject_file: Path) -> Any:
+    with open(pyproject_file, "rb") as file:
+        return tomllib.load(file)
