@@ -9,17 +9,15 @@ def pull_target_from_url(target_url: str, local_target_path: Path) -> None:
 
 
 def fetch_and_save_metadata(
-    data: dict[str, dict[str, dict[str, dict[str, str]]]], output_directory: Path
+    urls_from_config: dict[str, dict[str, dict[str, dict[str, str]]]],
+    output_directory: Path,
 ) -> None:
-    for distribution in data.keys():
-        for release in data[distribution].keys():
-            for branch in data[distribution][release].keys():
-                for architecture in data[distribution][release][branch].keys():
+    for distribution, releases in urls_from_config.items():
+        for release, branches in releases.items():
+            for branch, architectures in branches.items():
+                for architecture, url in architectures.items():
                     local_target_path = (
                         output_directory
                         / f"{distribution}_{release}_{branch}_{architecture}.xz"
                     )
-
-                    url = data[distribution][release][branch][architecture]
-
                     pull_target_from_url(url, local_target_path)
