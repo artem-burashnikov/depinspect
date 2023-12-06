@@ -11,6 +11,7 @@ readme = "README.md"
 python = "^3.10"
 click = "^8.1.7"
 hypothesis = "^6.91.0"
+tomli = { version = "^1.1.1", python = "<3.11" }
 
 [tool.poetry.group.dev]
 optional = true
@@ -25,8 +26,20 @@ ruff = "^0.1.1"
 # Assume Python 3.10
 target-version = "py310"
 
+[tool.black]
+line-length = 88
+
+[[tool.mypy.overrides]]
+module = "tomllib.*"
+ignore_missing_imports = true
+
 [tool.poetry.scripts]
 depinspect = "depinspect.main:depinspect"
+
+[tool.depinspect.archives.ubuntu]
+jammy.main.i386 = "http://archive.ubuntu.com/ubuntu/dists/jammy/main/binary-i386/Packages.xz"
+jammy.main.amd64 = "http://archive.ubuntu.com/ubuntu/dists/jammy/main/binary-amd64/Packages.xz"
+jammy.main.riscv64 = "http://ports.ubuntu.com/ubuntu-ports/dists/jammy/main/binary-riscv64/Packages.xz"
 
 [build-system]
 requires = ["poetry-core"]
