@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from shutil import rmtree
 
-from depinspect import database
+from depinspect.database import database
 from depinspect.archives.extract import process_archives
 from depinspect.archives.fetch import fetch_and_save_metadata
 from depinspect.distributions.loader import deserialize_metadata
