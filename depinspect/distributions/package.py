@@ -136,5 +136,5 @@ class Package(ABC):
 
     @staticmethod
     @abstractmethod
-    def parse_matadata(file_path: Path) -> list["Package"]:
+    def parse_matadata(file_path: Path, release: str) -> list["Package"]:
         pass
