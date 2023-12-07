@@ -37,3 +37,13 @@ class Ubuntu(Package):
                     ubuntu_packages.append(package_info)
 
         return ubuntu_packages
+
+    @staticmethod
+    def init(
+        config: dict[str, dict[str, dict[str, dict[str, str]]]],
+        db_suffix: str,
+        output_path: Path,
+    ) -> None:
+        from depinspect.update import initialize_from_archives
+
+        initialize_from_archives(config, db_suffix, output_path)
