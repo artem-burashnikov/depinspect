@@ -77,12 +77,12 @@ class Package(ABC):
         self._suggests = self._str_to_list(value)
 
     @property
-    def enchances(self) -> list[str]:
-        return self._enchances
+    def enhances(self) -> list[str]:
+        return self._enhances
 
-    @enchances.setter
-    def enchances(self, value: str) -> None:
-        self._enchances = self._str_to_list(value)
+    @enhances.setter
+    def enhances(self, value: str) -> None:
+        self._enhances = self._str_to_list(value)
 
     @property
     def breaks(self) -> list[str]:
