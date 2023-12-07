@@ -8,6 +8,7 @@ class Package(ABC):
         self._architecture: str = ""
         self._package: str = ""
         self._version: str = ""
+        self._release: str = ""
         self._depends: list[str] = []
         self._recommends: list[str] = []
         self._suggests: list[str] = []
@@ -51,6 +52,14 @@ class Package(ABC):
     @version.setter
     def version(self, value: str) -> None:
         self._version = value
+
+    @property
+    def release(self) -> str:
+        return self._release
+
+    @release.setter
+    def release(self, value: str) -> None:
+        self._release = value
 
     @property
     def depends(self) -> list[str]:
