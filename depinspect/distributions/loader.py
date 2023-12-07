@@ -7,14 +7,16 @@ from depinspect.distributions.mapping import distribution_class_mapping
 from depinspect.files import list_files_in_directory
 
 
-def process_metadata_into_db(file_path: Path, db_path: Path, distribution: str) -> None:
+def process_metadata_into_db(
+    file_path: Path, db_path: Path, distribution: str, release: str
+) -> None:
     if not file_path.is_file() or file_path.suffix != ".txt":
         logging.exception(
             f"{file_path.name} is not a valid metadata file or doesn't exist."
         )
         exit(1)
 
-    if not db_path.is_file() or db_path.suffix != ".db":
+    if not db_path.is_file() or db_path.suffix != ".sqlite":
         logging.exception(
             f"{db_path.name} is not a valid sqlite3 database or doesn't exist."
         )
@@ -24,28 +26,54 @@ def process_metadata_into_db(file_path: Path, db_path: Path, distribution: str) 
 
     with db_connection:
         package_class = distribution_class_mapping[distribution]
-        packages = package_class.parse_matadata(file_path)
+        packages = package_class.parse_matadata(file_path, release)
 
         for package in packages:
             maybe_result = db_connection.execute(
-                "SELECT distribution, architecture, package_name "
-                "FROM Packages "
-                "WHERE distribution = ? "
-                "AND architecture = ? "
-                "AND package_name = ?",
-                (package.distribution, package.architecture, package.package),
+                """
+                SELECT name, arch, version, release
+                FROM packages
+                WHERE name = ?
+                AND arch = ?
+                AND version = ?
+                AND release = ?
+                """,
+                (
+                    package.package,
+                    package.architecture,
+                    package.version,
+                    package.release,
+                ),
             ).fetchall()
 
             if not maybe_result:
                 result = db_connection.execute(
-                    "INSERT OR ABORT INTO Packages "
-                    "(distribution, architecture, package_name) VALUES (?, ?, ?)",
-                    (package.distribution, package.architecture, package.package),
+                    """
+                    INSERT OR ABORT INTO packages
+                    (name, arch, version, release, description) VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (
+                        package.package,
+                        package.architecture,
+                        package.version,
+                        package.release,
+                        package.description,
+                    ),
                 )
-                db_connection.execute(
-                    "INSERT INTO Dependencies "
-                    "(package_id, dependency_name) VALUES (?, ?)",
-                    (result.lastrowid, ",".join(package.depends)),
+
+                last_package_id = result.lastrowid
+
+                db_connection.executemany(
+                    """
+                    INSERT INTO depends
+                    (name, release, pkgKey) VALUES (?, ?, ?)
+                    """,
+                    (
+                        [
+                            (entry, package.release, last_package_id)
+                            for entry in package.depends
+                        ]
+                    ),
                 )
             else:
                 continue
@@ -55,11 +83,15 @@ def process_metadata_into_db(file_path: Path, db_path: Path, distribution: str) 
     db_connection.close()
 
 
-def deserialize_metadata(tmp_dir: Path, db_path: Path, distribution: str) -> None:
+def deserialize_metadata(
+    tmp_dir: Path, db_path: Path, distribution: str, release: str
+) -> None:
     txt_files = [
         txt_file
         for txt_file in list_files_in_directory(tmp_dir)
-        if txt_file.suffix == ".txt" and txt_file.stem.startswith(distribution)
+        if txt_file.suffix == ".txt"
+        and txt_file.stem.startswith(distribution)
+        and release in txt_file.stem
     ]
     for file_path in txt_files:
-        process_metadata_into_db(file_path, db_path, distribution)
+        process_metadata_into_db(file_path, db_path, distribution, release)
