@@ -11,7 +11,7 @@ class Ubuntu(Package):
         self.distribution = "ubuntu"
 
     @staticmethod
-    def parse_matadata(file_path: Path) -> list["Package"]:
+    def parse_matadata(file_path: Path, dist_release: str) -> list["Package"]:
         with open(file_path) as file:
             file_content = file.read()
             ubuntu_packages: list[Package] = []
@@ -33,6 +33,7 @@ class Ubuntu(Package):
                             )
                             pass
 
+                    package_info.release = dist_release
                     ubuntu_packages.append(package_info)
 
         return ubuntu_packages
