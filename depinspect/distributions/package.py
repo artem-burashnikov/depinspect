@@ -17,6 +17,7 @@ class Package(ABC):
         self._conflicts: list[str] = []
         self._pre_depends: list[str] = []
         self._provides: list[str] = []
+        self._description: str = ""
 
     def _str_to_list(self, string: str) -> list[str]:
         return [string.strip() for string in string.split(",")]
@@ -124,6 +125,14 @@ class Package(ABC):
     @provides.setter
     def provides(self, value: str) -> None:
         self._provides = self._str_to_list(value)
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @description.setter
+    def description(self, value: str) -> None:
+        self._description = value
 
     @staticmethod
     @abstractmethod
