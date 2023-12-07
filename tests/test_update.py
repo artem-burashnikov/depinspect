@@ -2,9 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from depinspect import database
 from depinspect.archives.extract import process_archives
 from depinspect.archives.fetch import fetch_and_save_metadata
+from depinspect.database import database
 from depinspect.distributions.loader import deserialize_metadata
 
 
@@ -28,8 +28,8 @@ def test_initialize_from_archives(
 ) -> None:
     fetch_and_save_metadata(data, tmp_path)
     process_archives(tmp_path)
-    db_path = database.new("ubuntu_test.db", tmp_path)
-    deserialize_metadata(tmp_path, db_path, "ubuntu")
+    db_path = database.init("ubuntu_test.sqlite", tmp_path)
+    deserialize_metadata(tmp_path, db_path, "ubuntu", "jammy")
 
     assert db_path.is_file(), "Database file is not created"
-    assert db_path.suffix == ".db", "Unexpected database file extension"
+    assert db_path.suffix == ".sqlite", "Unexpected database file extension"
