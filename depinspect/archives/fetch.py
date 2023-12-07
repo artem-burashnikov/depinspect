@@ -9,10 +9,10 @@ def pull_target_from_url(target_url: str, local_target_path: Path) -> None:
 
 
 def fetch_and_save_metadata(
-    urls_from_config: dict[str, dict[str, dict[str, dict[str, str]]]],
+    config: dict[str, dict[str, dict[str, dict[str, str]]]],
     output_directory: Path,
 ) -> None:
-    for distribution, releases in urls_from_config.items():
+    for distribution, releases in config.items():
         for release, branches in releases.items():
             for branch, architectures in branches.items():
                 for architecture, url in architectures.items():
