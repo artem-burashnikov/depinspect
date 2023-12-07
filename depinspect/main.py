@@ -6,8 +6,12 @@ import click
 
 from depinspect.constants import (
     ARCHITECTURES,
+    DATABASE_DIR,
+    DB_SUFFIX,
     DISTRIBUTIONS,
+    PYPROJECT_TOML,
 )
+from depinspect.distributions import mapping
 from depinspect.helper import (
     is_valid_architecture,
     is_valid_distribution,
@@ -118,7 +122,7 @@ def validate_list_all_args(
 
 
 def db_exists(db_path: Path) -> bool:
-    return db_path.is_file() and db_path.suffix == ".db"
+    return db_path.is_file() and db_path.suffix == ".sqlite"
 
 
 @click.group()
@@ -141,6 +145,11 @@ def list_all(ctx: click.Context, distribution: str) -> None:
 @depinspect.command(help=("Forcefully re-initialize databases."))
 @click.pass_context
 def update(ctx: click.Context) -> None:
+    config = PYPROJECT_TOML.get("tool", {}).get("depinspect", {}).get("archives", {})
+    for distribution in DISTRIBUTIONS:
+        mapping.distribution_class_mapping[distribution].init(
+            config, DB_SUFFIX, DATABASE_DIR
+        )
     ctx.exit(0)
 
 
@@ -165,6 +174,11 @@ def update(ctx: click.Context) -> None:
 )
 @click.pass_context
 def diff(ctx: click.Context, package: tuple[Any, ...]) -> None:
+    first_package_info, second_package_info = package
+
+    first_distribution, first_architecture, first_name = first_package_info
+    second_distribution, second_architecture, second_name = second_package_info
+
     ctx.exit(0)
 
 
