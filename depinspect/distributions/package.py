@@ -138,3 +138,12 @@ class Package(ABC):
     @abstractmethod
     def parse_matadata(file_path: Path, release: str) -> list["Package"]:
         pass
+
+    @staticmethod
+    @abstractmethod
+    def init(
+        config: dict[str, dict[str, dict[str, dict[str, str]]]],
+        db_suffix: str,
+        output_path: Path,
+    ) -> None:
+        pass
