@@ -4,7 +4,9 @@ ROOT_DIR = get_project_root()
 
 PYPROJECT_TOML = parse_pyproject(ROOT_DIR / "pyproject.toml")
 
-DB_SUFFIX = "_dependencies.db"
+DATABASE_DIR = ROOT_DIR / "depinspect" / "database"
+
+DB_SUFFIX = "_dependencies.sqlite"
 
 DISTRIBUTIONS = ["ubuntu", "fedora"]
 
