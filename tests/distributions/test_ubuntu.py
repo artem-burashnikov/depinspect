@@ -1,3 +1,4 @@
+import pytest
 from depinspect.constants import ROOT_DIR
 from depinspect.distributions.ubuntu import Ubuntu
 from depinspect.files import list_files_in_directory
@@ -8,7 +9,7 @@ def test_ubuntu_parsing() -> None:
     ubuntu_packages = [
         file
         for file in list_files_in_directory(ROOT_DIR / "tests" / "test_data")
-        if file.name == "test_ubuntu_parsing.txt"
+        if "test_ubuntu_jammy" in file.name
     ]
 
     # Deserialize the packages and store them in a dictionary
