@@ -1,4 +1,3 @@
-import pytest
 from depinspect.constants import ROOT_DIR
 from depinspect.distributions.ubuntu import Ubuntu
 from depinspect.files import list_files_in_directory
