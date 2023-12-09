@@ -7,6 +7,7 @@ import click
 
 from depinspect.constants import (
     ARCHITECTURES,
+    DATABASE_DIR,
     DB_SUFFIX,
     DISTRIBUTIONS,
     PYPROJECT_TOML,
@@ -141,17 +142,22 @@ def list_all(ctx: click.Context, distribution: str) -> None:
     ctx.exit(0)
 
 
-@depinspect.command(help=("Update databases."))
+@depinspect.command(help=("Update metadata."))
 @click.pass_context
 def update(ctx: click.Context) -> None:
     config = PYPROJECT_TOML.get("tool", {}).get("depinspect", {}).get("archives", {})
 
     tmp_dir = create_temp_dir(dir_prefix=".tmp", output_path=ROOT_DIR)
+
     try:
         for distribution in DISTRIBUTIONS:
             Path.mkdir(tmp_dir / distribution)
+
+            if not Path(DATABASE_DIR / distribution).exists():
+                Path.mkdir(DATABASE_DIR / distribution)
+
             mapping.distribution_class_mapping[distribution].init(
-                tmp_dir / distribution, config, distribution, DB_SUFFIX, ROOT_DIR
+                tmp_dir / distribution, config, DB_SUFFIX, DATABASE_DIR / distribution
             )
     finally:
         logging.info("Cleaning up.")
