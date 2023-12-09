@@ -4,6 +4,21 @@ from pathlib import Path
 
 
 def init(db_name: str, output_path: Path) -> Path:
+    """
+    Initialize a SQLite database for package metadata.
+
+    Parameters
+    ----------
+    db_name : str
+        Name of the SQLite database.
+    output_path : Path
+        Path to the directory where the database will be created.
+
+    Returns
+    -------
+    Path
+        Path to the initialized SQLite database.
+    """
     db_path = output_path / Path(db_name)
 
     logging.info("Initializing a database.")

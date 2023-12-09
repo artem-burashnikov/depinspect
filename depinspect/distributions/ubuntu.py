@@ -19,6 +19,21 @@ class Ubuntu(Package):
 
     @staticmethod
     def parse_metadata(file_path: Path, dist_release: str) -> list["Package"]:
+        """
+        Parse Ubuntu metadata file and return a list of Package objects.
+
+        Parameters
+        ----------
+        file_path : Path
+            Path to the Ubuntu metadata file to be parsed.
+        dist_release : str
+            The release name.
+
+        Returns
+        -------
+        List[Package]
+            A list of Package objects representing Ubuntu packages.
+        """
         with open(file_path) as file:
             file_content = file.read()
             ubuntu_packages: list[Package] = []
@@ -54,6 +69,24 @@ class Ubuntu(Package):
         db_suffix: str,
         output_path: Path,
     ) -> None:
+        """
+        Initialize the Ubuntu database.
+
+        Parameters
+        ----------
+        tmp_dir : Path
+            Temporary directory to store intermediate files.
+        config : Dict[str, Dict[str, Dict[str, Dict[str, str]]]]
+            Configuration dictionary containing information about sources.
+        db_suffix : str
+            Suffix to be added to the database name.
+        output_path : Path
+            Output path for the initialized database.
+
+        Returns
+        -------
+        None
+        """
         try:
             for release in config["ubuntu"].keys():
                 logging.info("Fetching archives from pre-defined URL sources.")

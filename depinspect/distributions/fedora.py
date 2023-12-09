@@ -18,6 +18,20 @@ class Fedora(Package):
         db_suffix: str,
         output_path: Path,
     ) -> None:
+        """
+        Initialize and fetch metadata for Fedora releases.
+
+        Parameters
+        ----------
+        tmp_dir : Path
+            Temporary directory for fetching and extracting archives.
+        config : dict[str, dict[str, dict[str, dict[str, str]]]]
+            Configuration dictionary.
+        db_suffix : str
+            Desired file extension for the extracted databases.
+        output_path : Path
+            The directory where the extracted databases will be saved.
+        """
         try:
             for release in config["fedora"].keys():
                 logging.info("Fetching fedora rchives.")

@@ -8,6 +8,23 @@ from depinspect.files import list_files_in_directory
 
 
 def validate_metadata_file_exists(file_path: Path) -> None:
+    """
+    Validate the existence and format of a metadata file.
+
+    Parameters
+    ----------
+    file_path : Path
+        Path to the metadata file to be validated.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    SystemExit
+        If the file does not exist or has an invalid suffix.
+    """
     if not file_path.is_file() or file_path.suffix != ".txt":
         logging.exception(
             "%s is not a valid metadata file or doesn't exist.", file_path.name
@@ -16,6 +33,23 @@ def validate_metadata_file_exists(file_path: Path) -> None:
 
 
 def valid_database_file_exists(db_path: Path) -> None:
+    """
+    Validate the existence and format of an SQLite database file.
+
+    Parameters
+    ----------
+    db_path : Path
+        Path to the SQLite database file to be validated.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    SystemExit
+        If the file does not exist or has an invalid suffix.
+    """
     if not db_path.is_file() or db_path.suffix != ".sqlite":
         logging.exception(
             "%s is not a valid sqlite3 database or doesn't exist.", db_path.name
@@ -24,6 +58,21 @@ def valid_database_file_exists(db_path: Path) -> None:
 
 
 def is_not_in_db(db_connection: sqlite3.Connection, pkg: Package) -> bool:
+    """
+    Check if a package is not present in the SQLite database.
+
+    Parameters
+    ----------
+    db_connection : sqlite3.Connection
+        SQLite database connection.
+    pkg : Package
+        The Package object representing the package to be checked.
+
+    Returns
+    -------
+    bool
+        True if the package is not present in the database, False otherwise.
+    """
     res = db_connection.execute(
         """SELECT name, arch, version, release FROM packages
         WHERE name = ? AND arch = ? AND version = ? AND release = ?""",
@@ -34,6 +83,21 @@ def is_not_in_db(db_connection: sqlite3.Connection, pkg: Package) -> bool:
 
 
 def insert_into_packages(db_connection: sqlite3.Connection, pkg: Package) -> int:
+    """
+    Insert a package into the 'packages' table of an SQLite database.
+
+    Parameters
+    ----------
+    db_connection : sqlite3.Connection
+        SQLite database connection.
+    pkg : Package
+        The Package object representing the package to be inserted.
+
+    Returns
+    -------
+    int
+        The row ID of the newly inserted package.
+    """
     res = db_connection.execute(
         """INSERT INTO packages (name, arch, version, release, description)
         VALUES (?, ?, ?, ?, ?)""",
@@ -58,6 +122,23 @@ def insert_into_packages(db_connection: sqlite3.Connection, pkg: Package) -> int
 def map_additional_info(
     input_list: list[str], release: str, key: int
 ) -> list[tuple[str, str, int]]:
+    """
+    Map additional information to each entry in a list.
+
+    Parameters
+    ----------
+    input_list : list[str]
+        The list of entries to map additional information to.
+    release : str
+        The release information to be mapped.
+    key : int
+        The key information to be mapped.
+
+    Returns
+    -------
+    list[tuple[str, str, int]]
+        A list of tuples containing the mapped information for each entry.
+    """
     return [(entry, release, key) for entry in input_list]
 
 
@@ -141,6 +222,24 @@ def insert_into_provides(
 def process_metadata_into_db(
     file_path: Path, db_path: Path, distribution: str, release: str
 ) -> None:
+    """
+    Process metadata from a file and insert it into an SQLite database.
+
+    Parameters
+    ----------
+    file_path : Path
+        Path to the metadata file to be processed.
+    db_path : Path
+        Path to the SQLite database where the metadata will be inserted.
+    distribution : str
+        The distribution name.
+    release : str
+        The release name.
+
+    Returns
+    -------
+    None
+    """
     from depinspect.distributions.mapping import distribution_class_mapping
 
     validate_metadata_file_exists(file_path)
@@ -162,8 +261,6 @@ def process_metadata_into_db(
                 insert_into_breaks(db_connection, pkg, pkg_key)
                 insert_into_conflicts(db_connection, pkg, pkg_key)
                 insert_into_provides(db_connection, pkg, pkg_key)
-            else:
-                continue
 
     logging.info("File %s has been processed succesfully.", file_path.name)
 
@@ -173,6 +270,24 @@ def process_metadata_into_db(
 def deserialize_ubuntu_metadata(
     tmp_dir: Path, db_path: Path, distribution: str, release: str
 ) -> None:
+    """
+    Deserialize Ubuntu metadata files in a directory into an SQLite database.
+
+    Parameters
+    ----------
+    tmp_dir : Path
+        Temporary directory containing Ubuntu metadata files.
+    db_path : Path
+        Path to the SQLite database where the metadata will be inserted.
+    distribution : str
+        The distribution name.
+    release : str
+        The release name.
+
+    Returns
+    -------
+    None
+    """
     txt_files = [
         txt_file
         for txt_file in list_files_in_directory(tmp_dir)

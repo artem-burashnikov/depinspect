@@ -3,7 +3,6 @@ from pathlib import Path
 
 
 def remove_file(file_path: Path) -> None:
-    """Remove a file at the specified path."""
     try:
         Path.unlink(file_path)
         logging.info("File '%s' removed successfully.", file_path.name)
@@ -18,12 +17,6 @@ def remove_file(file_path: Path) -> None:
 
 
 def list_files_in_directory(directory_path: Path) -> list[Path]:
-    """List all files in the specified directory.
-
-    Returns
-    -------
-    - List[Path]: A list of Path objects representing files in the directory.
-    """
     if directory_path.is_dir():
         return [path for path in Path.iterdir(directory_path) if path.is_file()]
 
