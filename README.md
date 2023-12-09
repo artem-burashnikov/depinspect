@@ -5,7 +5,17 @@
 
 ## Overview
 
-Depinspect is an utility designed to prodive insights into linux package dependencies across multiple architectures and distributions.
+**Depinspect** is an utility that offers an abstraction layer which simplifies the retrieval of package-related information across different distributions and architectures.
+
+## Features
+
+- **Data Aggregation:** Gathers information about packages from multiple distributions and their corresponding releases.
+
+- **Unified Access:** Provides a streamlined and unified access point for stored metadata.
+
+- **Modular Architecture:** Employs a modular design for simpler extendability, allowing easy integration of new features.
+
+- **CLI Support:** Includes a Command-Line Interface (CLI) for a quick overview of divergent dependencies and other relevant information.
 
 ## Table of contents
 
@@ -66,6 +76,10 @@ Open the terminal and follow these steps:
 
 TODO
 
+### `depinspect update`
+
+TODO
+
 ### `depinspect diff`
 
 This command requires two `--package` options to be specified.
@@ -73,10 +87,6 @@ This command requires two `--package` options to be specified.
 TODO
 
 ### `depinspect list-all`
-
-TODO
-
-### `depinspect update`
 
 TODO
 
@@ -96,9 +106,9 @@ It is helpful to see the list of available architectures and package names store
 depinspect list-all ubuntu > ubuntu_available_data.txt
 ```
 
-### Initialize or re-initialize the database
+### Initialize or update the metadata in databases
 
-The tool ensures that databases exist before you can query for information. You can also manually call this process (for example, in order to update the stored metadata) by running:
+The metadata is stored in SQLite databases. You can manually update it by running:
 
 ```sh
 depinspect update

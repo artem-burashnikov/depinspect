@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "depinspect"
 version = "0.3.0"
-description = "A tool to analyze linux package dependencies across multiple distributions and architectures"
+description = "A tool that aggregates metadata from various Linux distributions, offering an abstraction layer which simplifies the retrieval of package-related information."
 license = "MIT"
 authors = ["Artem Burashnikov <artem.burashnikov@gmail.com>"]
 maintainers = ["Artem Burashnikov <artem.burashnikov@gmail.com>"]
