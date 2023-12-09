@@ -13,7 +13,7 @@ def test_ubuntu_parsing() -> None:
 
     # Deserialize the packages and store them in a dictionary
     deserialized_packages = {
-        ubuntu_package: Ubuntu.parse_matadata(ubuntu_package, "jammy")
+        ubuntu_package: Ubuntu.parse_metadata(ubuntu_package, "jammy")
         for ubuntu_package in ubuntu_packages
     }
 
