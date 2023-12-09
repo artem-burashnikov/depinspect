@@ -3,7 +3,6 @@ import sqlite3
 from pathlib import Path
 from sys import exit
 
-from depinspect.distributions.mapping import distribution_class_mapping
 from depinspect.distributions.package import Package
 from depinspect.files import list_files_in_directory
 
@@ -142,6 +141,8 @@ def insert_into_provides(
 def process_metadata_into_db(
     file_path: Path, db_path: Path, distribution: str, release: str
 ) -> None:
+    from depinspect.distributions.mapping import distribution_class_mapping
+
     validate_metadata_file_exists(file_path)
     valid_database_file_exists(db_path)
 
@@ -169,7 +170,7 @@ def process_metadata_into_db(
     db_connection.close()
 
 
-def deserialize_metadata(
+def deserialize_ubuntu_metadata(
     tmp_dir: Path, db_path: Path, distribution: str, release: str
 ) -> None:
     txt_files = [
