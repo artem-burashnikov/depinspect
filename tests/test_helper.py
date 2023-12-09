@@ -1,6 +1,6 @@
 import pytest
 
-from depinspect.helper import is_valid_package
+from depinspect.helper import is_valid_package_name
 
 
 @pytest.mark.parametrize(
@@ -17,5 +17,5 @@ from depinspect.helper import is_valid_package
     ],
 )
 def test_is_valid_package(package_name: str, expected_result: bool) -> None:
-    result = is_valid_package(package_name)
+    result = is_valid_package_name(package_name)
     assert result == expected_result
