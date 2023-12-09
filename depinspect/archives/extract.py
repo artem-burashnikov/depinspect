@@ -23,4 +23,4 @@ def process_archives(directory_path: Path) -> None:
             output_path = directory_path / f"{file_name}{file_extension}"
             extract_xz_archive(archive_path, output_path)
     except Exception:
-        logging.exception(f"Failed to extract {archive_path}")
+        logging.exception("Failed to extract %s", archive_path)
