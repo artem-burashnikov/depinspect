@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "depinspect"
-version = "0.2.0"
+version = "0.3.0"
 description = "A tool to analyze linux package dependencies across multiple distributions and architectures"
 license = "MIT"
 authors = ["Artem Burashnikov <artem.burashnikov@gmail.com>"]
@@ -22,7 +22,7 @@ black = "^23.10.0"
 ruff = "^0.1.1"
 
 [tool.ruff]
-# Assume Python >= 3.10
+# Python >= 3.10
 target-version = "py310"
 
 [tool.black]
@@ -39,6 +39,10 @@ depinspect = "depinspect.main:depinspect"
 jammy.main.i386 = "http://archive.ubuntu.com/ubuntu/dists/jammy/main/binary-i386/Packages.xz"
 jammy.main.amd64 = "http://archive.ubuntu.com/ubuntu/dists/jammy/main/binary-amd64/Packages.xz"
 jammy.main.riscv64 = "http://ports.ubuntu.com/ubuntu-ports/dists/jammy/main/binary-riscv64/Packages.xz"
+
+[tool.depinspect.archives.fedora]
+f39.everything.i686 = "https://dl.fedoraproject.org/pub/fedora/linux/releases/39/Everything/x86_64/os/repodata/ac6fe73a5757a7eb49bed9103abf2336d7ad4c993811b74e3b66725d78a65f02-primary.sqlite.xz"
+f39.koji.riscv64 = "http://fedora.riscv.rocks/repos/f39-build/102696/riscv64/repodata/27a359fb55ab9065e50b18df598d1132e9dbbf34c21249e2ba7b31d3d968bbde-primary.sqlite.bz2"
 
 [build-system]
 requires = ["poetry-core"]
