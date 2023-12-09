@@ -28,8 +28,10 @@ class Ubuntu(Package):
                             setattr(package_info, key.lower().replace("-", "_"), value)
                         except AttributeError:
                             logging.warning(
-                                f"Ubuntu package field {key} was not set. "
-                                f"Skipping value: {value}"
+                                "Ubuntu package field %s was not set. "
+                                "Skipping value: %s",
+                                key,
+                                value,
                             )
                             pass
 
@@ -40,10 +42,12 @@ class Ubuntu(Package):
 
     @staticmethod
     def init(
+        tmp_dir: Path,
         config: dict[str, dict[str, dict[str, dict[str, str]]]],
+        distribution: str,
         db_suffix: str,
         output_path: Path,
     ) -> None:
         from depinspect.update import initialize_from_archives
 
-        initialize_from_archives(config, db_suffix, output_path)
+        initialize_from_archives(tmp_dir, config, distribution, db_suffix, output_path)
