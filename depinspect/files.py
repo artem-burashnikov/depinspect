@@ -3,25 +3,25 @@ from pathlib import Path
 
 
 def remove_file(file_path: Path) -> None:
-    """
-    Remove a file at the specified path.
-    """
+    """Remove a file at the specified path."""
     try:
         Path.unlink(file_path)
-        logging.info(f"File '{file_path.name}' removed successfully.")
+        logging.info("File '%s' removed successfully.", file_path.name)
     except FileNotFoundError:
-        logging.exception(f"File '{file_path.name}' was not found.")
+        logging.exception("File '%s' was not found.", {file_path.name})
     except PermissionError:
-        logging.exception(f"Permission error: Unable to remove file '{file_path.name}")
+        logging.exception(
+            "Permission error: Unable to remove file '%s'", {file_path.name}
+        )
     except OSError:
-        logging.exception(f"Error removing file '{file_path.name}")
+        logging.exception("Error removing file '%s'", {file_path.name})
 
 
 def list_files_in_directory(directory_path: Path) -> list[Path]:
-    """
-    List all files in the specified directory.
+    """List all files in the specified directory.
 
-    Returns:
+    Returns
+    -------
     - List[Path]: A list of Path objects representing files in the directory.
     """
     if directory_path.is_dir():
