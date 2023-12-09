@@ -15,14 +15,16 @@ def pull_target_from_url(target_url: str, local_target_path: Path) -> None:
 
 def fetch_and_save_metadata(
     config: dict[str, dict[str, dict[str, dict[str, str]]]],
+    distribution: str,
     output_directory: Path,
 ) -> None:
-    for distribution, releases in config.items():
-        for release, branches in releases.items():
-            for branch, architectures in branches.items():
-                for architecture, url in architectures.items():
-                    local_target_path = (
-                        output_directory
-                        / f"{distribution}_{release}_{branch}_{architecture}.xz"
-                    )
-                    pull_target_from_url(url, local_target_path)
+    for release, branches in config[distribution].items():
+        for branch, archs in branches.items():
+            for arch, url in archs.items():
+                archive_ext = url.split(".")[-1]
+
+                file_name = f"{distribution}_{release}_{branch}_{arch}.{archive_ext}"
+
+                local_target_path = output_directory / file_name
+
+                pull_target_from_url(url, local_target_path)
