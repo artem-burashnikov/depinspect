@@ -19,7 +19,7 @@ def test_ubuntu_parsing() -> None:
 
     # Iterate over each metadata file and its corresponding list of packages
     for metadata_file, list_of_packages in deserialized_packages.items():
-        with open(metadata_file, "r") as f:
+        with open(metadata_file) as f:
             # Read the contents of the metadata file
             metadata = f.read()
 
