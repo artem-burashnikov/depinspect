@@ -3,7 +3,12 @@ from urllib import request
 
 
 def pull_target_from_url(target_url: str, local_target_path: Path) -> None:
-    with request.urlopen(request.Request(target_url), timeout=15.0) as response:
+    if target_url.lower().startswith("http"):
+        req = request.Request(target_url)
+    else:
+        raise ValueError from None
+
+    with request.urlopen(req, timeout=15.0) as response:
         if response.status == 200:
             request.urlretrieve(target_url, local_target_path)
 
