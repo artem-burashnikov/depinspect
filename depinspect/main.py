@@ -1,21 +1,23 @@
 import logging
 from pathlib import Path
+from shutil import rmtree
 from typing import Any
 
 import click
 
 from depinspect.constants import (
     ARCHITECTURES,
-    DATABASE_DIR,
     DB_SUFFIX,
     DISTRIBUTIONS,
     PYPROJECT_TOML,
+    ROOT_DIR,
 )
 from depinspect.distributions import mapping
 from depinspect.helper import (
-    is_valid_architecture,
-    is_valid_distribution,
-    is_valid_package,
+    create_temp_dir,
+    is_valid_architecture_name,
+    is_valid_distribution_name,
+    is_valid_package_name,
 )
 
 logging.basicConfig(
@@ -25,11 +27,11 @@ logging.basicConfig(
 )
 
 
-def validate_distribution(
+def validate_distribution_name(
     ctx: click.Context,
     distribution: str,
 ) -> None:
-    if not is_valid_distribution(distribution.lower()):
+    if not is_valid_distribution_name(distribution.lower()):
         raise click.BadOptionUsage(
             distribution,
             f"List of currently supported distributions: {DISTRIBUTIONS}. "
@@ -37,11 +39,11 @@ def validate_distribution(
         )
 
 
-def validate_architecture(
+def validate_architecture_name(
     ctx: click.Context,
     architecture: str,
 ) -> None:
-    if not is_valid_architecture(architecture.lower()):
+    if not is_valid_architecture_name(architecture.lower()):
         raise click.BadOptionUsage(
             architecture,
             f"List of currently supported architectures: {ARCHITECTURES}. "
@@ -49,11 +51,11 @@ def validate_architecture(
         )
 
 
-def validate_package(
+def validate_package_name(
     ctx: click.Context,
     package: str,
 ) -> None:
-    if not is_valid_package(package.lower()):
+    if not is_valid_package_name(package.lower()):
         raise click.BadOptionUsage(
             package,
             f"{package} is not a valid package name.",
@@ -80,9 +82,9 @@ def validate_diff_args(
 
         distribution, architecture, package_name = package_info
 
-        validate_distribution(ctx, distribution)
-        validate_architecture(ctx, architecture)
-        validate_package(ctx, package_name)
+        validate_distribution_name(ctx, distribution)
+        validate_architecture_name(ctx, architecture)
+        validate_package_name(ctx, package_name)
 
     return value
 
@@ -106,8 +108,8 @@ def validate_find_divergent_args(
             )
 
         distribution, architecture = arch_info
-        validate_distribution(ctx, distribution)
-        validate_architecture(ctx, architecture)
+        validate_distribution_name(ctx, distribution)
+        validate_architecture_name(ctx, architecture)
 
     return value
 
@@ -117,7 +119,7 @@ def validate_list_all_args(
     param: click.Parameter,
     value: str,
 ) -> str:
-    validate_distribution(ctx, value)
+    validate_distribution_name(ctx, value)
     return value
 
 
@@ -131,10 +133,7 @@ def depinspect() -> None:
 
 
 @depinspect.command(
-    help=(
-        "List all available architectures and packages for a given distribution."
-        "This implicitly initializez databases if they don't exist."
-    )
+    help=("List all available architectures and packages for a given distribution.")
 )
 @click.argument("distribution", callback=validate_list_all_args, nargs=1)
 @click.pass_context
@@ -142,14 +141,22 @@ def list_all(ctx: click.Context, distribution: str) -> None:
     ctx.exit(0)
 
 
-@depinspect.command(help=("Forcefully re-initialize databases."))
+@depinspect.command(help=("Update databases."))
 @click.pass_context
 def update(ctx: click.Context) -> None:
     config = PYPROJECT_TOML.get("tool", {}).get("depinspect", {}).get("archives", {})
-    for distribution in DISTRIBUTIONS:
-        mapping.distribution_class_mapping[distribution].init(
-            config, DB_SUFFIX, DATABASE_DIR
-        )
+
+    tmp_dir = create_temp_dir(dir_prefix=".tmp", output_path=ROOT_DIR)
+    try:
+        for distribution in DISTRIBUTIONS:
+            Path.mkdir(tmp_dir / distribution)
+            mapping.distribution_class_mapping[distribution].init(
+                tmp_dir / distribution, config, distribution, DB_SUFFIX, ROOT_DIR
+            )
+    finally:
+        logging.info("Cleaning up.")
+        rmtree(tmp_dir, ignore_errors=True)
+
     ctx.exit(0)
 
 
@@ -174,10 +181,10 @@ def update(ctx: click.Context) -> None:
 )
 @click.pass_context
 def diff(ctx: click.Context, package: tuple[Any, ...]) -> None:
-    first_package_info, second_package_info = package
+    first_argument_info, second_argument_info = package
 
-    first_distribution, first_architecture, first_name = first_package_info
-    second_distribution, second_architecture, second_name = second_package_info
+    first_distribution, first_architecture, first_name = first_argument_info
+    second_distribution, second_architecture, second_name = second_argument_info
 
     ctx.exit(0)
 
