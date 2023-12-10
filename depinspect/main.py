@@ -97,8 +97,8 @@ def validate_find_divergent_args(
 ) -> tuple[tuple[str, str], ...]:
     if len(value) != 2:
         raise click.BadArgumentUsage(
-            "find-divergent command requires two architectures to be provided\n"
-            "Incorrect number of command arguments",
+            "find-divergent command requires two arguments for each --arch "
+            "to be provided. Incorrect number of command arguments",
             ctx=ctx,
         )
 
