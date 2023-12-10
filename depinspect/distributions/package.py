@@ -158,3 +158,8 @@ class Package(ABC):
     @abstractmethod
     def get_stored_packages() -> set[str]:
         pass
+
+    @staticmethod
+    @abstractmethod
+    def get_dependencies(arch: str, pkg: str) -> list[str]:
+        pass

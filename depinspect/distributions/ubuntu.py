@@ -7,7 +7,7 @@ from depinspect.archives.extractor import (
     process_archives,
 )
 from depinspect.archives.fetcher import fetch_and_save_metadata
-from depinspect.constants import DATABASE_DIR, UBUNTU_ARCHS
+from depinspect.constants import DATABASE_DIR, DB_SUFFIX, UBUNTU_ARCHS
 from depinspect.database import database
 from depinspect.distributions.loader import deserialize_ubuntu_metadata
 from depinspect.distributions.package import Package
@@ -125,3 +125,17 @@ class Ubuntu(Package):
             result.update(database.find_all_distinct(db_path))
 
         return result
+
+    @staticmethod
+    def get_dependencies(arch: str, pkg: str) -> list[str]:
+        release = "jammy"
+
+        db_path = DATABASE_DIR / "ubuntu" / f"ubuntu_{release}{DB_SUFFIX}"
+
+        database.find_dependencies(
+            db_path=db_path,
+            table="depends",
+            distro="ubuntu",
+            arch=arch,
+            name=pkg,
+        )

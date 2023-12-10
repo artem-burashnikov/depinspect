@@ -7,7 +7,7 @@ from depinspect.archives.extractor import (
     process_archives,
 )
 from depinspect.archives.fetcher import fetch_and_save_metadata
-from depinspect.constants import DATABASE_DIR, FEDORA_ARCHS
+from depinspect.constants import DATABASE_DIR, DB_SUFFIX, FEDORA_ARCHS
 from depinspect.database import database
 from depinspect.distributions.package import Package
 from depinspect.files import list_files_in_directory
@@ -77,3 +77,17 @@ class Fedora(Package):
             result.update(database.find_all_distinct(db_path))
 
         return result
+
+    @staticmethod
+    def get_dependencies(arch: str, pkg: str) -> list[str]:
+        repo = "koji" if arch == "riscv64" else "everything"
+
+        db_path = DATABASE_DIR / "fedora" / f"fedora_f39_{repo}_{arch}{DB_SUFFIX}"
+
+        database.find_dependencies(
+            db_path=db_path,
+            table="requires",
+            distro="fedora",
+            arch=arch,
+            name=pkg,
+        )
