@@ -33,7 +33,7 @@ module = "tomllib.*"
 ignore_missing_imports = true
 
 [tool.poetry.scripts]
-depinspect = "depinspect.main:depinspect"
+depinspect = "depinspect.cli:depinspect"
 
 [tool.depinspect.archives.ubuntu]
 jammy.main.i386 = "http://archive.ubuntu.com/ubuntu/dists/jammy/main/binary-i386/Packages.xz"
