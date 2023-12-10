@@ -75,7 +75,7 @@ def update(ctx: click.Context) -> None:
 
 @depinspect.command(
     context_settings={"ignore_unknown_options": True},
-    short_help=("Find difference between two packages."),
+    short_help=("Compare two packages."),
 )
 @click.option(
     "-p",
@@ -88,14 +88,24 @@ def update(ctx: click.Context) -> None:
 def diff(ctx: click.Context, package: tuple[Any, ...]) -> None:
     """Find a difference and similarities in dependencies of two packages.
 
-    This command requires two sets of arguments under --package (-p) to be specified.
+    This command requires two sets of arguments each under --package to be specified.
 
     Example: depinspect diff -p ubuntu i386 apt -p ubuntu amd64 apt
     """
-    first_argument_info, second_argument_info = package
+    arg_info_a, arg_info_b = package
 
-    first_distribution, first_architecture, first_name = first_argument_info
-    second_distribution, second_architecture, second_name = second_argument_info
+    distro_a, arch_a, name_a = arg_info_a
+    distro_b, arch_b, name_b = arg_info_b
+
+    distro_class_a = distribution_class_mapping[distro_a]
+    depends_a = distro_class_a.get_dependencies(arch_a, name_a)
+
+    distro_class_b = distribution_class_mapping[distro_b]
+    depends_b = distro_class_b.get_dependencies(arch_b, name_b)
+
+    printer.print_diff(
+        distro_a, arch_a, name_a, depends_a, distro_b, arch_b, name_b, depends_b
+    )
 
     ctx.exit(0)
 
@@ -109,12 +119,6 @@ def diff(ctx: click.Context, package: tuple[Any, ...]) -> None:
     multiple=True,
     type=(str, str),
     callback=validator.validate_find_divergent_args,
-    help=(
-        "Provide architecture and package name"
-        " separated by whitespace."
-        " Order of arguments matters.\n\n"
-        "Example: --arch ubuntu i386"
-    ),
 )
 @click.pass_context
 def find_divergent(ctx: click.Context, arch: tuple[Any, ...]) -> None:

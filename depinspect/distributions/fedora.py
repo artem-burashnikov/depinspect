@@ -79,15 +79,17 @@ class Fedora(Package):
         return result
 
     @staticmethod
-    def get_dependencies(arch: str, pkg: str) -> list[str]:
+    def get_dependencies(arch: str, pkg: str) -> set[str]:
         repo = "koji" if arch == "riscv64" else "everything"
 
         db_path = DATABASE_DIR / "fedora" / f"fedora_f39_{repo}_{arch}{DB_SUFFIX}"
 
-        database.find_dependencies(
-            db_path=db_path,
-            table="requires",
-            distro="fedora",
-            arch=arch,
-            name=pkg,
+        return set(
+            database.find_dependencies(
+                db_path=db_path,
+                table="requires",
+                distro="fedora",
+                arch=arch,
+                name=pkg,
+            )
         )

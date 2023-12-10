@@ -15,10 +15,6 @@ from depinspect.files import list_files_in_directory
 
 
 class Ubuntu(Package):
-    def __init__(self) -> None:
-        super().__init__()
-        self.distribution = "ubuntu"
-
     @staticmethod
     def parse_metadata(file_path: Path, dist_release: str) -> list["Package"]:
         """Parse Ubuntu metadata file and return a list of Package objects.
@@ -127,15 +123,17 @@ class Ubuntu(Package):
         return result
 
     @staticmethod
-    def get_dependencies(arch: str, pkg: str) -> list[str]:
+    def get_dependencies(arch: str, pkg: str) -> set[str]:
         release = "jammy"
 
         db_path = DATABASE_DIR / "ubuntu" / f"ubuntu_{release}{DB_SUFFIX}"
 
-        database.find_dependencies(
-            db_path=db_path,
-            table="depends",
-            distro="ubuntu",
-            arch=arch,
-            name=pkg,
+        return set(
+            database.find_dependencies(
+                db_path=db_path,
+                table="depends",
+                distro="ubuntu",
+                arch=arch,
+                name=pkg,
+            )
         )

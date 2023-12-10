@@ -161,5 +161,5 @@ class Package(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_dependencies(arch: str, pkg: str) -> list[str]:
+    def get_dependencies(arch: str, pkg: str) -> set[str]:
         pass

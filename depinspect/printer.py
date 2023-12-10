@@ -1,140 +1,115 @@
 from click import echo
 
-# def print_diff(
-#     dist_arch_and_package_name1: tuple[str, str, str],
-#     query_result1: list[tuple[str]],
-#     dist_arch_and_package_name2: tuple[str, str, str],
-#     query_result2: list[tuple[str]],
-# ) -> None:
-#     def print_for_one(
-#         dist_arch_and_package_name: tuple[str, str, str], query_result: list[tuple[str]]
-#     ) -> None:
-#         distribution, architecture, package_name = dist_arch_and_package_name
-#         dependencies = sorted(query_result[0][0].split(","))
-#         header = f"{distribution} - {architecture} - {package_name}"
+from depinspect.constants import MAX_CHAR_LENGTH
 
-#         max_char_length = (
-#             len(max(dependencies, key=len)) if len(dependencies) != 0 else len(header)
-#         )
 
-#         divider = "=" * max_char_length
+def print_for_one(
+    distro: str,
+    arch: str,
+    name: str,
+    depends: set[str],
+) -> None:
+    header = f"{distro} - {arch} - {name}"
 
-#         echo("\n", nl=False)
-#         echo(header)
-#         echo(divider)
-#         for dependency in dependencies:
-#             echo(f"{dependency}")
-#         echo("\n", nl=False)
+    divider = "=" * MAX_CHAR_LENGTH
 
-#     def print_for_both(
-#         dist_arch_and_package_name1: tuple[str, str, str],
-#         query_result1: list[tuple[str]],
-#         dist_arch_and_package_name2: tuple[str, str, str],
-#         query_result2: list[tuple[str]],
-#     ) -> None:
-#         distribution1, architecture1, package_name1 = dist_arch_and_package_name1
-#         dependencies1 = sorted(query_result1[0][0].split(","))
-#         title1 = "These dependencies are present in both:"
-#         header1 = f"{distribution1} - {architecture1} - {package_name1}"
+    echo("\n", nl=False)
+    echo(header)
+    echo(divider)
+    for pkg in sorted(depends):
+        echo(f"{pkg}")
+    echo("\n", nl=False)
 
-#         distribution2, architecture2, package_name2 = dist_arch_and_package_name2
-#         dependencies2 = sorted(query_result2[0][0].split(","))
-#         title2 = "These dependencies are exclusive to:"
-#         header2 = f"{distribution2} - {architecture2} - {package_name2}"
 
-#         matches = sorted(set(dependencies1).intersection(dependencies2))
-#         exclusive_to_first = sorted(set(dependencies1).difference(set(dependencies2)))
-#         exclusive_to_second = sorted(set(dependencies2).difference(set(dependencies1)))
+def print_for_both(
+    distro_a: str,
+    arch_a: str,
+    name_a: str,
+    depends_a: set[str],
+    distro_b: str,
+    arch_b: str,
+    name_b: str,
+    depends_b: set[str],
+) -> None:
+    title_both = "These dependencies are present in both:"
+    title_exclusive = "These dependencies are exclusive to:"
 
-#         max_header_length = len(max(header1, header2, key=len))
+    header_a = f"{distro_a} - {arch_a} - {name_a}"
+    header_b = f"{distro_b} - {arch_b} - {name_b}"
 
-#         match_max_length = max(
-#             len(max(matches, key=len, default="")), max_header_length
-#         )
+    divider = "=" * MAX_CHAR_LENGTH
 
-#         diff_max_length1 = max(
-#             len(max(exclusive_to_first, key=len, default="")), max_header_length
-#         )
+    intersection = sorted(depends_a.intersection(depends_b))
+    a_minus_b = sorted(depends_a.difference(depends_b))
+    b_minus_a = sorted(depends_b.difference(depends_a))
 
-#         diff_max_length2 = max(
-#             len(max(exclusive_to_second, key=len, default="")), max_header_length
-#         )
+    echo("\n", nl=False)
+    echo(title_both)
+    echo(header_a)
+    echo(header_b)
+    echo(divider)
+    for pkg in intersection:
+        echo(pkg)
+    echo("\n", nl=False)
 
-#         max_length = max(
-#             max_header_length,
-#             match_max_length,
-#             diff_max_length1,
-#             diff_max_length2,
-#             len(title1),
-#             len(title2),
-#         )
+    echo(title_exclusive)
+    echo(header_a)
+    echo(divider)
+    for pkg in a_minus_b:
+        echo(pkg)
+    echo("\n", nl=False)
 
-#         divider = "=" * max_length
+    echo(title_exclusive)
+    echo(header_b)
+    echo(divider)
+    for pkg in b_minus_a:
+        echo(f"{pkg}")
+    echo("\n", nl=False)
 
-#         echo("\n", nl=False)
-#         echo(title1)
-#         echo(header1)
-#         echo(header2)
-#         echo(divider)
-#         for match in matches:
-#             echo(match)
-#         echo("\n", nl=False)
 
-#         echo(title2)
-#         echo(header1)
-#         echo(divider)
-#         for package_with_dependencies in exclusive_to_first:
-#             echo(package_with_dependencies)
-#         echo("\n", nl=False)
+def print_diff(
+    distro_a: str,
+    arch_a: str,
+    name_a: str,
+    depends_a: set[str],
+    distro_b: str,
+    arch_b: str,
+    name_b: str,
+    depends_b: set[str],
+) -> None:
+    if not depends_a and not depends_b:
+        echo(
+            f"No records were found in the database for\n"
+            f"{distro_a} - {arch_a} - {name_a}\n"
+            f"{distro_b} - {arch_b} - {name_b}"
+        )
 
-#         echo(title2)
-#         echo(header2)
-#         echo(divider)
-#         for package_with_dependencies in exclusive_to_second:
-#             echo(f"{package_with_dependencies}")
-#         echo("\n", nl=False)
+    elif not depends_a and depends_b:
+        echo(f"\nNo records found for {distro_a} - {arch_a} - {name_a}")
+        print_for_one(distro_b, arch_b, name_b, depends_b)
 
-#     if not query_result1 and not query_result2:
-#         echo(
-#             f"No records were found in the database for\n"
-#             f"{dist_arch_and_package_name1[0]} - "
-#             f"{dist_arch_and_package_name1[1]} - "
-#             f"{dist_arch_and_package_name1[2]}\n"
-#             f"{dist_arch_and_package_name2[0]} - "
-#             f"{dist_arch_and_package_name2[1]} - "
-#             f"{dist_arch_and_package_name2[2]}"
-#         )
+    elif depends_a and not depends_b:
+        echo(f"\nNo records found for {distro_b} - {arch_b} - {name_b}")
+        print_for_one(distro_a, arch_a, name_a, depends_a)
 
-#     if not query_result1 and query_result2:
-#         echo(
-#             f"\n"
-#             f"Did not find any records for "
-#             f"{dist_arch_and_package_name1[0]} -"
-#             f"{dist_arch_and_package_name1[1]}"
-#         )
-#         print_for_one(dist_arch_and_package_name2, query_result2)
-
-#     if query_result1 and not query_result2:
-#         echo(
-#             f"\n"
-#             f"Did not find any records for "
-#             f"{dist_arch_and_package_name2[0]} -"
-#             f"{dist_arch_and_package_name2[1]}"
-#         )
-#         print_for_one(dist_arch_and_package_name1, query_result1)
-
-#     if query_result1 and query_result2:
-#         print_for_both(
-#             dist_arch_and_package_name1,
-#             query_result1,
-#             dist_arch_and_package_name2,
-#             query_result2,
-#         )
+    else:
+        print_for_both(
+            distro_a,
+            arch_a,
+            name_a,
+            depends_a,
+            distro_b,
+            arch_b,
+            name_b,
+            depends_b,
+        )
 
 
 def list_all(distribution: str, archs: list[str], packages: set[str]) -> None:
     echo(f"Distribution: {distribution}")
+
     echo(f"Architectures: {', '.join(list(archs))}")
+
     echo("Packages:")
     for package in sorted(packages):
         echo(package)
