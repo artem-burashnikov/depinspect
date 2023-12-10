@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from depinspect.archives.extract import extract_xz_archive, process_archives
-from depinspect.archives.fetch import fetch_and_save_metadata
+from depinspect.archives.extractor import extract_xz_archive, process_archives
+from depinspect.archives.fetcher import fetch_and_save_metadata
 from depinspect.database import database
 from depinspect.distributions.loader import deserialize_ubuntu_metadata
 

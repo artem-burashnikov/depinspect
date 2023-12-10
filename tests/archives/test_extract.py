@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from depinspect.archives.extract import extract_xz_archive
+from depinspect.archives.extractor import extract_xz_archive
 
 
 def test_extract_xz_archive(tmp_path: Path) -> None:

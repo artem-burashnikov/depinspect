@@ -1,6 +1,6 @@
 import pytest
 
-from depinspect.helper import is_valid_package_name
+from depinspect.validator import is_valid_package_name
 
 
 @pytest.mark.parametrize(

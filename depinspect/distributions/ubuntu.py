@@ -2,11 +2,11 @@ import logging
 from pathlib import Path
 from re import split
 
-from depinspect.archives.extract import (
+from depinspect.archives.extractor import (
     extract_xz_archive,
     process_archives,
 )
-from depinspect.archives.fetch import fetch_and_save_metadata
+from depinspect.archives.fetcher import fetch_and_save_metadata
 from depinspect.constants import DATABASE_DIR, UBUNTU_ARCHS
 from depinspect.database import database
 from depinspect.distributions.loader import deserialize_ubuntu_metadata
