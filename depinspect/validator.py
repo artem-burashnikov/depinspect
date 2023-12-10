@@ -1,45 +1,45 @@
 from pathlib import Path
 from re import fullmatch
+from sqlite3 import Connection
 
 import click
 
-from depinspect.constants import ARCHITECTURES, DISTRIBUTIONS
+from depinspect.constants import DISTRIBUTIONS
+from depinspect.distributions.mapping import distribution_class_mapping
 
 
-def is_valid_package_name(package_name: str) -> bool:
-    valid_pattern = fullmatch(r"([a-zA-Z0-9][a-zA-Z0-9+-.]{1,})", package_name)
+def is_valid_package_name(pkg: str) -> bool:
+    valid_pattern = fullmatch(r"([a-zA-Z0-9][a-zA-Z0-9+-.]{1,})", pkg)
     return bool(valid_pattern)
 
 
-def is_valid_distribution_name(distribution_name: str) -> bool:
-    return distribution_name in DISTRIBUTIONS
-
-
-def is_valid_architecture_name(architecture_name: str) -> bool:
-    return architecture_name in ARCHITECTURES
+def is_valid_distribution_name(distro: str) -> bool:
+    return distro in DISTRIBUTIONS
 
 
 def validate_distribution_name(
     ctx: click.Context,
-    distribution: str,
+    distro: str,
 ) -> None:
-    if not is_valid_distribution_name(distribution.lower()):
+    if not is_valid_distribution_name(distro.lower()):
         raise click.BadOptionUsage(
-            distribution,
+            distro,
             f"List of currently supported distributions: {DISTRIBUTIONS}. "
-            f"Your input was: {distribution}",
+            f"Your input was: {distro}",
         )
 
 
 def validate_architecture_name(
     ctx: click.Context,
-    architecture: str,
+    distro: str,
+    arch: str,
 ) -> None:
-    if not is_valid_architecture_name(architecture.lower()):
+    archs = distribution_class_mapping[distro].get_all_archs()
+    if arch.lower() not in archs:
         raise click.BadOptionUsage(
-            architecture,
-            f"List of currently supported architectures: {ARCHITECTURES}. "
-            f"Your input was: {architecture}",
+            arch,
+            f"List of currently supported {distro} architectures: {archs}. "
+            f"Your input was: {arch}",
         )
 
 
@@ -75,7 +75,7 @@ def validate_diff_args(
         distribution, architecture, package_name = package_info
 
         validate_distribution_name(ctx, distribution)
-        validate_architecture_name(ctx, architecture)
+        validate_architecture_name(ctx, distribution, architecture)
         validate_package_name(ctx, package_name)
 
     return value
@@ -99,9 +99,9 @@ def validate_find_divergent_args(
                 "Distribution and architecture are required\n", ctx=ctx
             )
 
-        distribution, architecture = arch_info
-        validate_distribution_name(ctx, distribution)
-        validate_architecture_name(ctx, architecture)
+        distro, arch = arch_info
+        validate_distribution_name(ctx, distro)
+        validate_architecture_name(ctx, distro, arch)
 
     return value
 
@@ -113,6 +113,12 @@ def validate_list_all_args(
 ) -> str:
     validate_distribution_name(ctx, value)
     return value
+
+
+def is_valid_sql_table(db: Connection, table: str) -> bool:
+    res = db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+    tables = [elem["name"] for elem in res]
+    return table in tables
 
 
 def db_exists(db_path: Path) -> bool:
