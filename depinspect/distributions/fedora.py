@@ -34,7 +34,7 @@ class Fedora(Package):
         """
         try:
             for release in config["fedora"].keys():
-                logging.info("Fetching fedora rchives.")
+                logging.info("Fetching fedora archives.")
                 fetch_and_save_metadata(config, "fedora", tmp_dir)
 
                 logging.info("Extracting fedora xz archives.")
