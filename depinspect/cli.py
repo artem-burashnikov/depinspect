@@ -32,7 +32,12 @@ def depinspect() -> None:
 @click.argument("distribution", callback=validator.validate_list_all_args, nargs=1)
 @click.pass_context
 def list_all(ctx: click.Context, distribution: str) -> None:
-    """List stored architectures and packages for a given distro."""
+    """List stored architectures and packages for a given distro.
+
+    Provide a distribution to list all stored architectures and package names.
+
+    Example: depinspect list-all fedora
+    """
 
     architectures = distribution_class_mapping[distribution].get_all_archs()
 
@@ -83,7 +88,8 @@ def update(ctx: click.Context) -> None:
 def diff(ctx: click.Context, package: tuple[Any, ...]) -> None:
     """Find a difference and similarities in dependencies of two packages.
 
-    This command requires to sets of arguments under --package (-p) to be specified.
+    This command requires two sets of arguments under --package (-p) to be specified.
+
     Example: depinspect diff -p ubuntu i386 apt -p ubuntu amd64 apt
     """
     first_argument_info, second_argument_info = package
@@ -96,10 +102,7 @@ def diff(ctx: click.Context, package: tuple[Any, ...]) -> None:
 
 @depinspect.command(
     context_settings={"ignore_unknown_options": True},
-    help=(
-        "Find all packages from specified architectures "
-        "that have divergent dependencies."
-    ),
+    short_help=("List all packages that have divergent dependencies."),
 )
 @click.option(
     "--arch",

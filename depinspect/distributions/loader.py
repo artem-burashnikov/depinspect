@@ -8,8 +8,7 @@ from depinspect.files import list_files_in_directory
 
 
 def validate_metadata_file_exists(file_path: Path) -> None:
-    """
-    Validate the existence and format of a metadata file.
+    """Validate the existence and format of a metadata file.
 
     Parameters
     ----------
@@ -33,8 +32,7 @@ def validate_metadata_file_exists(file_path: Path) -> None:
 
 
 def valid_database_file_exists(db_path: Path) -> None:
-    """
-    Validate the existence and format of an SQLite database file.
+    """Validate the existence and format of an SQLite database file.
 
     Parameters
     ----------
@@ -58,8 +56,7 @@ def valid_database_file_exists(db_path: Path) -> None:
 
 
 def is_not_in_db(db_connection: sqlite3.Connection, pkg: Package) -> bool:
-    """
-    Check if a package is not present in the SQLite database.
+    """Check if a package is not present in the SQLite database.
 
     Parameters
     ----------
@@ -83,8 +80,7 @@ def is_not_in_db(db_connection: sqlite3.Connection, pkg: Package) -> bool:
 
 
 def insert_into_packages(db_connection: sqlite3.Connection, pkg: Package) -> int:
-    """
-    Insert a package into the 'packages' table of an SQLite database.
+    """Insert a package into the 'packages' table of an SQLite database.
 
     Parameters
     ----------
@@ -122,8 +118,7 @@ def insert_into_packages(db_connection: sqlite3.Connection, pkg: Package) -> int
 def map_additional_info(
     input_list: list[str], release: str, key: int
 ) -> list[tuple[str, str, int]]:
-    """
-    Map additional information to each entry in a list.
+    """Map additional information to each entry in a list.
 
     Parameters
     ----------
@@ -222,8 +217,7 @@ def insert_into_provides(
 def process_metadata_into_db(
     file_path: Path, db_path: Path, distribution: str, release: str
 ) -> None:
-    """
-    Process metadata from a file and insert it into an SQLite database.
+    """Process metadata from a file and insert it into an SQLite database.
 
     Parameters
     ----------
@@ -270,8 +264,7 @@ def process_metadata_into_db(
 def deserialize_ubuntu_metadata(
     tmp_dir: Path, db_path: Path, distribution: str, release: str
 ) -> None:
-    """
-    Deserialize Ubuntu metadata files in a directory into an SQLite database.
+    """Deserialize Ubuntu metadata files into an SQLite database.
 
     Parameters
     ----------

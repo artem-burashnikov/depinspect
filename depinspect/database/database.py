@@ -4,8 +4,7 @@ from pathlib import Path
 
 
 def init(db_name: str, output_path: Path) -> Path:
-    """
-    Initialize a SQLite database for package metadata.
+    """Initialize a SQLite database for package metadata.
 
     Parameters
     ----------

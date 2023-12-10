@@ -3,8 +3,7 @@ from urllib import request
 
 
 def pull_target_from_url(target_url: str, local_target_path: Path) -> None:
-    """
-    Pull a target from a given URL and save it to a local file.
+    """Pull a target from a given URL and save it to a local file.
 
     Parameters
     ----------
@@ -33,8 +32,7 @@ def fetch_and_save_metadata(
     distribution: str,
     output_directory: Path,
 ) -> None:
-    """
-    Fetch and save metadata for a specified distribution.
+    """Fetch and save metadata for a specified distribution.
 
     Parameters
     ----------

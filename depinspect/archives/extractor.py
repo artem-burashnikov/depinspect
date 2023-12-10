@@ -8,8 +8,7 @@ from depinspect.files import list_files_in_directory, remove_file
 
 
 def extract_xz_archive(archive_path: Path, output_path: Path) -> None:
-    """
-    Extract the contents of an XZ archive to a specified output file.
+    """Extract the contents of an XZ archive to a specified output file.
 
     Parameters
     ----------
@@ -26,8 +25,7 @@ def extract_xz_archive(archive_path: Path, output_path: Path) -> None:
 
 
 def extract_bz2_archive(archive_path: Path, output_path: Path) -> None:
-    """
-    Extract the contents of a BZ2 archive to a specified output file.
+    """Extract the contents of a BZ2 archive to a specified output file.
 
     Parameters
     ----------
@@ -50,8 +48,7 @@ def process_archives(
     archive_extension: str,
     extractor: Callable[[Path, Path], None],
 ) -> None:
-    """
-    Process archives in the input directory.
+    """Process archives in the input directory.
 
     Parameters
     ----------

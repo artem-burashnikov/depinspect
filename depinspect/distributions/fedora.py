@@ -25,8 +25,7 @@ class Fedora(Package):
         db_suffix: str,
         output_path: Path,
     ) -> None:
-        """
-        Initialize and fetch metadata for Fedora releases.
+        """Initialize and fetch metadata for Fedora releases.
 
         Parameters
         ----------

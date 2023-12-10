@@ -21,8 +21,7 @@ class Ubuntu(Package):
 
     @staticmethod
     def parse_metadata(file_path: Path, dist_release: str) -> list["Package"]:
-        """
-        Parse Ubuntu metadata file and return a list of Package objects.
+        """Parse Ubuntu metadata file and return a list of Package objects.
 
         Parameters
         ----------
@@ -71,8 +70,7 @@ class Ubuntu(Package):
         db_suffix: str,
         output_path: Path,
     ) -> None:
-        """
-        Initialize the Ubuntu database.
+        """Initialize the Ubuntu database.
 
         Parameters
         ----------

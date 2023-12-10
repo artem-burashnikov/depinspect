@@ -10,8 +10,7 @@ except ModuleNotFoundError:
 
 # Important! If helper.py is moved, everything breaks. Don't move the file!
 def get_project_root() -> Path:
-    """
-    Get the absolute path to the root directory of the project.
+    """Get the absolute path to the root directory of the project.
 
     Note
     ----
@@ -26,8 +25,7 @@ def create_temp_dir(dir_prefix: str, output_path: Path) -> Path:
 
 
 def parse_pyproject(pyproject_file: Path) -> Any:
-    """
-    Parse the contents of a 'pyproject.toml' file.
+    """Parse the contents of a 'pyproject.toml' file.
 
     Parameters
     ----------
