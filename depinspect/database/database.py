@@ -77,23 +77,33 @@ def init(db_name: str, output_path: Path) -> Path:
     return db_path
 
 
-# def find_dependencies(
-#     db_path: Path, distribution: str, package_architecture: str, package_name: str
-# ) -> Any:
-#     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
-#     db.row_factory = sqlite3.Row
+def find_dependencies(
+    db_path: Path, table: str, distro: str, arch: str, name: str
+) -> list[str]:
+    from depinspect.validator import is_valid_sql_table
 
-#     result = db.execute(
-#         "SELECT dependency_name AS name "
-#         "FROM dependencies "
-#         "JOIN packages ON dependencies.package_id = packages.id "
-#         "WHERE packages.distribution = ? "
-#         "AND packages.package_name = ? "
-#         "AND packages.architecture = ?",
-#         (distribution, package_name, package_architecture),
-#     ).fetchall()
-#     db.close()
-#     return result["name"]
+    db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+
+    db.row_factory = sqlite3.Row
+
+    if not is_valid_sql_table(db, table):
+        db.close()
+        logging.exception("%s is not a correct sqlite table name.", table)
+        raise ValueError
+
+    result = db.execute(
+        """
+        SELECT {0}.name FROM {0} JOIN packages ON {0}.pkgKey = packages.pkgKey
+        WHERE packages.name = ? AND packages.arch = ?
+        """.format(
+            table
+        ),
+        (name, arch),
+    ).fetchall()
+
+    db.close()
+
+    return [elem["name"] for elem in result]
 
 
 def find_all_distinct(db_path: Path) -> set[str]:
@@ -110,7 +120,7 @@ def find_all_distinct(db_path: Path) -> set[str]:
     return result
 
 
-# def find_packages(
+# def find_dependencies(
 #     db_path: Path, distribution: str, architecture: str
 # ) -> dict[str, list[str]]:
 #     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
