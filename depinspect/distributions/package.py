@@ -148,3 +148,13 @@ class Package(ABC):
         output_path: Path,
     ) -> None:
         pass
+
+    @staticmethod
+    @abstractmethod
+    def get_all_archs() -> list[str]:
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def get_stored_packages() -> set[str]:
+        pass

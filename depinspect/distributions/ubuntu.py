@@ -7,9 +7,11 @@ from depinspect.archives.extract import (
     process_archives,
 )
 from depinspect.archives.fetch import fetch_and_save_metadata
+from depinspect.constants import DATABASE_DIR, UBUNTU_ARCHS
 from depinspect.database import database
 from depinspect.distributions.loader import deserialize_ubuntu_metadata
 from depinspect.distributions.package import Package
+from depinspect.files import list_files_in_directory
 
 
 class Ubuntu(Package):
@@ -110,3 +112,18 @@ class Ubuntu(Package):
             logging.exception(
                 "There was an exception trying to initialize ubuntu database."
             )
+
+    @staticmethod
+    def get_all_archs() -> list[str]:
+        return UBUNTU_ARCHS
+
+    @staticmethod
+    def get_stored_packages() -> set[str]:
+        databases = list_files_in_directory(DATABASE_DIR / "ubuntu")
+
+        result: set[str] = set()
+
+        for db_path in databases:
+            result.update(database.find_all_distinct(db_path))
+
+        return result
