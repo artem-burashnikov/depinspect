@@ -7,10 +7,17 @@ from depinspect.archives.extract import (
     process_archives,
 )
 from depinspect.archives.fetch import fetch_and_save_metadata
+from depinspect.constants import DATABASE_DIR, FEDORA_ARCHS
+from depinspect.database import database
 from depinspect.distributions.package import Package
+from depinspect.files import list_files_in_directory
 
 
 class Fedora(Package):
+    @staticmethod
+    def parse_metadata(file_path: Path, release: str) -> list["Package"]:
+        return super(Fedora, Fedora).parse_metadata(file_path, release)
+
     @staticmethod
     def init(
         tmp_dir: Path,
@@ -56,3 +63,18 @@ class Fedora(Package):
                 )
         except Exception:
             logging.exception("There was an exception trying to pull fedora database.")
+
+    @staticmethod
+    def get_all_archs() -> list[str]:
+        return FEDORA_ARCHS
+
+    @staticmethod
+    def get_stored_packages() -> set[str]:
+        databases = list_files_in_directory(DATABASE_DIR / "fedora")
+
+        result: set[str] = set()
+
+        for db_path in databases:
+            result.update(database.find_all_distinct(db_path))
+
+        return result
