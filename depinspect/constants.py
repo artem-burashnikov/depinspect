@@ -8,12 +8,12 @@ DATABASE_DIR = ROOT_DIR / "depinspect" / "database"
 
 DB_SUFFIX = ".sqlite"
 
-DISTRIBUTIONS = ["ubuntu", "fedora"]
+DISTRIBUTIONS = {"ubuntu", "fedora"}
 
-UBUNTU_ARCHS = ["i386", "amd64", "riscv64", "any", "all"]
+UBUNTU_ARCHS = {"i386", "amd64", "riscv64", "any", "all"}
 
-FEDORA_ARCHS = ["i686", "noarch", "x86_64"]
+FEDORA_ARCHS = {"i686", "noarch", "x86_64", "riscv64"}
 
-ARCHITECTURES = [*UBUNTU_ARCHS, *FEDORA_ARCHS]
+ARCHITECTURES = UBUNTU_ARCHS.union(FEDORA_ARCHS)
 
 MAX_CHAR_LENGTH = 80
