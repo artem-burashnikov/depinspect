@@ -70,7 +70,7 @@ def init(db_name: str, output_path: Path) -> Path:
         CREATE INDEX pkgenhances on enhances (pkgKey);
         CREATE INDEX pkgrecommends on recommends (pkgKey);
         COMMIT;
-    """
+        """
     )
 
     connection.close()
@@ -97,26 +97,18 @@ def init(db_name: str, output_path: Path) -> Path:
 #     return result["name"]
 
 
-# def find_all_distinct(db_path: Path) -> dict[str, list[str]]:
-#     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+def find_all_distinct(db_path: Path) -> set[str]:
+    db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    db.row_factory = sqlite3.Row
 
-#     result: dict[str, list[str]] = {
-#         "distributions": [],
-#         "architectures": [],
-#         "package_names": [],
-#     }
+    result: set[str] = set()
 
-#     with db:
-#         for distribution in db.execute("SELECT DISTINCT distribution FROM packages"):
-#             result["distributions"].append(distribution[0])
-#         for architecture in db.execute("SELECT DISTINCT architecture FROM packages"):
-#             result["architectures"].append(architecture[0])
-#         for package_name in db.execute("SELECT DISTINCT package_name FROM packages"):
-#             result["package_names"].append(package_name[0])
+    with db:
+        for row in db.execute("SELECT DISTINCT name FROM packages"):
+            result.add(row["name"])
+    db.close()
 
-#     db.close()
-
-#     return result
+    return result
 
 
 # def find_packages(
