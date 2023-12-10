@@ -5,6 +5,7 @@ from typing import Any
 
 import click
 
+from depinspect import printer
 from depinspect.constants import (
     ARCHITECTURES,
     DATABASE_DIR,
@@ -13,7 +14,7 @@ from depinspect.constants import (
     PYPROJECT_TOML,
     ROOT_DIR,
 )
-from depinspect.distributions import mapping
+from depinspect.distributions.mapping import distribution_class_mapping
 from depinspect.helper import (
     create_temp_dir,
     is_valid_architecture_name,
@@ -133,18 +134,25 @@ def depinspect() -> None:
     pass
 
 
-@depinspect.command(
-    help=("List all available architectures and packages for a given distribution.")
-)
+@depinspect.command(context_settings={"ignore_unknown_options": True})
 @click.argument("distribution", callback=validate_list_all_args, nargs=1)
 @click.pass_context
 def list_all(ctx: click.Context, distribution: str) -> None:
+    """List stored architectures and packages for a given distro."""
+
+    architectures = distribution_class_mapping[distribution].get_all_archs()
+
+    packages = distribution_class_mapping[distribution].get_stored_packages()
+
+    printer.list_all(distribution, architectures, packages)
+
     ctx.exit(0)
 
 
-@depinspect.command(help=("Update metadata."))
+@depinspect.command(context_settings={"ignore_unknown_options": True})
 @click.pass_context
 def update(ctx: click.Context) -> None:
+    """Update metadata stored in databases."""
     config = PYPROJECT_TOML.get("tool", {}).get("depinspect", {}).get("archives", {})
 
     tmp_dir = create_temp_dir(dir_prefix=".tmp", output_path=ROOT_DIR)
@@ -156,7 +164,7 @@ def update(ctx: click.Context) -> None:
             if not Path(DATABASE_DIR / distribution).exists():
                 Path.mkdir(DATABASE_DIR / distribution)
 
-            mapping.distribution_class_mapping[distribution].init(
+            distribution_class_mapping[distribution].init(
                 tmp_dir / distribution, config, DB_SUFFIX, DATABASE_DIR / distribution
             )
     finally:
@@ -167,10 +175,8 @@ def update(ctx: click.Context) -> None:
 
 
 @depinspect.command(
-    help=(
-        "Find a difference and similarities in dependencies of two packages "
-        "from different distributions and architectures."
-    ),
+    context_settings={"ignore_unknown_options": True},
+    short_help=("Find difference between two packages."),
 )
 @click.option(
     "-p",
@@ -178,15 +184,14 @@ def update(ctx: click.Context) -> None:
     multiple=True,
     type=(str, str, str),
     callback=validate_diff_args,
-    help=(
-        "Provide distribution, architecture and package name"
-        " separated by whitespaces."
-        " Order of arguments matters.\n\n"
-        "Example: --package ubuntu i386 apt"
-    ),
 )
 @click.pass_context
 def diff(ctx: click.Context, package: tuple[Any, ...]) -> None:
+    """Find a difference and similarities in dependencies of two packages.
+
+    This command requires to sets of arguments under --package (-p) to be specified.
+    Example: depinspect diff -p ubuntu i386 apt -p ubuntu amd64 apt
+    """
     first_argument_info, second_argument_info = package
 
     first_distribution, first_architecture, first_name = first_argument_info
@@ -196,6 +201,7 @@ def diff(ctx: click.Context, package: tuple[Any, ...]) -> None:
 
 
 @depinspect.command(
+    context_settings={"ignore_unknown_options": True},
     help=(
         "Find all packages from specified architectures "
         "that have divergent dependencies."
