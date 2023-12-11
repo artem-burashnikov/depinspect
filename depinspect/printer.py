@@ -82,7 +82,7 @@ def diff(
     """Print the difference in dependencies between two packages."""
     if not depends_a and not depends_b:
         echo(
-            f"No records were found in the database for\n"
+            f"No records were found for\n"
             f"{distro_a} - {arch_a} - {name_a}\n"
             f"{distro_b} - {arch_b} - {name_b}"
         )
@@ -124,9 +124,9 @@ def list_all(distro: str, archs: set[str], pkgs: set[str]) -> None:
     -------
     None
     """
-    echo(f"Distribution: {distro}")
+    echo(f"Distribution: {distro}\n")
 
-    echo(f"Architectures: {', '.join(archs)}")
+    echo(f"Architectures: {', '.join(archs)}\n")
 
     echo("Packages:")
     for pkg in sorted(pkgs):
@@ -135,9 +135,9 @@ def list_all(distro: str, archs: set[str], pkgs: set[str]) -> None:
 
 def divergent(distro: str, arch_a: str, arch_b: str, pkgs: set[str]) -> None:
     """Print information about packages with divergent dependencies."""
-    echo(f"Distribution: {distro}")
+    echo(f"Distribution: {distro}\n")
 
-    echo(f"Compared architectures: {arch_a} - {arch_b}")
+    echo(f"Compared architectures: {arch_a} - {arch_b}\n")
 
     echo("Packages:")
     for pkg in sorted(pkgs):
