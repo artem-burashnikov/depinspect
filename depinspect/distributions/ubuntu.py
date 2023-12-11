@@ -206,7 +206,7 @@ class Ubuntu(Package):
 
         db = DATABASE_DIR / "ubuntu" / f"ubuntu_{release}{DB_SUFFIX}"
 
-        if not db_not_exists(db):
+        if db_not_exists(db):
             return set()
 
         db_con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
