@@ -105,41 +105,21 @@ def print_diff(
         )
 
 
-def list_all(distribution: str, archs: list[str], packages: set[str]) -> None:
-    echo(f"Distribution: {distribution}")
+def list_all(distro: str, archs: set[str], pkgs: set[str]) -> None:
+    echo(f"Distribution: {distro}")
 
-    echo(f"Architectures: {', '.join(list(archs))}")
+    echo(f"Architectures: {', '.join(archs)}")
 
     echo("Packages:")
-    for package in sorted(packages):
-        echo(package)
+    for pkg in sorted(pkgs):
+        echo(pkg)
 
 
-# def print_divergent(
-#     dist_and_arch1: tuple[str, str],
-#     query_result1: dict[str, list[str]],
-#     dist_and_arch2: tuple[str, str],
-#     query_result2: dict[str, list[str]],
-# ) -> None:
-#     set_of_packages1 = set(query_result1.keys())
-#     set_of_packages2 = set(query_result2.keys())
+def divergent(distro: str, arch_a: str, arch_b: str, pkgs: set[str]) -> None:
+    echo(f"Distribution: {distro}")
 
-#     definitely_divergent = set.symmetric_difference(set_of_packages1, set_of_packages2)
-#     maybe_divergent = set_of_packages1.intersection(set_of_packages2)
+    echo(f"Compared architectures: {arch_a} - {arch_b}")
 
-#     divergent_packages: list[str] = []
-#     for package_name in maybe_divergent:
-#         if sorted(query_result1[package_name]) != sorted(query_result2[package_name]):
-#             divergent_packages.append(package_name)
-
-#     divergent_packages.extend(definitely_divergent)
-
-#     echo(
-#         f"# The following packages have divergent dependencies "
-#         f"in {dist_and_arch1} and {dist_and_arch2}"
-#     )
-
-#     for package_name in divergent_packages:
-#         echo(package_name)
-
-#     echo("\n", nl=False)
+    echo("Packages:")
+    for pkg in sorted(pkgs):
+        echo(pkg)
