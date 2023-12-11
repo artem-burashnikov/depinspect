@@ -1,4 +1,5 @@
 import logging
+import sqlite3
 from pathlib import Path
 from re import split
 
@@ -85,7 +86,7 @@ class Ubuntu(Package):
         """
         try:
             for release in config["ubuntu"].keys():
-                logging.info("Fetching archives from pre-defined URL sources.")
+                logging.info("Fetching ubuntu archives.")
                 fetch_and_save_metadata(config, "ubuntu", tmp_dir)
 
                 logging.info("Extracting ubuntu xz archives.")
@@ -113,26 +114,61 @@ class Ubuntu(Package):
 
     @staticmethod
     def get_stored_packages() -> set[str]:
+        res: set[str] = set()
+
         databases = list_files_in_directory(DATABASE_DIR / "ubuntu")
 
-        result: set[str] = set()
-
         for db_path in databases:
-            result.update(database.find_all_distinct(db_path))
+            db_con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
 
-        return result
+            for arch in Ubuntu.get_all_archs():
+                res.update(database.find_all_distinct(db_con, arch))
+
+            db_con.close()
+
+        return res
 
     @staticmethod
     def get_dependencies(arch: str, pkg: str) -> set[str]:
         release = "jammy"
 
-        db_path = DATABASE_DIR / "ubuntu" / f"ubuntu_{release}{DB_SUFFIX}"
+        db = DATABASE_DIR / "ubuntu" / f"ubuntu_{release}{DB_SUFFIX}"
 
-        return set(
-            database.find_dependencies(
-                db_path=db_path,
-                table="depends",
-                arch=arch,
-                name=pkg,
-            )
+        db_con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+
+        res = database.find_dependencies(
+            db_con=db_con,
+            table="depends",
+            arch=arch,
+            name=pkg,
         )
+
+        db_con.close()
+
+        return res
+
+    @staticmethod
+    def get_divergent(arch_a: str, arch_b: str) -> set[str]:
+        res: set[str] = set()
+
+        release = "jammy"
+
+        db = DATABASE_DIR / "ubuntu" / f"ubuntu_{release}{DB_SUFFIX}"
+
+        db_con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+
+        pkgs = Ubuntu.get_stored_packages()
+
+        for pkg in pkgs:
+            depends_a = database.find_dependencies(
+                db_con=db_con, table="depends", arch=arch_a, name=pkg
+            )
+            depends_b = database.find_dependencies(
+                db_con=db_con, table="depends", arch=arch_b, name=pkg
+            )
+            if not (depends_a.issubset(depends_b) and depends_b.issubset(depends_a)):
+                res.add(pkg)
+
+        db_con.close()
+
+        return res

@@ -163,3 +163,8 @@ class Package(ABC):
     @abstractmethod
     def get_dependencies(arch: str, pkg: str) -> set[str]:
         pass
+
+    @staticmethod
+    @abstractmethod
+    def get_divergent(arch_a: str, arch_b: str) -> set[str]:
+        pass

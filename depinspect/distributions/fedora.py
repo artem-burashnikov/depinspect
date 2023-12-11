@@ -1,4 +1,5 @@
 import logging
+import sqlite3
 from pathlib import Path
 
 from depinspect.archives.extractor import (
@@ -69,26 +70,65 @@ class Fedora(Package):
 
     @staticmethod
     def get_stored_packages() -> set[str]:
+        res: set[str] = set()
+
         databases = list_files_in_directory(DATABASE_DIR / "fedora")
 
-        result: set[str] = set()
-
         for db_path in databases:
-            result.update(database.find_all_distinct(db_path))
+            db_con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
 
-        return result
+            for arch in Fedora.get_all_archs():
+                res.update(database.find_all_distinct(db_con, arch))
+
+            db_con.close()
+
+        return res
 
     @staticmethod
     def get_dependencies(arch: str, pkg: str) -> set[str]:
         repo = "koji" if arch == "riscv64" else "everything"
 
-        db_path = DATABASE_DIR / "fedora" / f"fedora_f39_{repo}_{arch}{DB_SUFFIX}"
+        db = DATABASE_DIR / "fedora" / f"fedora_f39_{repo}_{arch}{DB_SUFFIX}"
 
-        return set(
-            database.find_dependencies(
-                db_path=db_path,
-                table="requires",
-                arch=arch,
-                name=pkg,
-            )
+        db_con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+
+        res = database.find_dependencies(
+            db_con=db_con,
+            table="requires",
+            arch=arch,
+            name=pkg,
         )
+
+        db_con.close()
+
+        return res
+
+    @staticmethod
+    def get_divergent(arch_a: str, arch_b: str) -> set[str]:
+        result: set[str] = set()
+
+        repo_a = "koji" if arch_a == "riscv64" else "everything"
+        repo_b = "koji" if arch_b == "riscv64" else "everything"
+
+        db_a = DATABASE_DIR / "fedora" / f"fedora_f39_{repo_a}_{arch_a}{DB_SUFFIX}"
+        db_con_a = sqlite3.connect(f"file:{db_a}?mode=ro", uri=True)
+
+        db_b = DATABASE_DIR / "fedora" / f"fedora_f39_{repo_b}_{arch_b}{DB_SUFFIX}"
+        db_con_b = sqlite3.connect(f"file:{db_b}?mode=ro", uri=True)
+
+        pkgs = Fedora.get_stored_packages()
+
+        for pkg in pkgs:
+            depends_a = database.find_dependencies(
+                db_con=db_con_a, table="requires", arch=arch_a, name=pkg
+            )
+            depends_b = database.find_dependencies(
+                db_con=db_con_b, table="requires", arch=arch_b, name=pkg
+            )
+            if not (depends_a.issubset(depends_b) and depends_b.issubset(depends_a)):
+                result.add(pkg)
+
+        db_con_a.close()
+        db_con_b.close()
+
+        return result
