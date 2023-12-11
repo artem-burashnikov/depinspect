@@ -32,7 +32,7 @@ class Ubuntu(Package):
         List[Package]
             A list of Package objects representing Ubuntu packages.
         """
-        with open(file_path) as file:
+        with open(file_path, encoding="utf-8") as file:
             file_content = file.read()
             ubuntu_packages: list[Package] = []
 
