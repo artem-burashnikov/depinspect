@@ -7,13 +7,14 @@ import click
 
 from depinspect import printer, validator
 from depinspect.constants import (
+    ARCHITECTURES,
     DATABASE_DIR,
     DB_SUFFIX,
     DISTRIBUTIONS,
     PYPROJECT_TOML,
     ROOT_DIR,
 )
-from depinspect.distributions.mapping import distribution_class_mapping
+from depinspect.distributions.mapping import distro_class_mapping
 from depinspect.helper import create_temp_dir
 
 logging.basicConfig(
@@ -29,21 +30,23 @@ def depinspect() -> None:
 
 
 @depinspect.command(context_settings={"ignore_unknown_options": True})
-@click.argument("distribution", callback=validator.validate_list_all_args, nargs=1)
+@click.option(
+    "--distro", type=click.Choice(sorted(DISTRIBUTIONS), case_sensitive=False), nargs=1
+)
 @click.pass_context
-def list_all(ctx: click.Context, distribution: str) -> None:
+def list_all(ctx: click.Context, distro: str) -> None:
     """List stored architectures and packages for a given distro.
 
     Provide a distribution to list all stored architectures and package names.
 
-    Example: depinspect list-all fedora
+    Example: depinspect list-all --distro=fedora
     """
 
-    architectures = distribution_class_mapping[distribution].get_all_archs()
+    architectures = distro_class_mapping[distro].get_all_archs()
 
-    packages = distribution_class_mapping[distribution].get_stored_packages()
+    packages = distro_class_mapping[distro].get_stored_packages()
 
-    printer.list_all(distribution, architectures, packages)
+    printer.list_all(distro, architectures, packages)
 
     ctx.exit(0)
 
@@ -63,7 +66,7 @@ def update(ctx: click.Context) -> None:
             if not Path(DATABASE_DIR / distribution).exists():
                 Path.mkdir(DATABASE_DIR / distribution)
 
-            distribution_class_mapping[distribution].init(
+            distro_class_mapping[distribution].init(
                 tmp_dir / distribution, config, DB_SUFFIX, DATABASE_DIR / distribution
             )
     finally:
@@ -79,28 +82,28 @@ def update(ctx: click.Context) -> None:
 )
 @click.option(
     "-p",
-    "--package",
+    "args",
     multiple=True,
     type=(str, str, str),
     callback=validator.validate_diff_args,
 )
 @click.pass_context
-def diff(ctx: click.Context, package: tuple[Any, ...]) -> None:
+def diff(ctx: click.Context, args: tuple[Any, ...]) -> None:
     """Find a difference and similarities in dependencies of two packages.
 
-    This command requires two sets of arguments each under --package to be specified.
+    This command requires two sets of arguments each under -p to be specified.
 
     Example: depinspect diff -p ubuntu i386 apt -p ubuntu amd64 apt
     """
-    arg_info_a, arg_info_b = package
+    arg_info_a, arg_info_b = args
 
     distro_a, arch_a, name_a = arg_info_a
     distro_b, arch_b, name_b = arg_info_b
 
-    distro_class_a = distribution_class_mapping[distro_a]
+    distro_class_a = distro_class_mapping[distro_a]
     depends_a = distro_class_a.get_dependencies(arch_a, name_a)
 
-    distro_class_b = distribution_class_mapping[distro_b]
+    distro_class_b = distro_class_mapping[distro_b]
     depends_b = distro_class_b.get_dependencies(arch_b, name_b)
 
     printer.print_diff(
@@ -115,11 +118,41 @@ def diff(ctx: click.Context, package: tuple[Any, ...]) -> None:
     short_help=("List all packages that have divergent dependencies."),
 )
 @click.option(
+    "--distro",
+    "distro",
+    type=click.Choice(sorted(DISTRIBUTIONS), case_sensitive=False),
+    required=True,
+)
+@click.option(
     "--arch",
-    multiple=True,
-    type=(str, str),
-    callback=validator.validate_find_divergent_args,
+    "archs",
+    type=click.Choice(sorted(ARCHITECTURES), case_sensitive=False),
+    nargs=2,
+    required=True,
 )
 @click.pass_context
-def find_divergent(ctx: click.Context, arch: tuple[Any, ...]) -> None:
+def find_divergent(ctx: click.Context, distro: str, archs: tuple[str, str]) -> None:
+    """Display all divergent packages from a given distribution and two architectures.
+
+    This command requires distribution and two architectures to be specified.
+
+    Example: depinspect find-divergent --distro=ubuntu --arch=riscv64 i386
+    """
+
+    distro_class = distro_class_mapping[distro]
+
+    arch_a, arch_b = archs
+
+    if (
+        arch_a not in distro_class.get_all_archs()
+        or arch_b not in distro_class.get_all_archs()
+    ):
+        raise click.BadArgumentUsage(
+            f"Specified architectures are not present in {distro}\n", ctx=ctx
+        )
+
+    divergent = distro_class.get_divergent(arch_a, arch_b)
+
+    printer.divergent(distro, arch_a, arch_b, divergent)
+
     ctx.exit(0)
