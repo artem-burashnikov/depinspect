@@ -66,10 +66,18 @@ class Fedora(Package):
 
     @staticmethod
     def get_all_archs() -> set[str]:
+        """Get the set of all Fedora architectures."""
         return FEDORA_ARCHS
 
     @staticmethod
     def get_stored_packages() -> set[str]:
+        """Get the set of all distinct package names stored in Fedora databases.
+
+        Returns
+        -------
+        set[str]
+            Set containing all distinct package names stored in Fedora databases.
+        """
         res: set[str] = set()
 
         databases = list_files_in_directory(DATABASE_DIR / "fedora")
@@ -86,6 +94,30 @@ class Fedora(Package):
 
     @staticmethod
     def get_dependencies(arch: str, pkg: str) -> set[str]:
+        """Get the dependencies of a package for a specific architecture.
+
+        Parameters
+        ----------
+        arch : str
+            The target architecture for which dependencies are retrieved.
+        pkg : str
+            The name of the package for which dependencies are retrieved.
+
+        Returns
+        -------
+        set[str]
+            Set containing the dependencies of the specified package
+            for the given architecture.
+
+        Raises
+        ------
+        ValueError
+            If the provided architecture is not supported.
+
+        Note
+        ----
+        The "riscv64" architecture uses the "koji" repo, while others use "everything".
+        """
         repo = "koji" if arch == "riscv64" else "everything"
 
         db = DATABASE_DIR / "fedora" / f"fedora_f39_{repo}_{arch}{DB_SUFFIX}"
@@ -105,6 +137,24 @@ class Fedora(Package):
 
     @staticmethod
     def get_divergent(arch_a: str, arch_b: str) -> set[str]:
+        """Find packages with divergent dependencies between two architectures.
+
+        Parameters
+        ----------
+        arch_a : str
+            The first target architecture for comparison.
+        arch_b : str
+            The second target architecture for comparison.
+
+        Returns
+        -------
+        set[str]
+            Set containing package names with divergent dependencies.
+
+        Note
+        ----
+        The "riscv64" arhchitecture uses the "koji" repo, while others use "everything".
+        """
         result: set[str] = set()
 
         repo_a = "koji" if arch_a == "riscv64" else "everything"

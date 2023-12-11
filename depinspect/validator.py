@@ -8,6 +8,7 @@ from depinspect.distributions.mapping import distro_class_mapping
 
 
 def is_valid_package_name(pkg: str) -> bool:
+    """Check if a package name follows a valid pattern."""
     valid_pattern = fullmatch(r"([a-zA-Z0-9][a-zA-Z0-9+-.]{1,})", pkg)
     return bool(valid_pattern)
 
@@ -20,6 +21,7 @@ def validate_distribution_name(
     ctx: click.Context,
     distro: str,
 ) -> None:
+    """Validate the input distribution name."""
     if not is_valid_distribution_name(distro.lower()):
         raise click.BadOptionUsage(
             distro,
@@ -33,6 +35,7 @@ def validate_architecture_name(
     distro: str,
     arch: str,
 ) -> None:
+    """Validate the input architecture name."""
     archs = distro_class_mapping[distro].get_all_archs()
     if arch.lower() not in archs:
         raise click.BadOptionUsage(
@@ -46,6 +49,7 @@ def validate_package_name(
     ctx: click.Context,
     package: str,
 ) -> None:
+    """Validate the input package name."""
     if not is_valid_package_name(package.lower()):
         raise click.BadOptionUsage(
             package,
@@ -58,6 +62,7 @@ def validate_diff_args(
     param: click.Parameter,
     value: tuple[tuple[str, str, str], ...],
 ) -> tuple[tuple[str, str, str], ...]:
+    """Validate the input arguments for the 'diff' command."""
     if len(value) != 2:
         raise click.BadArgumentUsage(
             "diff command requires two packages to be provided\n"
@@ -81,6 +86,7 @@ def validate_diff_args(
 
 
 def is_valid_sql_table(db: Connection, table: str) -> bool:
+    """Check if a table exists in the SQLite database."""
     res = db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
     tables = [elem["name"] for elem in res]
     return table in tables

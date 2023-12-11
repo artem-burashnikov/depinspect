@@ -21,9 +21,9 @@ def init(db_name: str, output_path: Path) -> Path:
     db_path = output_path / Path(db_name)
 
     logging.info("Initializing a database.")
-    connection = sqlite3.connect(db_path)
+    con = sqlite3.connect(db_path)
 
-    connection.executescript(
+    con.executescript(
         """
         BEGIN;
         DROP TABLE IF EXISTS packages;
@@ -72,7 +72,7 @@ def init(db_name: str, output_path: Path) -> Path:
         """
     )
 
-    connection.close()
+    con.close()
     logging.info("Successfully initialized a database.")
     return db_path
 
@@ -80,6 +80,29 @@ def init(db_name: str, output_path: Path) -> Path:
 def find_dependencies(
     db_con: sqlite3.Connection, table: str, arch: str, name: str
 ) -> set[str]:
+    """Find dependencies in an SQLite database.
+
+    Parameters
+    ----------
+    db_con : sqlite3.Connection
+        SQLite database connection.
+    table : str
+        Name of the table in the database.
+    arch : str
+        Architecture to search for in the 'packages' table.
+    name : str
+        Package name to search for in the 'packages' table.
+
+    Returns
+    -------
+    set[str]
+        Set of package names that the specified package depends on.
+
+    Raises
+    ------
+    ValueError
+        If the provided table name is not a valid SQLite table.
+    """
     from depinspect.validator import is_valid_sql_table
 
     db_con.row_factory = sqlite3.Row
@@ -89,7 +112,7 @@ def find_dependencies(
         logging.exception("%s is not a correct sqlite table name.", table)
         raise ValueError
 
-    result = db_con.execute(
+    res = db_con.execute(
         """
         SELECT {0}.name FROM {0} JOIN packages ON {0}.pkgKey = packages.pkgKey
         WHERE packages.name = ? AND packages.arch = ?
@@ -99,18 +122,32 @@ def find_dependencies(
         (name, arch),
     ).fetchall()
 
-    return {elem["name"] for elem in result}
+    return {elem["name"] for elem in res}
 
 
 def find_all_distinct(db_con: sqlite3.Connection, arch: str) -> set[str]:
+    """Find all distinct package names in an SQLite database.
+
+    Parameters
+    ----------
+    db_con : sqlite3.Connection
+        SQLite database connection.
+    arch : str
+        Architecture to filter the distinct package names.
+
+    Returns
+    -------
+    set[str]
+        Set of distinct package names for the specified architecture.
+    """
     db_con.row_factory = sqlite3.Row
 
-    result: set[str] = set()
+    res: set[str] = set()
 
     with db_con:
         for row in db_con.execute(
             "SELECT DISTINCT name FROM packages WHERE arch = ?", (arch,)
         ):
-            result.add(row["name"])
+            res.add(row["name"])
 
-    return result
+    return res

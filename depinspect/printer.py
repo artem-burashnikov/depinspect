@@ -9,6 +9,7 @@ def print_for_one(
     name: str,
     depends: set[str],
 ) -> None:
+    """Print package information for a single package."""
     header = f"{distro} - {arch} - {name}"
 
     divider = "=" * MAX_CHAR_LENGTH
@@ -31,6 +32,7 @@ def print_for_both(
     name_b: str,
     depends_b: set[str],
 ) -> None:
+    """Print package comparison information for two packages."""
     title_both = "These dependencies are present in both:"
     title_exclusive = "These dependencies are exclusive to:"
 
@@ -67,7 +69,7 @@ def print_for_both(
     echo("\n", nl=False)
 
 
-def print_diff(
+def diff(
     distro_a: str,
     arch_a: str,
     name_a: str,
@@ -77,6 +79,7 @@ def print_diff(
     name_b: str,
     depends_b: set[str],
 ) -> None:
+    """Print the difference in dependencies between two packages."""
     if not depends_a and not depends_b:
         echo(
             f"No records were found in the database for\n"
@@ -106,6 +109,21 @@ def print_diff(
 
 
 def list_all(distro: str, archs: set[str], pkgs: set[str]) -> None:
+    """Print information about architectures, and packages.
+
+    Parameters
+    ----------
+    distro : str
+        The name of the Linux distribution.
+    archs : set[str]
+        Set of architectures available for the distribution.
+    pkgs : set[str]
+        Set of package names available for the distribution.
+
+    Returns
+    -------
+    None
+    """
     echo(f"Distribution: {distro}")
 
     echo(f"Architectures: {', '.join(archs)}")
@@ -116,6 +134,7 @@ def list_all(distro: str, archs: set[str], pkgs: set[str]) -> None:
 
 
 def divergent(distro: str, arch_a: str, arch_b: str, pkgs: set[str]) -> None:
+    """Print information about packages with divergent dependencies."""
     echo(f"Distribution: {distro}")
 
     echo(f"Compared architectures: {arch_a} - {arch_b}")

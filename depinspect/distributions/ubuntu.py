@@ -110,10 +110,18 @@ class Ubuntu(Package):
 
     @staticmethod
     def get_all_archs() -> set[str]:
+        """Get the set of all Ubuntu architectures."""
         return UBUNTU_ARCHS
 
     @staticmethod
     def get_stored_packages() -> set[str]:
+        """Get the set of all distinct package names stored in Ubuntu databases.
+
+        Returns
+        -------
+        set[str]
+            Set containing all distinct package names stored in Ubuntu databases.
+        """
         res: set[str] = set()
 
         databases = list_files_in_directory(DATABASE_DIR / "ubuntu")
@@ -130,6 +138,24 @@ class Ubuntu(Package):
 
     @staticmethod
     def get_dependencies(arch: str, pkg: str) -> set[str]:
+        """Get the dependencies of a package for a specific architecture in Ubuntu.
+
+        Parameters
+        ----------
+        arch : str
+            The target architecture for which dependencies are retrieved.
+        pkg : str
+            The name of the package for which dependencies are retrieved.
+
+        Returns
+        -------
+        set[str]
+            Set of dependencies of the specified package for the given architecture.
+
+        Note
+        ----
+        The release version is set to "jammy".
+        """
         release = "jammy"
 
         db = DATABASE_DIR / "ubuntu" / f"ubuntu_{release}{DB_SUFFIX}"
@@ -149,6 +175,24 @@ class Ubuntu(Package):
 
     @staticmethod
     def get_divergent(arch_a: str, arch_b: str) -> set[str]:
+        """Find packages with divergent dependencies between two architectures.
+
+        Parameters
+        ----------
+        arch_a : str
+            The first target architecture for comparison.
+        arch_b : str
+            The second target architecture for comparison.
+
+        Returns
+        -------
+        set[str]
+            Set containing package names with divergent dependencies.
+
+        Note
+        ----
+        The release version is set to "jammy".
+        """
         res: set[str] = set()
 
         release = "jammy"

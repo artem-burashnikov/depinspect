@@ -106,7 +106,7 @@ def diff(ctx: click.Context, args: tuple[Any, ...]) -> None:
     distro_class_b = distro_class_mapping[distro_b]
     depends_b = distro_class_b.get_dependencies(arch_b, name_b)
 
-    printer.print_diff(
+    printer.diff(
         distro_a, arch_a, name_a, depends_a, distro_b, arch_b, name_b, depends_b
     )
 
