@@ -55,7 +55,7 @@ def valid_database_file_exists(db_path: Path) -> None:
         exit(1)
 
 
-def is_not_in_db(db_connection: sqlite3.Connection, pkg: Package) -> bool:
+def is_not_in_db(db_con: sqlite3.Connection, pkg: Package) -> bool:
     """Check if a package is not present in the SQLite database.
 
     Parameters
@@ -70,7 +70,7 @@ def is_not_in_db(db_connection: sqlite3.Connection, pkg: Package) -> bool:
     bool
         True if the package is not present in the database, False otherwise.
     """
-    res = db_connection.execute(
+    res = db_con.execute(
         """SELECT name, arch, version, release FROM packages
         WHERE name = ? AND arch = ? AND version = ? AND release = ?""",
         (pkg.package, pkg.architecture, pkg.version, pkg.release),
@@ -79,7 +79,7 @@ def is_not_in_db(db_connection: sqlite3.Connection, pkg: Package) -> bool:
     return True if res.fetchone() is None else False
 
 
-def insert_into_packages(db_connection: sqlite3.Connection, pkg: Package) -> int:
+def insert_into_packages(db_con: sqlite3.Connection, pkg: Package) -> int:
     """Insert a package into the 'packages' table of an SQLite database.
 
     Parameters
@@ -94,7 +94,7 @@ def insert_into_packages(db_connection: sqlite3.Connection, pkg: Package) -> int
     int
         The row ID of the newly inserted package.
     """
-    res = db_connection.execute(
+    res = db_con.execute(
         """INSERT INTO packages (name, arch, version, release, description)
         VALUES (?, ?, ?, ?, ?)""",
         (pkg.package, pkg.architecture, pkg.version, pkg.release, pkg.description),
@@ -109,7 +109,7 @@ def insert_into_packages(db_connection: sqlite3.Connection, pkg: Package) -> int
             pkg.version,
             pkg.release,
         )
-        db_connection.close()
+        db_con.close()
         exit(1)
 
     return res.lastrowid
@@ -137,11 +137,9 @@ def map_additional_info(
     return [(entry, release, key) for entry in input_list]
 
 
-def insert_into_depends(
-    db_connection: sqlite3.Connection, pkg: Package, pkg_key: int
-) -> None:
+def insert_into_depends(db_con: sqlite3.Connection, pkg: Package, pkg_key: int) -> None:
     if pkg.depends:
-        db_connection.executemany(
+        db_con.executemany(
             """INSERT INTO depends (name, release, pkgKey)
             VALUES (?, ?, ?)""",
             (map_additional_info(pkg.depends, pkg.release, pkg_key)),
@@ -215,7 +213,7 @@ def insert_into_provides(
 
 
 def process_metadata_into_db(
-    file_path: Path, db_path: Path, distribution: str, release: str
+    file_path: Path, db_path: Path, distro: str, release: str
 ) -> None:
     """Process metadata from a file and insert it into an SQLite database.
 
@@ -225,7 +223,7 @@ def process_metadata_into_db(
         Path to the metadata file to be processed.
     db_path : Path
         Path to the SQLite database where the metadata will be inserted.
-    distribution : str
+    distro : str
         The distribution name.
     release : str
         The release name.
@@ -234,35 +232,35 @@ def process_metadata_into_db(
     -------
     None
     """
-    from depinspect.distributions.mapping import distribution_class_mapping
+    from depinspect.distributions.mapping import distro_class_mapping
 
     validate_metadata_file_exists(file_path)
     valid_database_file_exists(db_path)
 
-    db_connection = sqlite3.connect(db_path)
+    db_con = sqlite3.connect(db_path)
 
-    with db_connection:
-        package_class = distribution_class_mapping[distribution]
+    with db_con:
+        package_class = distro_class_mapping[distro]
         packages = package_class.parse_metadata(file_path, release)
 
         for pkg in packages:
-            if is_not_in_db(db_connection, pkg):
-                pkg_key = insert_into_packages(db_connection, pkg)
-                insert_into_depends(db_connection, pkg, pkg_key)
-                insert_into_recommends(db_connection, pkg, pkg_key)
-                insert_into_suggests(db_connection, pkg, pkg_key)
-                insert_into_enhances(db_connection, pkg, pkg_key)
-                insert_into_breaks(db_connection, pkg, pkg_key)
-                insert_into_conflicts(db_connection, pkg, pkg_key)
-                insert_into_provides(db_connection, pkg, pkg_key)
+            if is_not_in_db(db_con, pkg):
+                pkg_key = insert_into_packages(db_con, pkg)
+                insert_into_depends(db_con, pkg, pkg_key)
+                insert_into_recommends(db_con, pkg, pkg_key)
+                insert_into_suggests(db_con, pkg, pkg_key)
+                insert_into_enhances(db_con, pkg, pkg_key)
+                insert_into_breaks(db_con, pkg, pkg_key)
+                insert_into_conflicts(db_con, pkg, pkg_key)
+                insert_into_provides(db_con, pkg, pkg_key)
 
     logging.info("File %s has been processed succesfully.", file_path.name)
 
-    db_connection.close()
+    db_con.close()
 
 
 def deserialize_ubuntu_metadata(
-    tmp_dir: Path, db_path: Path, distribution: str, release: str
+    tmp_dir: Path, db_path: Path, distro: str, release: str
 ) -> None:
     """Deserialize Ubuntu metadata files into an SQLite database.
 
@@ -272,7 +270,7 @@ def deserialize_ubuntu_metadata(
         Temporary directory containing Ubuntu metadata files.
     db_path : Path
         Path to the SQLite database where the metadata will be inserted.
-    distribution : str
+    distro : str
         The distribution name.
     release : str
         The release name.
@@ -285,8 +283,8 @@ def deserialize_ubuntu_metadata(
         txt_file
         for txt_file in list_files_in_directory(tmp_dir)
         if txt_file.suffix == ".txt"
-        and txt_file.stem.startswith(distribution)
+        and txt_file.stem.startswith(distro)
         and release in txt_file.stem
     ]
     for file_path in txt_files:
-        process_metadata_into_db(file_path, db_path, distribution, release)
+        process_metadata_into_db(file_path, db_path, distro, release)
