@@ -31,7 +31,7 @@ def validate_metadata_file_exists(file_path: Path) -> None:
         exit(1)
 
 
-def valid_database_file_exists(db_path: Path) -> None:
+def validate_database_file_exists(db_path: Path) -> None:
     """Validate the existence and format of an SQLite database file.
 
     Parameters
@@ -235,7 +235,7 @@ def process_metadata_into_db(
     from depinspect.distributions.mapping import distro_class_mapping
 
     validate_metadata_file_exists(file_path)
-    valid_database_file_exists(db_path)
+    validate_database_file_exists(db_path)
 
     db_con = sqlite3.connect(db_path)
 
