@@ -151,7 +151,7 @@ class Package(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_all_archs() -> list[str]:
+    def get_all_archs() -> set[str]:
         pass
 
     @staticmethod

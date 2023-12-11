@@ -5,7 +5,7 @@ from sqlite3 import Connection
 import click
 
 from depinspect.constants import DISTRIBUTIONS
-from depinspect.distributions.mapping import distribution_class_mapping
+from depinspect.distributions.mapping import distro_class_mapping
 
 
 def is_valid_package_name(pkg: str) -> bool:
@@ -34,7 +34,7 @@ def validate_architecture_name(
     distro: str,
     arch: str,
 ) -> None:
-    archs = distribution_class_mapping[distro].get_all_archs()
+    archs = distro_class_mapping[distro].get_all_archs()
     if arch.lower() not in archs:
         raise click.BadOptionUsage(
             arch,

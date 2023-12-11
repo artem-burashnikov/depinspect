@@ -108,7 +108,7 @@ class Ubuntu(Package):
             )
 
     @staticmethod
-    def get_all_archs() -> list[str]:
+    def get_all_archs() -> set[str]:
         return UBUNTU_ARCHS
 
     @staticmethod
@@ -132,7 +132,6 @@ class Ubuntu(Package):
             database.find_dependencies(
                 db_path=db_path,
                 table="depends",
-                distro="ubuntu",
                 arch=arch,
                 name=pkg,
             )

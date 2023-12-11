@@ -77,9 +77,7 @@ def init(db_name: str, output_path: Path) -> Path:
     return db_path
 
 
-def find_dependencies(
-    db_path: Path, table: str, distro: str, arch: str, name: str
-) -> list[str]:
+def find_dependencies(db_path: Path, table: str, arch: str, name: str) -> list[str]:
     from depinspect.validator import is_valid_sql_table
 
     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)

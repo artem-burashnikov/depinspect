@@ -29,8 +29,8 @@ def pull_target_from_url(target_url: str, local_target_path: Path) -> None:
 
 def fetch_and_save_metadata(
     config: dict[str, dict[str, dict[str, dict[str, str]]]],
-    distribution: str,
-    output_directory: Path,
+    distro: str,
+    output_dir: Path,
 ) -> None:
     """Fetch and save metadata for a specified distribution.
 
@@ -47,13 +47,13 @@ def fetch_and_save_metadata(
     -------
     None
     """
-    for release, branches in config[distribution].items():
+    for release, branches in config[distro].items():
         for branch, archs in branches.items():
             for arch, url in archs.items():
                 archive_ext = url.split(".")[-1]
 
-                file_name = f"{distribution}_{release}_{branch}_{arch}.{archive_ext}"
+                file_name = f"{distro}_{release}_{branch}_{arch}.{archive_ext}"
 
-                local_target_path = output_directory / file_name
+                local_target_path = output_dir / file_name
 
                 pull_target_from_url(url, local_target_path)

@@ -64,7 +64,7 @@ class Fedora(Package):
             logging.exception("There was an exception trying to pull fedora database.")
 
     @staticmethod
-    def get_all_archs() -> list[str]:
+    def get_all_archs() -> set[str]:
         return FEDORA_ARCHS
 
     @staticmethod
@@ -88,7 +88,6 @@ class Fedora(Package):
             database.find_dependencies(
                 db_path=db_path,
                 table="requires",
-                distro="fedora",
                 arch=arch,
                 name=pkg,
             )
