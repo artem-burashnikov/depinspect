@@ -1,4 +1,3 @@
-from pathlib import Path
 from re import fullmatch
 from sqlite3 import Connection
 
@@ -81,45 +80,7 @@ def validate_diff_args(
     return value
 
 
-def validate_find_divergent_args(
-    ctx: click.Context,
-    param: click.Parameter,
-    value: tuple[tuple[str, str], ...],
-) -> tuple[tuple[str, str], ...]:
-    if len(value) != 2:
-        raise click.BadArgumentUsage(
-            "find-divergent command requires two arguments for each --arch "
-            "to be provided. Incorrect number of command arguments",
-            ctx=ctx,
-        )
-
-    for arch_info in value:
-        if len(arch_info) != 2:
-            raise click.BadArgumentUsage(
-                "Distribution and architecture are required\n", ctx=ctx
-            )
-
-        distro, arch = arch_info
-        validate_distribution_name(ctx, distro)
-        validate_architecture_name(ctx, distro, arch)
-
-    return value
-
-
-def validate_list_all_args(
-    ctx: click.Context,
-    param: click.Parameter,
-    value: str,
-) -> str:
-    validate_distribution_name(ctx, value)
-    return value
-
-
 def is_valid_sql_table(db: Connection, table: str) -> bool:
     res = db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
     tables = [elem["name"] for elem in res]
     return table in tables
-
-
-def db_exists(db_path: Path) -> bool:
-    return db_path.is_file() and db_path.suffix == ".sqlite"
