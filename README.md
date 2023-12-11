@@ -7,6 +7,44 @@
 
 **Depinspect** is an utility that offers an abstraction layer which simplifies the retrieval of package-related information across different distributions and architectures.
 
+### Project structure
+
+Below is the default project structure.
+
+```ignorelang
+depinspect/
+├── depinspect
+│   ├── __init__.py
+│   ├── cli.py
+│   ├── constants.py
+│   ├── files.py
+│   ├── helper.py
+│   ├── printer.py
+│   └── validator.py
+│   ├── archives
+│   │   ├── __init__.py
+│   │   ├── extractor.py
+│   │   └── fetcher.py
+│   ├── database
+│   │   ├── __init__.py
+│   │   ├── database.py
+│   │   ├── fedora/
+│   │   └── ubuntu/
+│   ├── distributions
+│   │   ├── __init__.py
+│   │   ├── fedora.py
+│   │   ├── ubuntu.py
+│   │   ├── loader.py
+│   │   ├── mapping.py
+│   │   └── package.py
+├── tests
+│   └── ...
+├── poetry.lock
+├── pyproject.toml
+├── LICENSE
+└── README.md
+```
+
 ## Features
 
 - **Data Aggregation:** Gathers information about packages from multiple distributions and their corresponding releases.
@@ -65,53 +103,105 @@ Open the terminal and follow these steps:
     ```sh
     poetry install
     ```
-
+  
 5. After the installation is complete, you can use the tool by running this command from within a virtual environment:
 
     ```sh
     depinspect [OPTIONS] COMMAND [ARGS]...
     ```
 
+6. Make sure to load the initial metadata before querying with:
+
+    ```sh
+    depinspect update
+    ```
+
 ## Usage
 
-TODO
+Tool command line has the following interface:
+
+```ignorelang
+Usage: depinspect [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  diff            Compare two packages.
+  find-divergent  List all packages that have divergent dependencies.
+  list-all        List stored architectures and packages for a given distro.
+  update          Update metadata stored in databases.
+```
+
+For any command the `--help` option is available and prints the synopsis. The specific options are described below.
 
 ### `depinspect update`
 
-TODO
+Metadata is stored in `SQlite` databases.
+
+In order to refresh the information, `depinspect update` can be manually called.
+
+The command have to also be called to initialize databases when using the tool for the first time.
 
 ### `depinspect diff`
 
-This command requires two `--package` options to be specified.
+Find a difference and similarities in dependencies of two packages. This command requires two sets of parameters each under `-p` flag to be specified.
 
-TODO
+**Options**:
+
+- **-p \<TEXT TEXT TEXT>**
+
+  Flag accepts `distribution`, `architecture` and `name` parameters in that specific order. This is a required option. Two such options need to be specified for invocation. See examples for usage.
 
 ### `depinspect list-all`
 
-TODO
+This command outputs the list of distinct architctures and package names for a specified distribution.
+
+**Options**:
+
+- **--distro**
+
+  The choice of one of currently supported distributions. This is a required option. You can see the list of currently supported distributions by runnunig
+
+  ```sh
+  depinspect list-all --help
+  ```
 
 ### `depinspect find-divergent`
 
-TODO
+For a specified distribution and two architectures this command lists all packages that have divergent dependencies between those architectures.
+
+**Options**:
+
+- **--distro**
+
+  Same as in `depinspect list-all`.
+
+- **--arch**
+
+  Two supported architectures need to be specified under this flag. This is a required option. You can see the list of currently supported architectures by runnunig. See examples for usage.
+
+  ```sh
+  depinspect find-divergent --help
 
 ## Examples
 
 Below are common use cases.
 
-### List stored metadata
-
-It is helpful to see the list of available architectures and package names stored in the database for a particular distribution. The following command outputs and stores the information for ubuntu in a file called available_data.txt:
-
-```sh
-depinspect list-all ubuntu > ubuntu_available_data.txt
-```
-
 ### Initialize or update the metadata in databases
 
-The metadata is stored in SQLite databases. You can manually update it by running:
+The metadata is stored in SQLite databases which need to be initialized befora the queries will yield any significant results. Updates don't start automatically, so if you don't see any output try running the command first. You can start the update with:
 
 ```sh
 depinspect update
+```
+
+### List stored metadata
+
+It is helpful to see the list of available architectures and package names stored in the database for a particular distribution. The following command outputs and stores the information for ubuntu in a file called `available_data.txt`:
+
+```sh
+depinspect list-all --distro=ubuntu > ubuntu_available_data.txt
 ```
 
 ### Find differnces and similarities between two packages
@@ -128,7 +218,7 @@ You get the following output:
 These dependencies are present in both:
 ubuntu - i386 - apt
 ubuntu - amd64 - apt
-======================================
+================================================================================
 adduser
 gpgv | gpgv2 | gpgv1
 libapt-pkg6.0 (>= 2.4.5)
@@ -141,12 +231,12 @@ ubuntu-keyring
 
 These dependencies are exclusive to:
 ubuntu - i386 - apt
-======================================
+================================================================================
 libgcc-s1 (>= 4.2)
 
 These dependencies are exclusive to:
 ubuntu - amd64 - apt
-======================================
+================================================================================
 libgcc-s1 (>= 3.3.1)
 ```
 
@@ -157,10 +247,10 @@ Which first tells you the shared dependencies for specified packages and then li
 If you wish to find all packages for two architectures, whose dependenices have differences, you can do so with the following command:
 
 ```sh
-depinspect find-divergent --arch ubuntu amd64 --arch ubuntu i386 > output.txt
+depinspect find-divergent --distro=ubuntu --arch amd64 i386 > divergent_packages.txt
 ```
 
-The command will save the result in `output.txt`.
+The result will be saved in `divergent_packages.txt`.
 
 ## License
 
