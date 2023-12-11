@@ -161,7 +161,7 @@ This command outputs the list of distinct architctures and package names for a s
 
 - **--distro**
 
-  The choice of one of currently supported distributions. This is a required option. You can see the list of currently supported distributions by runnunig
+  The choice of one of currently supported distributions. This is a required option. You can see the list of currently supported distributions by runnig
 
   ```sh
   depinspect list-all --help
@@ -179,10 +179,13 @@ For a specified distribution and two architectures this command lists all packag
 
 - **--arch**
 
-  Two supported architectures need to be specified under this flag. This is a required option. You can see the list of currently supported architectures by runnunig. See examples for usage.
+  Two supported architectures need to be specified under this flag. This is a required option. You can see the list of currently supported architectures by runnig.
 
   ```sh
   depinspect find-divergent --help
+  ```
+
+  See examples for usage.
 
 ## Examples
 
