@@ -1,3 +1,4 @@
+from pathlib import Path
 from re import fullmatch
 from sqlite3 import Connection
 
@@ -90,3 +91,7 @@ def is_valid_sql_table(db: Connection, table: str) -> bool:
     res = db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
     tables = [elem["name"] for elem in res]
     return table in tables
+
+
+def db_not_exists(db_path: Path) -> bool:
+    return not (db_path.is_file() and db_path.suffix == ".sqlite")

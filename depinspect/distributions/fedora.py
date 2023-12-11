@@ -118,9 +118,14 @@ class Fedora(Package):
         ----
         The "riscv64" architecture uses the "koji" repo, while others use "everything".
         """
+        from depinspect.validator import db_not_exists
+
         repo = "koji" if arch == "riscv64" else "everything"
 
         db = DATABASE_DIR / "fedora" / f"fedora_f39_{repo}_{arch}{DB_SUFFIX}"
+
+        if db_not_exists(db):
+            return set()
 
         db_con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
 
@@ -155,15 +160,20 @@ class Fedora(Package):
         ----
         The "riscv64" arhchitecture uses the "koji" repo, while others use "everything".
         """
+        from depinspect.validator import db_not_exists
+
         result: set[str] = set()
 
         repo_a = "koji" if arch_a == "riscv64" else "everything"
         repo_b = "koji" if arch_b == "riscv64" else "everything"
 
         db_a = DATABASE_DIR / "fedora" / f"fedora_f39_{repo_a}_{arch_a}{DB_SUFFIX}"
-        db_con_a = sqlite3.connect(f"file:{db_a}?mode=ro", uri=True)
-
         db_b = DATABASE_DIR / "fedora" / f"fedora_f39_{repo_b}_{arch_b}{DB_SUFFIX}"
+
+        if any([db_not_exists(db_a), db_not_exists(db_b)]):
+            return set()
+
+        db_con_a = sqlite3.connect(f"file:{db_a}?mode=ro", uri=True)
         db_con_b = sqlite3.connect(f"file:{db_b}?mode=ro", uri=True)
 
         pkgs = Fedora.get_stored_packages()

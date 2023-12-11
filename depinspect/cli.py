@@ -31,7 +31,10 @@ def depinspect() -> None:
 
 @depinspect.command(context_settings={"ignore_unknown_options": True})
 @click.option(
-    "--distro", type=click.Choice(sorted(DISTRIBUTIONS), case_sensitive=False), nargs=1
+    "--distro",
+    type=click.Choice(sorted(DISTRIBUTIONS), case_sensitive=False),
+    nargs=1,
+    required=True,
 )
 @click.pass_context
 def list_all(ctx: click.Context, distro: str) -> None:
