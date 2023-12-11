@@ -61,6 +61,10 @@ depinspect/
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Usage](#usage)
+  - [`update`](#depinspect-update)
+  - [`diff`](#depinspect-diff)
+  - [`list-all`](#depinspect-list-all)
+  - [`find-divergent`](#depinspect-find-divergent)
 - [Examples](#examples)
 - [License](#license)
 
