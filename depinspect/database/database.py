@@ -77,19 +77,19 @@ def init(db_name: str, output_path: Path) -> Path:
     return db_path
 
 
-def find_dependencies(db_path: Path, table: str, arch: str, name: str) -> list[str]:
+def find_dependencies(
+    db_con: sqlite3.Connection, table: str, arch: str, name: str
+) -> set[str]:
     from depinspect.validator import is_valid_sql_table
 
-    db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    db_con.row_factory = sqlite3.Row
 
-    db.row_factory = sqlite3.Row
-
-    if not is_valid_sql_table(db, table):
-        db.close()
+    if not is_valid_sql_table(db_con, table):
+        db_con.close()
         logging.exception("%s is not a correct sqlite table name.", table)
         raise ValueError
 
-    result = db.execute(
+    result = db_con.execute(
         """
         SELECT {0}.name FROM {0} JOIN packages ON {0}.pkgKey = packages.pkgKey
         WHERE packages.name = ? AND packages.arch = ?
@@ -99,50 +99,18 @@ def find_dependencies(db_path: Path, table: str, arch: str, name: str) -> list[s
         (name, arch),
     ).fetchall()
 
-    db.close()
-
-    return [elem["name"] for elem in result]
+    return {elem["name"] for elem in result}
 
 
-def find_all_distinct(db_path: Path) -> set[str]:
-    db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
-    db.row_factory = sqlite3.Row
+def find_all_distinct(db_con: sqlite3.Connection, arch: str) -> set[str]:
+    db_con.row_factory = sqlite3.Row
 
     result: set[str] = set()
 
-    with db:
-        for row in db.execute("SELECT DISTINCT name FROM packages"):
+    with db_con:
+        for row in db_con.execute(
+            "SELECT DISTINCT name FROM packages WHERE arch = ?", (arch,)
+        ):
             result.add(row["name"])
-    db.close()
 
     return result
-
-
-# def find_dependencies(
-#     db_path: Path, distribution: str, architecture: str
-# ) -> dict[str, list[str]]:
-#     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
-
-#     result: dict[str, list[str]] = {}
-
-#     with db:
-#         for package_id, package_name in db.execute(
-#             "SELECT id as id, package_name as package_name FROM packages "
-#             "WHERE distribution = ? AND architecture = ?",
-#             (distribution, architecture),
-#         ):
-#             dependencies = (
-#                 db.execute(
-#                     "SELECT dependency_name as dependency_name "
-#                     "FROM dependencies WHERE package_id = ?",
-#                     (package_id,),
-#                 )
-#                 .fetchone()
-#                 .keys()
-#             )
-
-#             result[package_name] = dependencies[0][0]
-
-#     db.close()
-
-#     return result
