@@ -261,12 +261,10 @@ The result will be saved in `divergent_packages.txt`.
 
 ## Licenses
 
-- [BSD-3-Clause License (Click library)][click_licence-url]
-- [MIT License (depinspect)][depinspect-license-url]
+The project is licensed under a [BSD-3-Clause License][depinspect-license-url].
 
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [license-shield]: https://img.shields.io/github/license/artem-burashnikov/depinspect.svg?style=for-the-badge&color=blue
-[depinspect-license-url]: LICENSE_depinspect
-[click_licence-url]: LICENSE_Click
+[depinspect-license-url]: LICENSE
 [status-shield]: https://img.shields.io/github/actions/workflow/status/artem-burashnikov/depinspect/.github/workflows/ci.yml?branch=main&event=push&style=for-the-badge
 [status-url]: https://github.com/artem-burashnikov/depinspect/blob/main/.github/workflows/ci.yml
