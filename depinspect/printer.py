@@ -1,6 +1,6 @@
 from click import echo
 
-from depinspect.constants import MAX_CHAR_LENGTH
+MAX_CHAR_LENGTH = 80
 
 
 def print_for_one(

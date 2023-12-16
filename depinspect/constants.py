@@ -15,5 +15,3 @@ UBUNTU_ARCHS = {"i386", "amd64", "riscv64", "any", "all"}
 FEDORA_ARCHS = {"i686", "noarch", "x86_64", "riscv64"}
 
 ARCHITECTURES = UBUNTU_ARCHS.union(FEDORA_ARCHS)
-
-MAX_CHAR_LENGTH = 80
